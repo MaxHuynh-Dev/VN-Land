@@ -4,22 +4,27 @@ import { px, pz } from './projection';
 export type Bbox = Anchor['bbox'];
 
 /**
- * Khung phủ cờ (tọa độ world, trục x/z) cho một lãnh thổ: phủ kín khung bao `bbox` và giữ
- * tỉ lệ `aspect` = w/h của cờ (kiểu CSS `object-fit: cover`), tâm ở tâm khung bao. Phần cờ
- * thừa ra ngoài lãnh thổ bị cắt tự nhiên vì shader chỉ tô lên mặt trên của các ô.
+ * Khung phủ cờ (tọa độ world, trục x/z) cho một lãnh thổ, giữ tỉ lệ `aspect` = w/h của cờ
+ * (kiểu CSS `object-fit: cover`). Tâm cờ đặt ở `center` (điểm neo — luôn nằm trong cụm lãnh
+ * thổ lớn nhất, kể cả khi lãnh thổ lõm như hình chữ S), mặc định là tâm `bbox`. Kích thước lấy
+ * theo NỬA khoảng cách xa nhất từ tâm tới các cạnh bbox, nên cờ vẫn phủ kín cả bốn góc bbox dù
+ * tâm lệch. Phần cờ thừa ra ngoài lãnh thổ bị cắt tự nhiên vì shader chỉ tô mặt trên các ô.
  */
 export function coverRect(
   bbox: Bbox,
-  aspect: number
+  aspect: number,
+  center?: { lon: number; lat: number }
 ): { cx: number; cz: number; w: number; h: number } {
   const x0 = px(bbox.minLon);
   const x1 = px(bbox.maxLon);
   const z0 = pz(bbox.maxLat); // bắc = z nhỏ
   const z1 = pz(bbox.minLat);
-  const bw = Math.max(1e-3, x1 - x0);
-  const bh = Math.max(1e-3, z1 - z0);
-  const h = Math.max(bh, bw / aspect);
-  return { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, w: h * aspect, h };
+  const cx = center ? px(center.lon) : (x0 + x1) / 2;
+  const cz = center ? pz(center.lat) : (z0 + z1) / 2;
+  const hx = Math.max(5e-4, cx - x0, x1 - cx);
+  const hz = Math.max(5e-4, cz - z0, z1 - cz);
+  const h = 2 * Math.max(hz, hx / aspect);
+  return { cx, cz, w: h * aspect, h };
 }
 
 /**
@@ -70,7 +75,7 @@ export function polityParamsData(
     out.set([r.u0, r.v0, r.u1, r.v1], i * 4);
     const a = anchors.get(id);
     if (!a) return; // vắng mặt: giữ giá trị cũ
-    const c = coverRect(a.bbox, aspects[i] ?? 1.5);
+    const c = coverRect(a.bbox, aspects[i] ?? 1.5, { lon: a.lon, lat: a.lat });
     out.set([c.cx, c.cz, c.w, c.h], (P + i) * 4);
   });
   return out;

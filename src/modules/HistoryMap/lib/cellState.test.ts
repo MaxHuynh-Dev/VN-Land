@@ -151,6 +151,27 @@ describe('CellStateStore owner slots', () => {
     s.tick(TRANSITION_S);
     expect(s.ownerData[2]).toBe(1);
   });
+  it('đổi đích giữa lúc trộn: blend < 0.5 thì giữ from cũ, ≥ 0.5 thì from = đích cũ; blend chạy lại từ 0', () => {
+    const early = new CellStateStore(1);
+    early.setOwnerSlots(new Float32Array([2]));
+    early.tick(0);
+    early.setOwnerSlots(new Float32Array([5]), { animate: true });
+    early.tick(TRANSITION_S * 0.2); // blend ≈ ease(0.2) < 0.5
+    expect(early.ownerData[2]).toBeLessThan(0.5);
+    early.setOwnerSlots(new Float32Array([7]), { animate: true });
+    early.tick(0);
+    expect([...early.ownerData.slice(0, 3)]).toEqual([2, 7, 0]);
+
+    const late = new CellStateStore(1);
+    late.setOwnerSlots(new Float32Array([2]));
+    late.tick(0);
+    late.setOwnerSlots(new Float32Array([5]), { animate: true });
+    late.tick(TRANSITION_S * 0.7); // blend > 0.5
+    expect(late.ownerData[2]).toBeGreaterThan(0.5);
+    late.setOwnerSlots(new Float32Array([7]), { animate: true });
+    late.tick(0);
+    expect([...late.ownerData.slice(0, 3)]).toEqual([5, 7, 0]);
+  });
   it('slot không đổi thì không chạy blend', () => {
     const s = new CellStateStore(1);
     s.setOwnerSlots(new Float32Array([4]));

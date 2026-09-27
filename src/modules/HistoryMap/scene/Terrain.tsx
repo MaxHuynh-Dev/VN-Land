@@ -72,12 +72,26 @@ uniform sampler2D uCellState;
 uniform sampler2D uCellOwner;
 uniform vec2 uCellTexSize;
 uniform float uLiftMax;
+uniform sampler2D uPolity;
+uniform float uPolityCount;
 varying vec3 vCellColor;
 varying float vSide;
 varying float vLift;
 varying vec4 vOwner;   // fromSlot, toSlot, blend
 varying vec2 vWorldXZ;
 varying float vTop;
+// Tham số cờ của chủ cũ/mới (hằng trên cả tam giác mặt trên): rect atlas và khung phủ.
+varying vec4 vFromRect;
+varying vec4 vFromCov;
+varying vec4 vToRect;
+varying vec4 vToCov;
+
+// Hàng row (0 = rect atlas, 1 = khung phủ) của chính thể ở slot (-1 = null → giá trị bất kỳ,
+// fragment tự bỏ qua).
+vec4 polityRow(float slot, float row) {
+  float u = (floor(slot + 0.5) + 0.5) / uPolityCount;
+  return texture2D(uPolity, vec2(u, (row + 0.5) * 0.5));
+}
 
 vec2 cellUv(float cellIndex) {
   return (vec2(mod(cellIndex, uCellTexSize.x), floor(cellIndex / uCellTexSize.x)) + 0.5) / uCellTexSize;
@@ -113,6 +127,10 @@ if (aWallRole < 0.5) {
 // theo khung phủ của chính thể (uPolity hàng 1) — liên tục qua mọi ô cùng chủ, nên không
 // lộ ranh giới huyện.
 vOwner = texture2D(uCellOwner, cellUv(aCell));
+vFromRect = polityRow(vOwner.x, 0.0);
+vFromCov = polityRow(vOwner.x, 1.0);
+vToRect = polityRow(vOwner.y, 0.0);
+vToCov = polityRow(vOwner.y, 1.0);
 vWorldXZ = (modelMatrix * vec4(transformed, 1.0)).xz;
 vTop = (aWallRole < 0.5 && normal.y > 0.5) ? 1.0 : 0.0;`
       );
@@ -120,8 +138,6 @@ vTop = (aWallRole < 0.5 && normal.y > 0.5) ? 1.0 : 0.0;`
       .replace(
         '#include <common>',
         `#include <common>
-uniform sampler2D uPolity;
-uniform float uPolityCount;
 uniform sampler2D uFlagAtlas;
 uniform float uAtlasReady;
 uniform vec3 uNullColor;
@@ -131,16 +147,17 @@ varying float vLift;
 varying vec4 vOwner;
 varying vec2 vWorldXZ;
 varying float vTop;
+varying vec4 vFromRect;
+varying vec4 vFromCov;
+varying vec4 vToRect;
+varying vec4 vToCov;
 
 // Màu cờ của chính thể ở slot tại điểm world XZ hiện tại. Gradient uv tính tường minh từ
 // đạo hàm của vWorldXZ (liên tục) thay vì để GPU tự suy: uv atlas nhảy cóc ở biên giữa hai
 // chính thể (khác ô atlas) và ở vùng bị kẹp (clamp) — mip tự động sẽ chọn mức thô nhất ở đó
 // và để lại đường viền nhoè.
-vec3 flagColor(float slot, vec2 dxz, vec2 dyz) {
-  float s = floor(slot + 0.5);
-  float u = (s + 0.5) / uPolityCount;
-  vec4 rect = texture2D(uPolity, vec2(u, 0.25));
-  vec4 cov = texture2D(uPolity, vec2(u, 0.75));
+// rect/cov đến từ vertex shader (varying), không đọc uPolity mỗi fragment.
+vec3 flagColor(float slot, vec4 rect, vec4 cov, vec2 dxz, vec2 dyz) {
   vec2 size = max(cov.zw, vec2(1e-3));
   vec2 fuv = vec2((vWorldXZ.x - cov.x) / size.x + 0.5, 0.5 + (cov.y - vWorldXZ.y) / size.y);
   // Ô ngoài khung phủ (đảo xa như Hoàng Sa, Trường Sa) lấy màu mép cờ gần nhất.
@@ -149,7 +166,7 @@ vec3 flagColor(float slot, vec2 dxz, vec2 dyz) {
   vec2 gx = vec2(dxz.x / size.x, -dxz.y / size.y) * span;
   vec2 gy = vec2(dyz.x / size.x, -dyz.y / size.y) * span;
   vec3 c = textureGrad(uFlagAtlas, mix(rect.xy, rect.zw, fuv), gx, gy).rgb;
-  return s < -0.5 ? uNullColor : c;
+  return slot < -0.5 ? uNullColor : c;
 }`
       )
       .replace(
@@ -159,8 +176,10 @@ vec2 dyz = dFdy(vWorldXZ);
 vec3 wallCol = vCellColor * mix(1.0, 0.55, vSide);
 vec3 base = wallCol;
 if (vTop > 0.5 && uAtlasReady > 0.5) {
-  vec3 toCol = flagColor(vOwner.y, dxz, dyz);
-  base = vOwner.z < 0.999 ? mix(flagColor(vOwner.x, dxz, dyz), toCol, vOwner.z) : toCol;
+  vec3 toCol = flagColor(vOwner.y, vToRect, vToCov, dxz, dyz);
+  base = vOwner.z < 0.999
+    ? mix(flagColor(vOwner.x, vFromRect, vFromCov, dxz, dyz), toCol, vOwner.z)
+    : toCol;
 }
 vec4 diffuseColor = vec4( base * (1.0 + vLift * 0.3), opacity );`
       );

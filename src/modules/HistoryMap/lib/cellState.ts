@@ -84,7 +84,9 @@ export class CellStateStore {
     for (let i = 0; i < this.count; i++) {
       const next = slots[i];
       if (opts.animate && next !== this.slotTo[i]) {
-        this.slotFrom[i] = this.slotTo[i];
+        // Đổi đích giữa lúc đang trộn: nếu cờ cũ (from) vẫn đang trội (blend < 0.5) thì giữ
+        // from, chỉ đổi đích — tránh cờ nhảy phựt sang đích dở dang rồi mới mờ đi.
+        if (this.slotBlend(i) >= 0.5) this.slotFrom[i] = this.slotTo[i];
         this.slotElapsed[i] = 0;
         this.slotDelay[i] = opts.delays?.[i] ?? 0;
       } else if (!opts.animate) {
