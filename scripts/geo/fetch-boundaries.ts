@@ -2,7 +2,16 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const REV = '9469f09';
-const LAYERS = ['VNM/ADM1', 'VNM/ADM2', 'LAO/ADM1', 'LAO/ADM2', 'KHM/ADM1', 'KHM/ADM2', 'CHN/ADM1', 'CHN/ADM2'];
+const LAYERS = [
+  'VNM/ADM1',
+  'VNM/ADM2',
+  'LAO/ADM1',
+  'LAO/ADM2',
+  'KHM/ADM1',
+  'KHM/ADM2',
+  'CHN/ADM1',
+  'CHN/ADM2'
+];
 const OUT = path.resolve('scripts/geo/raw');
 
 async function main(): Promise<void> {

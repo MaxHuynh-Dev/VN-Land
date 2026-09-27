@@ -1,4 +1,4 @@
-import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import area from '@turf/area';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
@@ -18,7 +18,9 @@ import {
 type Poly = Feature<Polygon | MultiPolygon, { shapeName: string }>;
 type Adm2Props = { shapeName: string | null; shapeID?: string };
 const RAW = path.resolve('scripts/geo/raw');
-const load = async (f: string): Promise<FeatureCollection<Polygon | MultiPolygon, { shapeName: string }>> =>
+const load = async (
+  f: string
+): Promise<FeatureCollection<Polygon | MultiPolygon, { shapeName: string }>> =>
   JSON.parse(await readFile(path.join(RAW, f), 'utf8'));
 
 function findAdm1(pt: Feature<Point>, adm1: Poly[]): Poly | undefined {
