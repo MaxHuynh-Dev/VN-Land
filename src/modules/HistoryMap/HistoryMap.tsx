@@ -6,9 +6,12 @@ import { COPY } from './copy';
 import { loadMapData, type MapData } from './lib/loadMapData';
 import { hasWebGL } from './lib/webgl';
 import Scene from './scene/Scene';
+import { playing } from './state/store';
+import { useTimelineControls } from './state/useTimelineControls';
 import LoadError from './ui/LoadError';
 import Masthead from './ui/Masthead';
 import NoWebGLFallback from './ui/NoWebGLFallback';
+import Timeline from './ui/Timeline';
 
 type LoadState =
   | { status: 'loading' }
@@ -17,6 +20,7 @@ type LoadState =
   | { status: 'ready'; data: MapData };
 
 export default function HistoryMap(): React.ReactElement {
+  useTimelineControls();
   const [state, setState] = useState<LoadState>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
 
@@ -42,9 +46,13 @@ export default function HistoryMap(): React.ReactElement {
     <main
       data-testid="history-map-root"
       data-status={state.status}
+      onPointerDown={(e) => {
+        if ((e.target as HTMLElement).tagName === 'CANVAS') playing.value = false;
+      }}
       className="fixed inset-0 overflow-hidden bg-[#0a1420] text-[#e8dcc2]"
     >
       {state.status === 'ready' && <Scene data={state.data} />}
+      {state.status === 'ready' && <Timeline />}
       {state.status === 'loading' && (
         <div className="absolute inset-0 flex items-center justify-center opacity-80">
           {COPY.loading}
