@@ -1,9 +1,16 @@
 'use client';
 
-import type React from 'react';
+import dynamic from 'next/dynamic';
 
-export default function HistoryMap(): React.ReactElement {
-  return (
-    <main data-testid="history-map-root" className="fixed inset-0 overflow-hidden bg-[#0a1420]" />
-  );
-}
+const HistoryMap = dynamic(() => import('./HistoryMap'), {
+  ssr: false,
+  loading: () => (
+    <main
+      data-testid="history-map-root"
+      data-status="loading"
+      className="fixed inset-0 bg-[#0a1420]"
+    />
+  )
+});
+
+export default HistoryMap;

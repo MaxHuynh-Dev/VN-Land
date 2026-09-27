@@ -38,7 +38,15 @@ export interface ButtonProps
 }
 
 const Button = ({ className, variant, size, as: Comp = 'button', ref, ...props }: ButtonProps) => {
-  return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+  // biome-ignore lint/suspicious/noExplicitAny: as="..." không ràng buộc; sau khi scene 3D (react-three-fiber) thêm hàng trăm intrinsic element vào JSX.IntrinsicElements toàn cục, TypeScript suy ra props của Comp là `never` — ép kiểu tại chỗ render để giữ hành vi cũ.
+  const CompElement = Comp as any;
+  return (
+    <CompElement
+      className={cn(buttonVariants({ variant, size, className }))}
+      ref={ref}
+      {...props}
+    />
+  );
 };
 
 export { Button, buttonVariants };
