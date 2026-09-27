@@ -2,10 +2,11 @@
 
 import { useFrame } from '@react-three/fiber';
 import type React from 'react';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import type { Polity } from '@/data/history/types';
 import type { FlagEntry } from '../lib/flagsReconcile';
+import { labelSpriteScale } from '../lib/labelSprite';
 import { DEPTH, px, pz } from '../lib/projection';
 import { reducedMotion } from '../state/store';
 import { useFlagTexture } from './useFlagTexture';
@@ -29,8 +30,40 @@ function labelFontFamily(): string {
   return v ? `${v}, sans-serif` : 'sans-serif';
 }
 
+// round 1 fix: vẽ theo devicePixelRatio thật của màn hình (kẹp 2–4) thay vì hệ
+// số cố định — nét chữ sắc trên màn hình DPR cao, không phí bộ nhớ texture trên
+// màn hình DPR thấp.
+function labelCanvasScale(): number {
+  if (typeof window === 'undefined') return 2;
+  return Math.min(4, Math.max(2, window.devicePixelRatio || 1));
+}
+
+/**
+ * Đợi font Be Vietnam Pro (subset `vietnamese`) tải xong rồi mới coi là "sẵn
+ * sàng" — round 1 fix: nếu vẽ nhãn lên canvas trước khi font tải xong, trình
+ * duyệt thay bằng font dự phòng và canvas KHÔNG tự vẽ lại khi font thật tải
+ * xong sau đó (khác với DOM text, canvas là ảnh tĩnh). Trả `true` ngay nếu
+ * `document.fonts` đã ở trạng thái 'loaded' (font đã sẵn có, ví dụ cache).
+ */
+function useFontsReady(): boolean {
+  const [ready, setReady] = useState(
+    () => typeof document !== 'undefined' && document.fonts?.status === 'loaded'
+  );
+  useEffect(() => {
+    if (ready || typeof document === 'undefined' || !document.fonts) return;
+    let alive = true;
+    document.fonts.ready.then(() => {
+      if (alive) setReady(true);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [ready]);
+  return ready;
+}
+
 function buildLabelTexture(text: string): THREE.CanvasTexture {
-  const scale = 4;
+  const scale = labelCanvasScale();
   const fontPx = 28 * scale;
   const paddingX = 18 * scale;
   const paddingY = 10 * scale;
@@ -64,7 +97,16 @@ function buildLabelTexture(text: string): THREE.CanvasTexture {
   return tex;
 }
 
-const LABEL_H = 1.3;
+// round 1 fix: trước đây có hằng số LABEL_H=1.3 là kích thước THẾ GIỚI
+// (world-space) của sprite — cùng với sizeAttenuation mặc định (true) của
+// three.js, nhãn co lại theo khoảng cách camera y hệt một vật thể 3D thật, nên
+// ở khoảng cách camera mặc định chữ quá nhỏ để đọc (xem task-8-report.md,
+// "Fix round 1", finding 1). Đặt sizeAttenuation=false trên spriteMaterial bên
+// dưới để nhãn giữ kích thước không đổi trên màn hình bất kể khoảng cách
+// camera — khi đó `scale` của sprite là đơn vị NDC chuẩn hoá, tính bằng
+// `labelSpriteScale` (lib/labelSprite.ts, có unit test riêng). Nhãn vẫn nhân
+// với scale của <group> cha (hiệu ứng hiện/biến mất và cờ "badge" lãnh thổ nhỏ
+// ở 55%) — có chủ đích: cờ càng nhỏ, nhãn càng nhỏ theo.
 
 function clothMaterial(): {
   mat: THREE.MeshStandardMaterial;
@@ -103,7 +145,12 @@ export default function FlagPole({ entry, polity, onGone }: Props): React.ReactE
   const symbol = polity.flagKind === 'symbol';
   const badge = entry.anchor.cellCount < 3;
   const baseScale = badge ? 0.55 : 1;
-  const labelTex = useMemo(() => buildLabelTexture(polity.name), [polity.name]);
+  const fontsReady = useFontsReady();
+  // fontsReady không dùng trong hàm nhưng cố ý đưa vào deps: bắt useMemo vẽ
+  // lại texture một lần khi font Be Vietnam Pro thật tải xong — canvas là ảnh
+  // tĩnh, không tự cập nhật khi font đổi như text DOM (round 1 fix, finding 4).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: xem chú thích trên.
+  const labelTex = useMemo(() => buildLabelTexture(polity.name), [polity.name, fontsReady]);
   const labelAspect = labelTex.image.width / labelTex.image.height;
 
   const gone = useRef(false);
@@ -115,6 +162,19 @@ export default function FlagPole({ entry, polity, onGone }: Props): React.ReactE
   }, [mat, tex, polity.color]);
 
   useEffect(() => () => labelTex.dispose(), [labelTex]);
+
+  // round 1 fix (finding 3): `mat`/`cloth` được tạo một lần bằng useMemo([])
+  // ngoài JSX khai báo — R3F chỉ tự dispose vật thể three.js mà chính nó tạo ra
+  // từ JSX (`<meshStandardMaterial>`,...), không tự dispose vật thể tạo thủ
+  // công rồi truyền vào qua prop `material`/`geometry`. Phải tự dispose khi
+  // unmount.
+  useEffect(
+    () => () => {
+      mat.dispose();
+      cloth.dispose();
+    },
+    [mat, cloth]
+  );
 
   useFrame(({ camera, clock }, dt) => {
     const g = group.current;
@@ -160,8 +220,18 @@ export default function FlagPole({ entry, polity, onGone }: Props): React.ReactE
           castShadow
         />
       )}
-      <sprite position={[0, -0.2, 0]} scale={[LABEL_H * labelAspect, LABEL_H, 1]}>
-        <spriteMaterial map={labelTex} transparent depthWrite={false} />
+      {/* renderOrder + depthTest=false: nhãn luôn hiện rõ phía trên cờ vải/cột
+          (giống hành vi overlay không bị che khuất của <Html> trước đây — xem
+          "Sai khác so với bản đặc tả" trong task-8-report.md), không bị vách
+          địa hình hay cờ đang phần phật che khuất một phần. */}
+      <sprite position={[0, -0.2, 0]} scale={labelSpriteScale(labelAspect)} renderOrder={1}>
+        <spriteMaterial
+          map={labelTex}
+          transparent
+          depthWrite={false}
+          depthTest={false}
+          sizeAttenuation={false}
+        />
       </sprite>
     </group>
   );
