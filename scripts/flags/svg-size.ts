@@ -7,7 +7,8 @@ export function ensureSvgSize(svg: string): string {
   const open = svg.match(/<svg\b[^>]*>/);
   if (!open) throw new Error('Không phải SVG');
   const tag = open[0];
-  const abs = (name: string) => new RegExp(`\\s${name}="\\s*[\\d.]+(px)?\\s*"`).test(tag);
+  const abs = (name: string) =>
+    new RegExp(`\\s${name}="\\s*[\\d.]+(e[+-]?\\d+)?(px)?\\s*"`).test(tag);
   if (abs('width') && abs('height')) return svg;
   const vb = tag.match(/viewBox="\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)\s*"/);
   if (!vb) throw new Error('SVG thiếu cả viewBox lẫn width/height');
