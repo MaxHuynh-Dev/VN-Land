@@ -15,6 +15,7 @@
     "e2e": "playwright test",
     "geo:fetch": "tsx scripts/geo/fetch-boundaries.ts",
     "geo:build": "tsx scripts/geo/build-cells.ts",
+    "flags:fix": "tsx scripts/flags/fix-svg-size.ts",
     "validate:history": "tsx scripts/validate-history.ts",
     "prebuild": "yarn validate:history"
   },
