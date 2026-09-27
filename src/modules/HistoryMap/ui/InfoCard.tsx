@@ -16,7 +16,12 @@ export default function InfoCard({ data }: { data: MapData }): React.ReactElemen
   useSignals();
   const i = snapshotIndex.value;
   const snap = SNAPSHOTS[i];
-  // biome-ignore lint/correctness/useExhaustiveDependencies: bỏ `i` sẽ khiến danh sách không cập nhật khi đổi mốc mà `data` không đổi tham chiếu.
+  // Xác minh: đây là báo lỗi sai của Biome (không phải deps thừa thật). `i` chỉ bị gắn cờ vì có
+  // useMemo thứ hai bên dưới cũng phụ thuộc `i`; tách riêng cho thấy lỗi cần ĐỦ CẢ HAI điều kiện:
+  // component có gọi useSignals() VÀ có ≥2 useMemo cùng khai `i` trong deps — thiếu một trong hai
+  // (ví dụ dùng useState thay vì signal, hoặc chỉ có một useMemo) thì Biome không báo. `i` là phụ
+  // thuộc thật: bỏ đi, danh sách sẽ không cập nhật khi chỉ có `snapshotIndex` đổi.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: false positive đã xác minh, xem trên.
   const present = useMemo(() => politiesInSnapshot(data.owners[i], data.cells), [data, i]);
   const hasLow = useMemo(() => lowConfidenceCells(snap, data.cells, GROUPS).size > 0, [snap, data]);
   return (

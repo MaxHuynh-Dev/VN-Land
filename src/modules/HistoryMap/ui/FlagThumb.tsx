@@ -9,7 +9,11 @@ export default function FlagThumb({
   polity: Polity;
   className?: string;
 }): React.ReactElement {
-  const [broken, setBroken] = useState(false);
+  // Theo dõi chính URL đã lỗi (thay vì một cờ boolean) để khi `polity.flag` đổi sang một URL
+  // khác — ví dụ chính thể đổi cờ giữa các mốc qua polityOverrides — component vẫn thử tải lại
+  // thay vì tiếp tục hiện màu trơn của lần lỗi trước.
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const broken = failedUrl === polity.flag;
   if (broken)
     return (
       <span
@@ -20,10 +24,11 @@ export default function FlagThumb({
   return (
     // biome-ignore lint/performance/noImgElement: SVG cờ nhỏ, không cần next/image
     <img
+      key={polity.flag}
       src={polity.flag}
       alt=""
       className={`${className} rounded-sm object-cover shadow`}
-      onError={() => setBroken(true)}
+      onError={() => setFailedUrl(polity.flag)}
     />
   );
 }

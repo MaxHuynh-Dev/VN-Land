@@ -54,7 +54,7 @@ export default function PolityDetail({ id }: { id: string }): React.ReactElement
             rel="noopener noreferrer"
             className="underline"
           >
-            {p.flagCredit.author ?? 'Wikimedia Commons'}
+            {p.flagCredit.author ?? COPY.flagSourceFallback}
           </a>{' '}
           · {p.flagCredit.license}
         </p>

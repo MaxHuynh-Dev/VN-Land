@@ -20,6 +20,7 @@ export const COPY = {
   capital: 'Kinh đô',
   period: 'Thời gian tồn tại',
   flagNote: 'Về lá cờ',
+  flagSourceFallback: 'Wikimedia Commons',
   play: 'Tự chạy',
   pause: 'Tạm dừng',
   prev: 'Mốc trước',
