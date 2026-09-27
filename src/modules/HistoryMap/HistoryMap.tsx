@@ -21,11 +21,11 @@ import {
 } from './state/store';
 import { useTimelineControls } from './state/useTimelineControls';
 import CellTooltip from './ui/CellTooltip';
-import InfoCard from './ui/InfoCard';
+import CreditsDialog from './ui/CreditsDialog';
 import LoadError from './ui/LoadError';
 import Masthead from './ui/Masthead';
 import NoWebGLFallback from './ui/NoWebGLFallback';
-import PolityDetail from './ui/PolityDetail';
+import SidePanel from './ui/SidePanel';
 import Timeline from './ui/Timeline';
 
 type LoadState =
@@ -37,6 +37,11 @@ type LoadState =
 function ReadyView({ data }: { data: MapData }): React.ReactElement {
   useSignals();
   const store = useMemo(() => new CellStateStore(data.cells.length), [data]);
+  // Màn hình cảm ứng không có hover: chỉ dựng CellTooltip khi con trỏ chính là chuột/trackpad.
+  const hasFinePointer = useMemo(
+    () => typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches,
+    []
+  );
 
   // làm nổi cả lãnh thổ đang hover; tính lại khi đổi mốc
   useSignalEffect(() => {
@@ -88,14 +93,12 @@ function ReadyView({ data }: { data: MapData }): React.ReactElement {
         onClickCell={onClickCell}
         onMissed={onMissed}
       />
-      <CellTooltip />
-      <aside className="absolute top-24 right-4 bottom-40 w-[340px] overflow-y-auto rounded-xl bg-[#0a1420]/80 p-5 shadow-2xl backdrop-blur md:top-8 md:right-8">
-        {selectedPolity.value ? (
-          <PolityDetail id={selectedPolity.value} />
-        ) : (
-          <InfoCard data={data} />
-        )}
-      </aside>
+      {hasFinePointer && <CellTooltip />}
+      <SidePanel data={data} />
+      <CreditsDialog />
+      <p className="pointer-events-none absolute bottom-36 left-1/2 hidden -translate-x-1/2 text-xs opacity-50 md:block">
+        {COPY.hint}
+      </p>
       <Timeline />
     </>
   );

@@ -64,7 +64,10 @@ test('focus bàn phím vào thanh trượt hiện viền focus rõ', async ({ pa
   expect(outlineStyle).not.toBe('none');
 });
 
-test('thẻ thông tin đổi theo mốc; mở và đóng chi tiết chính thể', async ({ page }) => {
+test('thẻ thông tin đổi theo mốc; mở và đóng chi tiết chính thể', async ({ page, isMobile }) => {
+  // Trên mobile, thẻ thông tin nằm trong bottom sheet thu gọn (`aside` bị ẩn); hành vi mobile
+  // (mở/đóng sheet, không cuộn ngang) đã có test riêng ở dưới.
+  test.skip(isMobile, 'aside bị ẩn trên mobile, xem test bottom sheet riêng');
   await ready(page);
   await expect(page.getByTestId('info-title')).toHaveText(SNAPSHOTS[0].title);
   await page.keyboard.press('ArrowRight');
@@ -75,14 +78,43 @@ test('thẻ thông tin đổi theo mốc; mở và đóng chi tiết chính th�
   await expect(page.getByTestId('info-title')).toBeVisible();
 });
 
-test('cờ tải lỗi không làm hỏng cảnh', async ({ page }) => {
+test('cờ tải lỗi không làm hỏng cảnh', async ({ page, isMobile }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.route('**/flags/**', (r) => r.abort());
   await ready(page, '?y=1471');
   await page.keyboard.press('ArrowRight');
+  // Trên mobile, thẻ thông tin nằm trong bottom sheet thu gọn: mở ra trước khi đọc info-title.
+  if (isMobile) await page.getByTestId('sheet-toggle').click();
   await expect(page.getByTestId('info-title')).toHaveText(
     SNAPSHOTS[SNAPSHOTS.findIndex((s) => s.id === '1471') + 1].title
   );
   expect(errors).toEqual([]);
+});
+
+test('mobile: bottom sheet mở ra xem thông tin, không cuộn ngang', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'chỉ chạy project mobile');
+  await ready(page);
+  const toggle = page.getByTestId('sheet-toggle');
+  await expect(toggle).toBeVisible();
+  await toggle.click();
+  await expect(page.getByTestId('info-title')).toBeVisible();
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > window.innerWidth
+  );
+  expect(overflow).toBe(false);
+});
+
+test('chụp ảnh màn hình tham chiếu', async ({ page }, info) => {
+  await ready(page, '?y=1471');
+  await page.waitForTimeout(2500); // chờ cờ mọc và chuyển màu xong
+  await page.screenshot({ path: `test-results/screens/${info.project.name}-1471.png` });
+});
+
+test('mở trang Nguồn & ghi công', async ({ page }) => {
+  await ready(page);
+  await page.getByRole('button', { name: 'Nguồn & ghi công' }).click();
+  await expect(page.getByRole('dialog')).toContainText('geoBoundaries');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeHidden();
 });

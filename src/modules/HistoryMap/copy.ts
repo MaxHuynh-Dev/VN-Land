@@ -28,5 +28,16 @@ export const COPY = {
   timelineLabel: 'Dòng thời gian',
   credits: 'Nguồn & ghi công',
   close: 'Đóng',
-  back: 'Quay lại toàn cảnh'
+  back: 'Quay lại toàn cảnh',
+  sidePanelToggle: 'Thông tin',
+  creditsBoundariesLabel: 'Ranh giới hành chính:',
+  creditsBoundariesSourceName: 'geoBoundaries',
+  creditsBoundariesSourceUrl: 'https://www.geoboundaries.org',
+  creditsBoundariesNote:
+    '(CC BY 3.0 IGO / CC BY 4.0 / PDDL). Lãnh thổ lịch sử được ghép từ ranh giới cấp huyện hiện đại nên chỉ là xấp xỉ.',
+  creditsMapTechnique: 'Kỹ thuật dựng bản đồ tham khảo từ dự án vietnam-3d-map (holetex.com).',
+  creditsFlagsHeading: 'Cờ và biểu tượng',
+  creditsFlagsOnLandNote:
+    'Cờ vẽ trên lãnh thổ là quốc kỳ hoặc cờ hiệu gốc của mỗi chính thể; cờ riêng theo từng triều đại hoặc quốc hiệu chỉ hiện trong thẻ chi tiết chính thể.',
+  creditsNoCredit: 'Biểu tượng tự vẽ cho dự án.'
 } as const;
