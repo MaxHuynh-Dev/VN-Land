@@ -3,7 +3,6 @@
 import { useSignals } from '@preact/signals-react/runtime';
 import type React from 'react';
 import { useMemo } from 'react';
-import * as THREE from 'three';
 import { buildBorderPositions } from '../lib/borders';
 import type { MapData } from '../lib/loadMapData';
 import { snapshotIndex } from '../state/store';
@@ -17,13 +16,16 @@ function Lines({
   color: string;
   opacity: number;
 }): React.ReactElement {
-  const geo = useMemo(() => {
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    return g;
-  }, [positions]);
+  // Khai báo geometry/attribute theo kiểu JSX khai báo của R3F thay vì tự `new
+  // THREE.BufferGeometry()` trong useMemo: khi `positions` đổi (đổi mốc), R3F chỉ thay
+  // bufferAttribute con trên CÙNG một bufferGeometry (BufferAttribute không có .dispose()),
+  // không tạo & bỏ rơi một BufferGeometry mới mỗi lần — tránh rò VBO trên GPU. R3F tự
+  // dispose bufferGeometry khi <Lines> unmount.
   return (
-    <lineSegments geometry={geo}>
+    <lineSegments>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
       <lineBasicMaterial color={color} transparent opacity={opacity} depthWrite={false} />
     </lineSegments>
   );

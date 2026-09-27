@@ -3,7 +3,7 @@
 import { useSignalEffect } from '@preact/signals-react';
 import { type ThreeEvent, useFrame } from '@react-three/fiber';
 import type React from 'react';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { POLITY_BY_ID, SNAPSHOTS } from '@/data/history';
 import { type CellStateStore, LIFT_MAX, ownerColors, spreadDelays } from '../lib/cellState';
@@ -84,6 +84,15 @@ export default function Terrain({
   }, [store]);
   const material = useMemo(() => makeMaterial(tex, store), [tex, store]);
   const prevIndex = useRef<number | null>(null);
+
+  // tex (DataTexture) được gắn vào material qua uniform tùy biến (uCellState) trong
+  // onBeforeCompile — three.js/R3F không biết để tự dọn texture nằm trong uniform tùy biến
+  // khi material bị thay/dispose, nên phải giải phóng thủ công mỗi khi tex đổi hoặc unmount.
+  useEffect(() => () => tex.dispose(), [tex]);
+  // material cũng có thể bị thay identity (khi store đổi, ví dụ sau khi "Thử lại") trong khi
+  // <mesh> vẫn còn mounted ở lần render đó — dispose tường minh thay vì trông chờ vào việc
+  // R3F tự dọn material khi <mesh> unmount.
+  useEffect(() => () => material.dispose(), [material]);
 
   useSignalEffect(() => {
     const i = snapshotIndex.value;

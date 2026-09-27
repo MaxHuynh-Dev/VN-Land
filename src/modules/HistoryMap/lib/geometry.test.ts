@@ -1,8 +1,7 @@
-import type { FeatureCollection, Polygon } from 'geojson';
-import { topology } from 'topojson-server';
+import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { buildBorderPositions, buildCoastPositions } from './borders';
-import type { CellMeta, CellsTopology } from './cells';
+import type { CellsTopology } from './cells';
 import { DEPTH, LAT0, LON0, px, pz, unprojectX, unprojectZ } from './projection';
 import { buildTerrainGeometry, cellAtVertex } from './terrainGeometry';
 import { makeFixtureTopology } from './topoFixture';
@@ -49,6 +48,34 @@ describe('buildTerrainGeometry', () => {
   });
   it('cellAtVertex đọc đúng chỉ số', () => {
     expect(cellAtVertex(geo, 0)).toBe(aCell.getX(0));
+  });
+  it('không dựng vách ở cạnh nội bộ giữa các ô liền kề — chỉ vách đường bờ ngoài', () => {
+    // 3 ô vuông 1°x1° liền hàng ngang (xem topoFixture.ts): chu vi ngoài là hình chữ nhật
+    // 3x1 (106..109, 16..17); có 2 cạnh nội bộ dọc (tại lon=107 và 108) giữa các ô liền kề.
+    // Trước khi sửa, ExtrudeGeometry dựng vách quanh TOÀN BỘ chu vi của mỗi ô độc lập, nên
+    // mỗi cạnh nội bộ bị dựng vách hai lần (chồng khít, gây khe/vệt tối dày đặc khi render).
+    // Đo diện tích các tam giác "vách" (normal gần nằm ngang) trong hình học đã gộp, và so
+    // với diện tích vách kỳ vọng nếu CHỈ dựng ở đường bờ ngoài — nếu khớp thì không còn
+    // vách trùng lặp ở cạnh nội bộ.
+    let sideArea = 0;
+    const a = new THREE.Vector3();
+    const b = new THREE.Vector3();
+    const c = new THREE.Vector3();
+    for (let t = 0; t < pos.count / 3; t++) {
+      a.fromBufferAttribute(pos, t * 3);
+      b.fromBufferAttribute(pos, t * 3 + 1);
+      c.fromBufferAttribute(pos, t * 3 + 2);
+      const cross = new THREE.Vector3()
+        .subVectors(b, a)
+        .cross(new THREE.Vector3().subVectors(c, a));
+      const len = cross.length();
+      if (len < 1e-9) continue;
+      if (Math.abs(cross.y / len) <= 0.5) sideArea += len / 2;
+    }
+    const outerWidth = px(109) - px(106);
+    const outerHeight = Math.abs(pz(17) - pz(16));
+    const expectedCoastalOnly = 2 * (outerWidth + outerHeight) * DEPTH;
+    expect(sideArea).toBeCloseTo(expectedCoastalOnly, 2);
   });
   it('ô không có hình học hợp lệ phải ném lỗi', () => {
     const emptyTopo: CellsTopology = {
