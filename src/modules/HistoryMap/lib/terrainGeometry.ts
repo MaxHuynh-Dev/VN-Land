@@ -91,11 +91,7 @@ function ringOrientation(ring: Position[]): 1 | -1 {
 }
 
 /** Dựng vách (quad = 2 tam giác) chỉ cho các cạnh của `rings` nằm trong `keys` (đường bờ). */
-function buildCoastalWalls(
-  rings: Position[][],
-  keys: Set<string>,
-  cellIndex: number
-): THREE.BufferGeometry | null {
+function buildCoastalWalls(rings: Position[][], keys: Set<string>): THREE.BufferGeometry | null {
   const out: number[] = [];
   for (const ring of rings) {
     if (ring.length < 4) continue;
@@ -130,14 +126,85 @@ function buildCoastalWalls(
   if (out.length === 0) return null;
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(out), 3));
-  const n = out.length / 3;
+  return geo;
+}
+
+/**
+ * Gắn aCell/aCellB/aWallRole=0 (mặt trên/đáy hoặc vách đường bờ — không đổi hành vi so với
+ * trước) lên MỘT phần hình học của một ô, và tính normal nếu chưa có (caps/vách đường bờ
+ * không suy biến lúc nghỉ nên computeVertexNormals cho kết quả đúng, phẳng theo từng tam giác).
+ */
+function tagOwnCellPart(geo: THREE.BufferGeometry, cellIndex: number): THREE.BufferGeometry {
+  if (!geo.getAttribute('normal')) geo.computeVertexNormals();
+  const n = geo.getAttribute('position').count;
   geo.setAttribute('aCell', new THREE.BufferAttribute(new Float32Array(n).fill(cellIndex), 1));
+  geo.setAttribute('aCellB', new THREE.BufferAttribute(new Float32Array(n).fill(cellIndex), 1));
+  geo.setAttribute('aWallRole', new THREE.BufferAttribute(new Float32Array(n), 1)); // 0
+  return geo;
+}
+
+/**
+ * Dựng ĐÚNG MỘT vách (quad = 2 tam giác) cho cạnh nội bộ dùng chung giữa `cellA` và `cellB`.
+ * Bốn đỉnh đều nằm ở y = DEPTH lúc nghỉ (chiều cao 0 ⇒ vô hình, không thể z-fight với gì cả).
+ * Vertex shader (Terrain.tsx, xem `internalWallLift`/`internalWallColorIsA` trong cellState.ts)
+ * nâng đỉnh vai trò 1 (mép trên) lên DEPTH + max(liftA,liftB)·uLiftMax và vai trò 2 (mép dưới)
+ * lên DEPTH + min(liftA,liftB)·uLiftMax — khi hai bên cùng độ nổi (lúc nghỉ, hoặc khi cả lãnh
+ * thổ được nâng đều lúc hover) mép trên/dưới trùng nhau nên vách cao 0; khi lệch nhau, vách
+ * trải đúng khoảng hở giữa hai mặt trên, không để hở lỗ xuyên qua địa hình.
+ * normal được gán thủ công (không suy ra được từ computeVertexNormals vì hình học suy biến
+ * lúc nghỉ) — vật liệu render hai mặt (`THREE.DoubleSide`, xem Terrain.tsx) nên không cần chọn
+ * đúng "bên thấp"; three.js tự lật normal hiển thị theo mặt camera đang thấy.
+ */
+function buildInternalWall(
+  p: Position,
+  q: Position,
+  cellA: number,
+  cellB: number
+): THREE.BufferGeometry {
+  const x0 = px(p[0]);
+  const z0 = pz(p[1]);
+  const x1 = px(q[0]);
+  const z1 = pz(q[1]);
+  const dx = x1 - x0;
+  const dz = z1 - z0;
+  const len = Math.hypot(dx, dz) || 1;
+  const nx = dz / len;
+  const nz = -dx / len;
+
+  const positions: number[] = [];
+  const normals: number[] = [];
+  const roles: number[] = [];
+  const pushVert = (x: number, z: number, role: 1 | 2): void => {
+    positions.push(x, DEPTH, z);
+    normals.push(nx, 0, nz);
+    roles.push(role);
+  };
+  // Tam giác 1: mép trên (top0, top1), mép dưới (bottom1)
+  pushVert(x0, z0, 1);
+  pushVert(x1, z1, 1);
+  pushVert(x1, z1, 2);
+  // Tam giác 2: mép trên (top0), mép dưới (bottom1, bottom0)
+  pushVert(x0, z0, 1);
+  pushVert(x1, z1, 2);
+  pushVert(x0, z0, 2);
+
+  const geo = new THREE.BufferGeometry();
+  const n = positions.length / 3;
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+  geo.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(normals), 3));
+  geo.setAttribute('aCell', new THREE.BufferAttribute(new Float32Array(n).fill(cellA), 1));
+  geo.setAttribute('aCellB', new THREE.BufferAttribute(new Float32Array(n).fill(cellB), 1));
+  geo.setAttribute('aWallRole', new THREE.BufferAttribute(new Float32Array(roles), 1));
   return geo;
 }
 
 export function buildTerrainGeometry(topo: CellsTopology): THREE.BufferGeometry {
   const coastKeys = coastalEdgeKeys(topo);
   const parts: THREE.BufferGeometry[] = [];
+  // Cạnh nội bộ được 2 ô "nhìn thấy" khi duyệt qua từng ô; ô đầu tiên chạm cạnh này chỉ ghi
+  // nhận (chưa dựng gì), ô thứ hai mới thực sự dựng MỘT vách dùng chung — tránh dựng trùng.
+  const pendingInternal = new Map<string, { cellIndex: number; p: Position; q: Position }>();
+
   topo.objects.cells.geometries.forEach((g, cellIndex) => {
     const f = feature(topo, g) as unknown as {
       geometry: Polygon | MultiPolygon | null;
@@ -155,15 +222,27 @@ export function buildTerrainGeometry(topo: CellsTopology): THREE.BufferGeometry 
       extruded.rotateX(-Math.PI / 2);
       const caps = extractCaps(extruded);
       extruded.dispose();
-      const capCount = caps.getAttribute('position').count;
-      caps.setAttribute(
-        'aCell',
-        new THREE.BufferAttribute(new Float32Array(capCount).fill(cellIndex), 1)
-      );
-      parts.push(caps);
+      parts.push(tagOwnCellPart(caps, cellIndex));
 
-      const walls = buildCoastalWalls(rings, coastKeys, cellIndex);
-      if (walls) parts.push(walls);
+      const coastalWalls = buildCoastalWalls(rings, coastKeys);
+      if (coastalWalls) parts.push(tagOwnCellPart(coastalWalls, cellIndex));
+
+      for (const ring of rings) {
+        if (ring.length < 4) continue;
+        for (let i = 1; i < ring.length; i++) {
+          const p = ring[i - 1];
+          const q = ring[i];
+          const key = edgeKey(p, q);
+          if (coastKeys.has(key)) continue; // đã có vách đường bờ, không phải cạnh nội bộ
+          const existing = pendingInternal.get(key);
+          if (!existing) {
+            pendingInternal.set(key, { cellIndex, p, q });
+          } else if (existing.cellIndex !== cellIndex) {
+            parts.push(buildInternalWall(existing.p, existing.q, existing.cellIndex, cellIndex));
+            pendingInternal.delete(key);
+          }
+        }
+      }
     }
   });
   if (parts.length === 0) throw new Error('Không có ô hợp lệ để dựng địa hình');

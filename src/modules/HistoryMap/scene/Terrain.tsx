@@ -21,6 +21,11 @@ interface Props {
 
 function makeMaterial(tex: THREE.DataTexture, store: CellStateStore): THREE.MeshStandardMaterial {
   const mat = new THREE.MeshStandardMaterial({ roughness: 0.9, metalness: 0 });
+  // Vách nội bộ (aWallRole 1/2, xem terrainGeometry.ts) suy biến (cao 0) lúc nghỉ nên không có
+  // normal "đúng" cố định — normal được gán thủ công theo MỘT hướng ngang bất kỳ khi dựng hình,
+  // và bên nào thấp hơn chỉ biết được lúc chạy (so độ nổi hai ô). Render hai mặt để không phụ
+  // thuộc vào việc đoán đúng hướng: three.js tự lật normal hiển thị theo mặt camera đang thấy.
+  mat.side = THREE.DoubleSide;
   mat.onBeforeCompile = (shader) => {
     shader.uniforms.uCellState = { value: tex };
     shader.uniforms.uCellTexSize = { value: new THREE.Vector2(store.width, store.height) };
@@ -30,22 +35,43 @@ function makeMaterial(tex: THREE.DataTexture, store: CellStateStore): THREE.Mesh
         '#include <common>',
         `#include <common>
 attribute float aCell;
+attribute float aCellB;
+attribute float aWallRole;
 uniform sampler2D uCellState;
 uniform vec2 uCellTexSize;
 uniform float uLiftMax;
 varying vec3 vCellColor;
 varying float vSide;
-varying float vLift;`
+varying float vLift;
+
+vec4 sampleCellState(float cellIndex) {
+  vec2 cuv = (vec2(mod(cellIndex, uCellTexSize.x), floor(cellIndex / uCellTexSize.x)) + 0.5) / uCellTexSize;
+  return texture2D(uCellState, cuv);
+}`
       )
       .replace(
         '#include <begin_vertex>',
         `#include <begin_vertex>
-vec2 cuv = (vec2(mod(aCell, uCellTexSize.x), floor(aCell / uCellTexSize.x)) + 0.5) / uCellTexSize;
-vec4 cs = texture2D(uCellState, cuv);
-vCellColor = cs.rgb;
-vLift = cs.a;
-vSide = 1.0 - step(0.5, normal.y);
-transformed.y += cs.a * uLiftMax * step(0.001, position.y);`
+vec4 csA = sampleCellState(aCell);
+if (aWallRole < 0.5) {
+  // Vai trò 0: đỉnh mặt trên/đáy hoặc vách đường bờ — hành vi cũ, không đổi.
+  vCellColor = csA.rgb;
+  vLift = csA.a;
+  vSide = 1.0 - step(0.5, normal.y);
+  transformed.y += csA.a * uLiftMax * step(0.001, position.y);
+} else {
+  // Vai trò 1/2: đỉnh vách nội bộ — lấp khoảng hở khi độ nổi hai ô lệch nhau (xem
+  // internalWallLift/internalWallColorIsA trong cellState.ts, phải khớp logic ở đây).
+  vec4 csB = sampleCellState(aCellB);
+  float liftHi = max(csA.a, csB.a);
+  float liftLo = min(csA.a, csB.a);
+  bool aIsHigher = csA.a >= csB.a;
+  vCellColor = aIsHigher ? csA.rgb : csB.rgb;
+  float lift = aWallRole < 1.5 ? liftHi : liftLo;
+  vLift = lift;
+  transformed.y += lift * uLiftMax;
+  vSide = 1.0;
+}`
       );
     shader.fragmentShader = shader.fragmentShader
       .replace(

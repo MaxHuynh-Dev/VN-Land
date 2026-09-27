@@ -77,6 +77,43 @@ describe('buildTerrainGeometry', () => {
     const expectedCoastalOnly = 2 * (outerWidth + outerHeight) * DEPTH;
     expect(sideArea).toBeCloseTo(expectedCoastalOnly, 2);
   });
+  it('vách nội bộ: đúng 1 vách mỗi cạnh dùng chung, đỉnh ở y=DEPTH lúc nghỉ, mang aCell/aCellB đúng và vai trò 1/2', () => {
+    // 2 cạnh nội bộ (tại lon=107 giữa ô 0-1, và lon=108 giữa ô 1-2). Mỗi cạnh chỉ dựng
+    // ĐÚNG MỘT vách (quad = 2 tam giác = 6 đỉnh), dù được hai ô cùng "nhìn thấy" cạnh đó.
+    const aCellB = geo.getAttribute('aCellB');
+    const aWallRole = geo.getAttribute('aWallRole');
+    const internalIdx: number[] = [];
+    for (let i = 0; i < aWallRole.count; i++) {
+      if (aWallRole.getX(i) > 0.5) internalIdx.push(i);
+    }
+    expect(internalIdx.length).toBe(2 * 6);
+
+    const pairs = new Set<string>();
+    let role1Count = 0;
+    let role2Count = 0;
+    for (const i of internalIdx) {
+      expect(pos.getY(i)).toBeCloseTo(DEPTH); // lúc nghỉ, mọi đỉnh vách nội bộ ở y = DEPTH
+      const role = aWallRole.getX(i);
+      expect([1, 2]).toContain(role);
+      if (role === 1) role1Count++;
+      else role2Count++;
+      const cA = aCell.getX(i);
+      const cB = aCellB.getX(i);
+      pairs.add([cA, cB].sort((x, y) => x - y).join(','));
+    }
+    expect(role1Count).toBe(6);
+    expect(role2Count).toBe(6);
+    expect([...pairs].sort()).toEqual(['0,1', '1,2']);
+  });
+  it('đỉnh mặt trên/đáy và vách đường bờ có aCellB = aCell và vai trò 0 (không đổi)', () => {
+    const aCellB = geo.getAttribute('aCellB');
+    const aWallRole = geo.getAttribute('aWallRole');
+    for (let i = 0; i < aWallRole.count; i++) {
+      if (aWallRole.getX(i) > 0.5) continue; // bỏ qua đỉnh vách nội bộ
+      expect(aWallRole.getX(i)).toBe(0);
+      expect(aCellB.getX(i)).toBe(aCell.getX(i));
+    }
+  });
   it('ô không có hình học hợp lệ phải ném lỗi', () => {
     const emptyTopo: CellsTopology = {
       type: 'Topology',

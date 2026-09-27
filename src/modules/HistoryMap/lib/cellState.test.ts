@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { CellStateStore, LIFT_MAX, ownerColors, spreadDelays, TRANSITION_S } from './cellState';
+import {
+  CellStateStore,
+  internalWallColorIsA,
+  internalWallLift,
+  LIFT_MAX,
+  ownerColors,
+  spreadDelays,
+  TRANSITION_S
+} from './cellState';
 import { CELLS } from './testFixtures';
 
 const rgb = (...v: number[]) => new Float32Array(v);
@@ -94,5 +102,29 @@ describe('spreadDelays', () => {
       ['y', null, null, null, null, null]
     );
     expect(d[0]).toBe(0);
+  });
+});
+
+describe('internalWallLift', () => {
+  it('vai trò 1 (mép trên) lấy độ nổi lớn hơn giữa hai bên', () => {
+    expect(internalWallLift(0.2, 0.7, 1)).toBeCloseTo(0.7);
+    expect(internalWallLift(0.7, 0.2, 1)).toBeCloseTo(0.7);
+  });
+  it('vai trò 2 (mép dưới) lấy độ nổi nhỏ hơn giữa hai bên', () => {
+    expect(internalWallLift(0.2, 0.7, 2)).toBeCloseTo(0.2);
+    expect(internalWallLift(0.7, 0.2, 2)).toBeCloseTo(0.2);
+  });
+  it('hai bên bằng nhau → mép trên và mép dưới trùng nhau (vách cao 0)', () => {
+    expect(internalWallLift(0.5, 0.5, 1)).toBeCloseTo(internalWallLift(0.5, 0.5, 2));
+  });
+});
+
+describe('internalWallColorIsA', () => {
+  it('bên có độ nổi lớn hơn được chọn màu', () => {
+    expect(internalWallColorIsA(0.7, 0.2)).toBe(true);
+    expect(internalWallColorIsA(0.2, 0.7)).toBe(false);
+  });
+  it('hòa → chọn bên A', () => {
+    expect(internalWallColorIsA(0.4, 0.4)).toBe(true);
   });
 });

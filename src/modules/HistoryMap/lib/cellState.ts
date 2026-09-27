@@ -139,3 +139,20 @@ export function spreadDelays(
   }
   return out;
 }
+
+/**
+ * Vai trò đỉnh của vách nội bộ (giữa hai ô liền kề, xem terrainGeometry.ts):
+ * 1 = mép trên (theo bên có độ nổi lớn hơn), 2 = mép dưới (theo bên có độ nổi nhỏ hơn).
+ * Hai bên bằng nhau (lúc nghỉ, hoặc cả lãnh thổ được nâng đều) → mép trên và mép dưới trùng
+ * nhau, vách cao 0 nên vô hình; khác nhau → vách trải đúng khoảng hở giữa hai mặt trên.
+ * Hàm thuần này mô tả đúng logic mà vertex shader trong Terrain.tsx thực hiện (không gọi được
+ * trực tiếp từ GLSL, nhưng phải giữ tương đương tuyệt đối về mặt toán học).
+ */
+export function internalWallLift(liftA: number, liftB: number, role: 1 | 2): number {
+  return role === 1 ? Math.max(liftA, liftB) : Math.min(liftA, liftB);
+}
+
+/** true nếu bên A được chọn màu cho đỉnh vách nội bộ (độ nổi lớn hơn; hòa → bên A). */
+export function internalWallColorIsA(liftA: number, liftB: number): boolean {
+  return liftA >= liftB;
+}
