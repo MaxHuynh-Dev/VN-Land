@@ -69,8 +69,7 @@
   --animate-pulse-glow: pulse-glow 3s ease-in-out infinite;
 
   /* Font families */
-  --font-inter: "Inter", sans-serif;
-  --font-raleway: "Raleway", sans-serif;
+  --font-be-vietnam: "Be Vietnam Pro", sans-serif;
 }
 
 :root {
@@ -296,6 +295,6 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-[family-name:var(--font-inter)];
+    @apply bg-background text-foreground font-[family-name:var(--font-be-vietnam)];
   }
 }

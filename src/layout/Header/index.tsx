@@ -72,10 +72,10 @@ function Header(): React.ReactElement {
           onClick={(e) => handleNavClick(e, '#home')}
           className="group relative z-50 flex items-center gap-1"
         >
-          <span className="font-[family-name:var(--font-raleway)] font-extrabold text-2xl text-white tracking-tight">
+          <span className="font-[family-name:var(--font-be-vietnam)] font-extrabold text-2xl text-white tracking-tight">
             Alex
           </span>
-          <span className="font-[family-name:var(--font-raleway)] font-extrabold text-2xl text-[#8b5cf6] tracking-tight transition-colors duration-300 group-hover:text-[#06b6d4]">
+          <span className="font-[family-name:var(--font-be-vietnam)] font-extrabold text-2xl text-[#8b5cf6] tracking-tight transition-colors duration-300 group-hover:text-[#06b6d4]">
             .dev
           </span>
         </a>
