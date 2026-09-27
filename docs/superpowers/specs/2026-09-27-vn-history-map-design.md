@@ -135,14 +135,15 @@ Mốc đầu tiên gán đầy đủ. Các mốc sau chỉ ghi phần thay đổ
 
 1. `loadCells()` fetch TopoJSON một lần, dùng Suspense, rồi dựng một `ExtrudeGeometry` cho mỗi ô (tương tự `main.js` tham khảo) cùng lớp proxy tĩnh để raycast.
 2. `currentSnapshotIndex` (signal) thay đổi, `resolveSnapshot(i)` được gọi. Hàm này áp delta từ mốc 0 đến mốc i và memo kết quả theo i, trả về `Map<CellId, PolityId|null>`.
-3. `Terrain` so sánh với bảng gán trước. Ô đổi chủ sẽ chuyển màu trong khoảng 0,8 giây, kèm nhấp nhô (nổi 0,6 rồi hạ). Material dùng chung theo chính thể, còn animation màu dùng material tạm cho từng ô.
+3. `Terrain` là **một mesh gộp** cho mọi ô. Màu và độ nổi từng ô được đọc từ một `DataTexture` trong shader. Khi đổi mốc, các ô đổi chủ chuyển màu trong khoảng 0,8 giây, trễ dần theo khoảng cách tới lãnh thổ cũ để tạo hiệu ứng lãnh thổ **loang ra**, kèm một nhịp nổi nhẹ. Khi đứng yên, cả lãnh thổ là một khối đồng màu.
 4. `Flags` tính `polityCentroid` cho mỗi chính thể đang có. Cách tính: lấy cụm ô liền kề lớn nhất, rồi tìm điểm nằm trong đa giác gần tâm diện tích nhất. Cờ mới mọc lên, cờ mất đi thì hạ xuống, cờ còn lại trượt tới vị trí mới.
 5. URL `?y=<year>` đồng bộ hai chiều bằng `history.replaceState`, không gây điều hướng.
 
 ## 4. Hiển thị và tương tác
 
 - **Không khí:** biển đêm, ánh sáng ấm, đổ bóng mềm, tone mapping ACES, sương mù (theo repo tham khảo). Đất liền là khối đùn thấp.
-- **Màu ô:** màu của chính thể, lệch sáng tối nhẹ theo từng ô. Ô `null` dùng màu đá xám.
+- **Chỉ hiện lãnh thổ, không hiện tỉnh/huyện:** các ô là đơn vị dữ liệu ẩn. Mọi ô cùng chính thể có **cùng một màu** và cùng độ cao, nên mặt trên liền thành một khối lãnh thổ. Không vẽ ranh giới tỉnh hay huyện. Chỉ vẽ **đường biên giữa các chính thể** (sáng nhẹ) và đường bờ biển. Ô `null` dùng màu đá xám.
+- **Không hiện tên địa danh hiện đại** trên bản đồ, tooltip hay thẻ thông tin. Tên tỉnh và huyện chỉ dùng nội bộ để soạn dữ liệu.
 - **Cờ:**
   - Cột cờ với lá cờ vải `PlaneGeometry`, gợn sóng bằng vertex shader, texture từ SVG.
   - Lãnh thổ nhỏ trên màn hình chỉ hiện huy hiệu.
@@ -153,11 +154,12 @@ Mốc đầu tiên gán đầy đủ. Các mốc sau chỉ ghi phần thay đổ
   - Điều khiển: kéo, bấm, phím ←/→, nút ▶ tự chạy (mỗi mốc khoảng 4 giây, bấm vào bản đồ thì dừng).
 - **Thẻ thông tin (bên phải; trên mobile là bottom sheet):**
   - Năm, tiêu đề, tóm tắt, danh sách chính thể đang tồn tại (cờ nhỏ, tên, kinh đô), nguồn.
-- **Rê vào ô:**
-  - Ô nổi lên.
-  - Tooltip hiện tên chính thể, địa danh hiện nay, nhãn loại cờ, và dấu "≈" nếu ô đó có `confidence: low`.
-- **Bấm vào ô:**
-  - Camera bay tới.
+  - Nếu mốc có ô `confidence: low` thì hiện ghi chú "Một phần ranh giới ở mốc này là ước đoán".
+- **Rê vào lãnh thổ:**
+  - **Toàn bộ lãnh thổ** của chính thể đó nổi lên và sáng nhẹ.
+  - Tooltip hiện cờ nhỏ, tên chính thể và nhãn loại cờ.
+- **Bấm vào lãnh thổ:**
+  - Camera bay tới ô neo của chính thể (vị trí cắm cờ).
   - `PolityDetail` hiện thời gian tồn tại, kinh đô, ghi chú về lá cờ và nguồn.
   - Esc hoặc bấm ra biển để quay về.
 - **Camera:** mốc có `focus` thì camera trượt tới khi đang tự chạy. Khi người xem tự điều khiển thì chỉ đổi dữ liệu, không bay.
