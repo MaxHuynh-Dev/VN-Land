@@ -16,7 +16,7 @@ export default function InfoCard({ data }: { data: MapData }): React.ReactElemen
   useSignals();
   const i = snapshotIndex.value;
   const snap = SNAPSHOTS[i];
-  // biome-ignore lint/correctness/useExhaustiveDependencies: bỏ `i` sẽ khiến danh sách chính thể không cập nhật khi đổi mốc mà `data` không đổi tham chiếu.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: bỏ `i` sẽ khiến danh sách không cập nhật khi đổi mốc mà `data` không đổi tham chiếu.
   const present = useMemo(() => politiesInSnapshot(data.owners[i], data.cells), [data, i]);
   const hasLow = useMemo(() => lowConfidenceCells(snap, data.cells, GROUPS).size > 0, [snap, data]);
   return (
