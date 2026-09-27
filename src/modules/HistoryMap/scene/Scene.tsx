@@ -45,7 +45,7 @@ export default function Scene({
       </Bvh>
       <Borders data={data} />
       <Labels data={data} />
-      <CameraRig />
+      <CameraRig data={data} />
       {children}
     </Canvas>
   );
