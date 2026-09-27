@@ -4137,3 +4137,305 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - [ ] **Step 1:** Dùng skill `superpowers:requesting-code-review` (agent `engineering-code-reviewer`) để review toàn nhánh `feat/history-map` so với `main`. Sửa mọi lỗi mức nghiêm trọng hoặc quan trọng, mỗi lần sửa một commit riêng.
 - [ ] **Step 2:** Đưa `docs/history-review.md` cho người dùng duyệt từng mốc. Ghi lại các yêu cầu sửa nội dung, sửa trong file thời kỳ tương ứng, chạy `yarn validate:history && yarn history:review`, rồi commit.
 - [ ] **Step 3:** Dùng skill `superpowers:finishing-a-development-branch` để chốt nhánh (merge hoặc PR, tùy người dùng chọn).
+
+---
+
+## Thay đổi thiết kế giữa chừng (2026-09-27): cờ phủ lãnh thổ
+
+Người dùng yêu cầu **hiện lá cờ trên nền lãnh thổ thay vì cắm cột**, chọn **phủ kín giữ tỉ lệ (cover)** và **giữ nhãn tên nhỏ**. Spec mục 4 đã cập nhật. Task 8R dưới đây thay thế phần cột/cờ vải/đĩa biểu tượng của Task 8. Giữ nguyên `centroid.ts`, `flagsReconcile.ts`, và các helper nhãn `labelSprite.ts`, `labelOverlap.ts` (từ Task 8 fix round 2). Task 9 vẫn dùng `polityAnchors` như cũ.
+
+### Task 8R: Cờ phủ lãnh thổ bằng atlas trong shader, nhãn tên nhỏ
+
+**Files:**
+- Create: `src/modules/HistoryMap/lib/flagCover.ts`, `src/modules/HistoryMap/lib/flagCover.test.ts`, `src/modules/HistoryMap/lib/flagAtlas.ts` (client-only), `src/modules/HistoryMap/scene/Labels.tsx`
+- Modify: `src/modules/HistoryMap/lib/centroid.ts` (+ test: thêm bbox), `src/modules/HistoryMap/lib/cellState.ts` (+ test: owner slots), `src/modules/HistoryMap/scene/Terrain.tsx` (shader), `src/modules/HistoryMap/scene/Scene.tsx` (`<Flags>` → `<Labels>`)
+- Delete: `src/modules/HistoryMap/scene/FlagPole.tsx`, `src/modules/HistoryMap/scene/Flags.tsx`, `src/modules/HistoryMap/scene/useFlagTexture.ts` (sprite nhãn chuyển sang `Labels.tsx`)
+
+**Interfaces:**
+- Consumes: `polityAnchors`, `reconcileFlags`/`dropFlag`, `labelSpriteScale`, `resolveLabelOverlaps` (Task 8), `CellStateStore` (Task 5), `POLITIES`, `effectivePolity`, `snapshotIndex`, `reducedMotion`.
+- Produces (`centroid.ts`): `Anchor` thêm `bbox: { minLon: number; maxLon: number; minLat: number; maxLat: number }` (khung bao của **cụm liền kề lớn nhất**).
+- Produces (`flagCover.ts`, thuần):
+  - `coverRect(bbox, aspect): { cx: number; cz: number; w: number; h: number }` (tọa độ world). `bw = px(maxLon) - px(minLon)`, `bh = pz(minLat) - pz(maxLat)`, `h = max(bh, bw / aspect)`, `w = h * aspect`, tâm ở tâm bbox.
+  - `atlasLayout(count, cols = 8, slotW = 256, slotH = 171, pad = 4): { width; height; rect(i): { u0; v0; u1; v1 } }`: uv đã trừ lề `pad` và tính theo `flipY` (hàng 0 ở trên cùng ảnh ⇒ v gần 1).
+  - `polityParamsData(polityIds: string[], anchors: Map<string, Anchor>, aspects: number[], prev?: Float32Array): Float32Array`: RGBA float, rộng P, cao 2. Hàng 0 là rect atlas `(u0, v0, u1, v1)`, hàng 1 là cover `(cx, cz, w, h)`. Chính thể vắng mặt ở mốc này thì giữ giá trị `prev` (để ô đang mờ dần của chủ cũ vẫn đúng chỗ).
+- Produces (`cellState.ts`): `CellStateStore.setOwnerSlots(slots: Float32Array, opts?: { animate?: boolean; delays?: Float32Array }): void` và `readonly ownerData: Float32Array` (RGBA mỗi ô: `fromSlot, toSlot, blend 0..1, 0`; slot = chỉ số trong `POLITIES`, `-1` = null). `tick()` cập nhật `blend` với cùng `ease`, `TRANSITION_S` và delay.
+- Produces (`flagAtlas.ts`): `loadFlagAtlas(polities: Polity[]): Promise<{ texture: THREE.CanvasTexture; aspects: number[] }>`. Vẽ từng cờ (SVG/PNG) vào ô 256×171, co giãn khít ô. `aspects[i]` = tỉ lệ gốc w/h của ảnh. Ảnh lỗi thì tô ô bằng `polity.color` và aspect = 1.5. `texture.colorSpace = SRGBColorSpace`, bật mipmap, `anisotropy = 8`.
+
+- [ ] **Step 1: Test thuần (thất bại)**
+
+`src/modules/HistoryMap/lib/flagCover.test.ts`:
+```ts
+import { describe, expect, it } from 'vitest';
+import { atlasLayout, coverRect, polityParamsData } from './flagCover';
+import { px, pz } from './projection';
+
+describe('coverRect', () => {
+  it('lãnh thổ cao hẹp: chiều cao cờ = chiều cao lãnh thổ, rộng theo tỉ lệ, tâm ở tâm bbox', () => {
+    const r = coverRect({ minLon: 105, maxLon: 106, minLat: 10, maxLat: 20 }, 1.5);
+    const bh = pz(10) - pz(20);
+    expect(r.h).toBeCloseTo(bh);
+    expect(r.w).toBeCloseTo(bh * 1.5);
+    expect(r.cx).toBeCloseTo((px(105) + px(106)) / 2);
+    expect(r.cz).toBeCloseTo((pz(10) + pz(20)) / 2);
+  });
+  it('lãnh thổ rộng dẹt: chiều rộng cờ phủ hết chiều rộng', () => {
+    const r = coverRect({ minLon: 100, maxLon: 110, minLat: 15, maxLat: 16 }, 1.5);
+    expect(r.w).toBeCloseTo(px(110) - px(100));
+    expect(r.h).toBeCloseTo(r.w / 1.5);
+  });
+});
+
+describe('atlasLayout', () => {
+  it('đủ ô, uv trong [0,1], hàng 0 ở trên (v cao), có lề', () => {
+    const a = atlasLayout(10, 8);
+    expect(a.width).toBe(8 * 256);
+    expect(a.height).toBe(2 * 171);
+    const r0 = a.rect(0);
+    const r8 = a.rect(8);
+    expect(r0.v1).toBeGreaterThan(r8.v1);
+    expect(r0.u0).toBeCloseTo(4 / a.width);
+    expect(r0.u1).toBeCloseTo((256 - 4) / a.width);
+    for (const r of [r0, r8]) for (const v of [r.u0, r.u1, r.v0, r.v1]) expect(v).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('polityParamsData', () => {
+  const anchor = { cellIndex: 0, lon: 105.5, lat: 15, area: 1, cellCount: 1, bbox: { minLon: 105, maxLon: 106, minLat: 10, maxLat: 20 } };
+  it('ghi rect atlas ở hàng 0 và cover ở hàng 1; chính thể vắng giữ giá trị cũ', () => {
+    const d1 = polityParamsData(['a', 'b'], new Map([['a', anchor], ['b', anchor]]), [1.5, 1.5]);
+    expect(d1.length).toBe(2 * 2 * 4);
+    const bRow1 = d1.slice((2 + 1) * 4, (2 + 1) * 4 + 4);
+    const d2 = polityParamsData(['a', 'b'], new Map([['a', anchor]]), [1.5, 1.5], d1);
+    expect([...d2.slice((2 + 1) * 4, (2 + 1) * 4 + 4)]).toEqual([...bRow1]);
+  });
+});
+```
+Thêm vào `cellState.test.ts`:
+```ts
+describe('CellStateStore owner slots', () => {
+  it('không animate: from = to = slot mới, blend = 1', () => {
+    const s = new CellStateStore(2);
+    s.setOwnerSlots(new Float32Array([3, -1]));
+    s.tick(0);
+    expect([...s.ownerData.slice(0, 8)]).toEqual([3, 3, 1, 0, -1, -1, 1, 0]);
+  });
+  it('animate: from = slot cũ, to = slot mới, blend đi từ 0 → 1 (tôn trọng delay)', () => {
+    const s = new CellStateStore(1);
+    s.setOwnerSlots(new Float32Array([2]));
+    s.tick(0);
+    s.setOwnerSlots(new Float32Array([5]), { animate: true, delays: new Float32Array([0.2]) });
+    s.tick(0.1);
+    expect(s.ownerData[0]).toBe(2);
+    expect(s.ownerData[1]).toBe(5);
+    expect(s.ownerData[2]).toBe(0);
+    s.tick(TRANSITION_S / 2 + 0.1);
+    expect(s.ownerData[2]).toBeGreaterThan(0);
+    expect(s.ownerData[2]).toBeLessThan(1);
+    s.tick(TRANSITION_S);
+    expect(s.ownerData[2]).toBe(1);
+  });
+  it('slot không đổi thì không chạy blend', () => {
+    const s = new CellStateStore(1);
+    s.setOwnerSlots(new Float32Array([4]));
+    s.tick(0);
+    s.setOwnerSlots(new Float32Array([4]), { animate: true });
+    s.tick(0.1);
+    expect(s.ownerData[2]).toBe(1);
+  });
+});
+```
+Thêm vào `flags.test.ts` (centroid): trong test "neo vào cụm liền kề có diện tích lớn nhất", assert `x?.bbox` đúng bằng lon/lat của ô 2 (`minLon = maxLon = CELLS[2].lon`, tương tự cho lat).
+
+Run: `yarn test src/modules/HistoryMap/lib` → Expected: FAIL (module/method chưa có).
+
+- [ ] **Step 2: Cài đặt `flagCover.ts`, `bbox` trong `centroid.ts`, `setOwnerSlots` trong `cellState.ts`**
+
+`src/modules/HistoryMap/lib/flagCover.ts`:
+```ts
+import type { Anchor } from './centroid';
+import { px, pz } from './projection';
+
+export type Bbox = Anchor['bbox'];
+
+export function coverRect(bbox: Bbox, aspect: number): { cx: number; cz: number; w: number; h: number } {
+  const x0 = px(bbox.minLon);
+  const x1 = px(bbox.maxLon);
+  const z0 = pz(bbox.maxLat); // bắc = z nhỏ
+  const z1 = pz(bbox.minLat);
+  const bw = Math.max(1e-3, x1 - x0);
+  const bh = Math.max(1e-3, z1 - z0);
+  const h = Math.max(bh, bw / aspect);
+  return { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, w: h * aspect, h };
+}
+
+export function atlasLayout(count: number, cols = 8, slotW = 256, slotH = 171, pad = 4) {
+  const rows = Math.max(1, Math.ceil(count / cols));
+  const width = cols * slotW;
+  const height = rows * slotH;
+  return {
+    width,
+    height,
+    slotW,
+    slotH,
+    cols,
+    rect(i: number): { u0: number; v0: number; u1: number; v1: number } {
+      const c = i % cols;
+      const r = Math.floor(i / cols);
+      return {
+        u0: (c * slotW + pad) / width,
+        u1: ((c + 1) * slotW - pad) / width,
+        v1: 1 - (r * slotH + pad) / height,
+        v0: 1 - ((r + 1) * slotH - pad) / height
+      };
+    }
+  };
+}
+
+export function polityParamsData(
+  polityIds: string[],
+  anchors: Map<string, Anchor>,
+  aspects: number[],
+  prev?: Float32Array
+): Float32Array {
+  const P = polityIds.length;
+  const out = prev ? Float32Array.from(prev) : new Float32Array(P * 2 * 4);
+  const layout = atlasLayout(P);
+  polityIds.forEach((id, i) => {
+    const r = layout.rect(i);
+    out.set([r.u0, r.v0, r.u1, r.v1], i * 4);
+    const a = anchors.get(id);
+    if (!a) return; // vắng mặt: giữ giá trị cũ
+    const c = coverRect(a.bbox, aspects[i] ?? 1.5);
+    out.set([c.cx, c.cz, c.w, c.h], (P + i) * 4);
+  });
+  return out;
+}
+```
+`centroid.ts`: trong vòng lặp chọn ô neo của cụm lớn nhất, tính thêm `bbox` từ lon/lat các ô trong `comp` và gán vào `Anchor`.
+
+`cellState.ts`: thêm các mảng `slotFrom`, `slotTo`, `slotElapsed`, `slotDelay` (Float32Array theo số ô, `slotElapsed` khởi tạo `+Infinity`) và `ownerData = new Float32Array(width * height * 4)`.
+- `setOwnerSlots(slots, opts)`: với mỗi ô, nếu `opts.animate` và slot mới khác `slotTo` thì `slotFrom = slotTo`, `slotElapsed = 0`, `slotDelay = delays?.[i] ?? 0`. Ngược lại thì `slotFrom = slotTo = slot mới` và `slotElapsed = Infinity`. Luôn gán `slotTo = slot mới` và đánh dấu dirty.
+- Trong `tick`: cộng `dt` vào `slotElapsed` giống màu, rồi ghi `ownerData[i*4..] = [slotFrom, slotTo, blend, 0]` với `blend = ease(clamp((elapsed - delay) / TRANSITION_S))` (Infinity ⇒ 1), và giữ `active = true` khi còn ô đang blend.
+
+Run: `yarn test src/modules/HistoryMap/lib` → Expected: PASS (bao gồm mọi test cũ).
+
+- [ ] **Step 3: `flagAtlas.ts`**
+
+```ts
+'use client';
+
+import type { Polity } from '@/data/history/types';
+import * as THREE from 'three';
+import { atlasLayout } from './flagCover';
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(src));
+    img.src = src;
+  });
+}
+
+export async function loadFlagAtlas(polities: Polity[]): Promise<{ texture: THREE.CanvasTexture; aspects: number[] }> {
+  const layout = atlasLayout(polities.length);
+  const canvas = document.createElement('canvas');
+  canvas.width = layout.width;
+  canvas.height = layout.height;
+  const g = canvas.getContext('2d') as CanvasRenderingContext2D;
+  const aspects = await Promise.all(
+    polities.map(async (p, i) => {
+      const x = (i % layout.cols) * layout.slotW;
+      const y = Math.floor(i / layout.cols) * layout.slotH;
+      try {
+        const img = await loadImage(p.flag);
+        g.drawImage(img, x, y, layout.slotW, layout.slotH);
+        return (img.naturalWidth || 3) / (img.naturalHeight || 2);
+      } catch {
+        g.fillStyle = p.color;
+        g.fillRect(x, y, layout.slotW, layout.slotH);
+        return 1.5;
+      }
+    })
+  );
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  texture.needsUpdate = true;
+  return { texture, aspects };
+}
+```
+Chỉ số slot của chính thể = chỉ số trong mảng `POLITIES`. Override cờ theo triều đại (`polityOverrides.flag`) **không** vào atlas. Cờ trên đất luôn là cờ gốc của `Polity`, còn thẻ thông tin vẫn hiện cờ override. Ghi rõ giới hạn này trong report. Task C1 sẽ tách các triều đại cần cờ khác nhau thành id riêng nếu cần.
+
+- [ ] **Step 4: Shader trong `Terrain.tsx`**
+
+Thêm uniforms: `uCellOwner` (DataTexture float RGBA từ `store.ownerData`, cùng kích thước `uCellTexSize`), `uPolity` (DataTexture float RGBA, rộng P, cao 2, từ `polityParamsData`), `uPolityCount`, `uFlagAtlas` (CanvasTexture, hoặc texture 1×1 trắng khi chưa tải), `uAtlasReady` (0/1), `uNullColor` (linear của `#6b6358`).
+
+Vertex (bổ sung sau phần hiện có):
+```glsl
+varying vec4 vOwner;   // from, to, blend
+varying vec2 vWorldXZ;
+varying float vTop;
+...
+vOwner = texture2D(uCellOwner, cuv);
+vWorldXZ = (modelMatrix * vec4(transformed, 1.0)).xz;
+vTop = (aWallRole < 0.5 && normal.y > 0.5) ? 1.0 : 0.0;
+```
+Fragment:
+```glsl
+uniform sampler2D uPolity; uniform float uPolityCount; uniform sampler2D uFlagAtlas;
+uniform float uAtlasReady; uniform vec3 uNullColor;
+varying vec4 vOwner; varying vec2 vWorldXZ; varying float vTop;
+vec3 flagColor(float slot) {
+  if (slot < -0.5) return uNullColor;
+  float u = (slot + 0.5) / uPolityCount;
+  vec4 rect = texture2D(uPolity, vec2(u, 0.25));
+  vec4 cov = texture2D(uPolity, vec2(u, 0.75));
+  vec2 fuv = vec2((vWorldXZ.x - cov.x) / cov.z + 0.5, 0.5 + (cov.y - vWorldXZ.y) / cov.w);
+  fuv = clamp(fuv, 0.0, 1.0);
+  return texture2D(uFlagAtlas, mix(rect.xy, rect.zw, fuv)).rgb;
+}
+```
+Thay dòng `diffuseColor` đang có bằng:
+```glsl
+vec3 wallCol = vCellColor * mix(1.0, 0.55, vSide);
+vec3 topCol = mix(flagColor(vOwner.x), flagColor(vOwner.y), vOwner.z);
+vec3 base = (vTop > 0.5 && uAtlasReady > 0.5) ? topCol : wallCol;
+vec4 diffuseColor = vec4( base * (1.0 + vLift * 0.3), opacity );
+```
+Tất cả DataTexture dùng `NearestFilter`. `uPolity` đọc tại `v = 0.25` / `0.75` vì cao 2 texel.
+
+Luồng dữ liệu trong `Terrain`:
+- `slotOf = new Map(POLITIES.map((p, i) => [p.id, i]))`.
+- Trong `useSignalEffect` hiện có: ngoài `setColors`, gọi `store.setOwnerSlots(Float32Array.from(owners, (o) => (o === null ? -1 : slotOf.get(o) ?? -1)), { animate, delays })`.
+- Cập nhật `uPolity` bằng `polityParamsData(POLITIES.map(p => p.id), polityAnchors(data.cells, data.neighbors, owners), aspects, prevParams)`.
+- `useFrame`: nếu `store.tick()` thì đánh dấu `needsUpdate` cho **cả hai** DataTexture ô.
+- Tải atlas một lần: `useEffect(() => { loadFlagAtlas(POLITIES).then(...) }, [])`. Khi xong thì gán uniform, `uAtlasReady = 1`, và dispose khi unmount.
+- Dispose mọi DataTexture mới khi unmount (giống pattern đang có).
+- `reducedMotion` ⇒ `animate = false` (sẵn có).
+
+- [ ] **Step 5: `Labels.tsx` thay cho `Flags.tsx`/`FlagPole.tsx`**
+
+Chuyển phần nhãn sprite của `FlagPole.tsx` (canvas texture, `useFontsReady`, `labelSpriteScale`, `sizeAttenuation={false}`, `depthTest={false}`, `renderOrder`) sang component `Label` đặt tại `(px(anchor.lon), DEPTH + 0.05, pz(anchor.lat))`, sprite `center` ở giữa. Giữ vòng đời enter/stay/exit bằng `reconcileFlags` (opacity 0 → 1 và 1 → 0, không scale), và luật ẩn chồng nhau bằng `resolveLabelOverlaps` (ưu tiên theo `anchor.area`). Xóa `FlagPole.tsx`, `Flags.tsx`, `useFlagTexture.ts`. Trong `Scene.tsx` thay `<Flags data={data} />` bằng `<Labels data={data} />`.
+
+- [ ] **Step 6: E2E và kiểm tra bằng mắt**
+
+- E2E hiện có phải PASS, đặc biệt test `cờ tải lỗi không làm hỏng cảnh`: atlas phải rơi về màu trơn.
+- Chụp Playwright ở `/?y=tcn700`, `/?y=1471`, `/?y=2025` (sau ~3 giây) → `task-8r-*.png` trong workspace, rồi Read ảnh. Kỳ vọng:
+  - Mỗi lãnh thổ phủ lá cờ/biểu tượng của mình, cờ không méo, tâm cờ ở giữa cụm lãnh thổ chính.
+  - Không lộ ranh giới huyện.
+  - Tường bên là màu chủ đạo, tối hơn.
+  - Nhãn tên cao khoảng 22px, không chồng nhau.
+- Chụp thêm một ảnh **trong lúc** chuyển mốc (khoảng 0,4 giây sau khi nhấn →) để thấy cờ cũ chuyển dần sang cờ mới.
+- Vì dữ liệu mẫu dùng chung `_sample.svg` cho mọi chính thể, **tạm thời** (không commit) đổi `flag` của 2–3 chính thể mẫu sang các SVG khác nhau để thấy rõ từng cờ. Có thể tự vẽ SVG màu vào thư mục tạm trong workspace rồi phục vụ qua `public/` tạm thời, nhớ gỡ trước khi commit.
+
+- [ ] **Step 7: Commit**
+
+```bash
+npx tsc --noEmit && yarn test && yarn lint:fix
+git add -A
+git commit -m "feat(map): drape polity flags over territories via shader atlas; small name labels
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+```
