@@ -5,10 +5,10 @@ import { OrbitControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import gsap from 'gsap';
 import type React from 'react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { SNAPSHOTS } from '@/data/history';
-import { distanceForArea, focusPose, type Pose } from '../lib/cameraPose';
+import { cameraTarget, type Pose } from '../lib/cameraPose';
 import { polityAnchors } from '../lib/centroid';
 import type { MapData } from '../lib/loadMapData';
 import { playing, reducedMotion, selectedPolity, snapshotIndex } from '../state/store';
@@ -22,6 +22,14 @@ export default function CameraRig({ data }: { data: MapData }): React.ReactEleme
   const camera = useThree((s) => s.camera);
   const tl = useRef<gsap.core.Timeline | null>(null);
   const wasSelected = useRef(false);
+  const lastAnchorKey = useRef<string | null>(null);
+
+  useEffect(
+    () => () => {
+      tl.current?.kill();
+    },
+    []
+  );
 
   const fly = (pose: Pose): void => {
     const c = controls.current;
@@ -59,24 +67,36 @@ export default function CameraRig({ data }: { data: MapData }): React.ReactEleme
       );
   };
 
-  // Đang tự chạy thì bay tới focus của mốc (nếu có)
+  // Đang tự chạy thì bay tới focus của mốc (nếu có) — chính thể đang chọn thắng, không bay đè lên
   useSignalEffect(() => {
+    if (selectedPolity.value) return;
     const snap = SNAPSHOTS[snapshotIndex.value];
-    if (!playing.value || !snap?.focus) return;
-    fly(focusPose(snap.focus.lon, snap.focus.lat, snap.focus.distance ?? 110));
+    const target = cameraTarget({
+      selected: null,
+      anchors: undefined,
+      snapshot: snap,
+      playing: playing.value
+    });
+    if (target) fly(target.pose);
   });
 
-  // Chọn chính thể thì bay tới neo; bỏ chọn thì về toàn cảnh
+  // Chọn chính thể thì bay theo neo của nó — kể cả khi đổi mốc bằng tay (prev/next/phím) trong
+  // lúc đang chọn, vì lãnh thổ có thể dời/đổi kích thước; chỉ bay khi neo thực sự đổi chỗ. Bỏ
+  // chọn thì về toàn cảnh.
   useSignalEffect(() => {
     const id = selectedPolity.value;
+    const i = snapshotIndex.value;
     if (id) {
-      const a = polityAnchors(data.cells, data.neighbors, data.owners[snapshotIndex.peek()]).get(
-        id
-      );
-      if (a) fly(focusPose(a.lon, a.lat, distanceForArea(a.area)));
-      wasSelected.current = true;
+      const anchors = polityAnchors(data.cells, data.neighbors, data.owners[i]);
+      const target = cameraTarget({ selected: id, anchors, snapshot: undefined, playing: false });
+      if (target && target.key !== lastAnchorKey.current) {
+        fly(target.pose);
+        lastAnchorKey.current = target.key;
+        wasSelected.current = true;
+      }
     } else if (wasSelected.current) {
       wasSelected.current = false;
+      lastAnchorKey.current = null;
       fly(HOME);
     }
   });
