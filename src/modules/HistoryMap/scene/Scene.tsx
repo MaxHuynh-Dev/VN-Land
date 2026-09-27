@@ -7,6 +7,7 @@ import type { CellStateStore } from '../lib/cellState';
 import type { MapData } from '../lib/loadMapData';
 import Borders from './Borders';
 import CameraRig, { HOME_POS } from './CameraRig';
+import Flags from './Flags';
 import Lights from './Lights';
 import Sea from './Sea';
 import Terrain from './Terrain';
@@ -43,6 +44,7 @@ export default function Scene({
         <Terrain data={data} store={store} onHoverCell={onHoverCell} onClickCell={onClickCell} />
       </Bvh>
       <Borders data={data} />
+      <Flags data={data} />
       <CameraRig />
       {children}
     </Canvas>

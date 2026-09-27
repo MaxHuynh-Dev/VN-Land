@@ -1,4 +1,5 @@
 import type * as THREE from 'three';
+import { neighbors } from 'topojson-client';
 import { GROUPS, SNAPSHOTS } from '@/data/history';
 import { buildCoastPositions } from './borders';
 import { type CellMeta, type CellsTopology, cellsFromTopology } from './cells';
@@ -11,6 +12,7 @@ export interface MapData {
   geometry: THREE.BufferGeometry;
   owners: (string | null)[][];
   coast: Float32Array;
+  neighbors: number[][];
 }
 
 export async function loadMapData(signal?: AbortSignal): Promise<MapData> {
@@ -23,6 +25,7 @@ export async function loadMapData(signal?: AbortSignal): Promise<MapData> {
     cells,
     geometry: buildTerrainGeometry(topo),
     owners: resolveAllSnapshots(SNAPSHOTS, cells, GROUPS),
-    coast: buildCoastPositions(topo)
+    coast: buildCoastPositions(topo),
+    neighbors: neighbors(topo.objects.cells.geometries as never)
   };
 }

@@ -74,3 +74,15 @@ test('thẻ thông tin đổi theo mốc; mở và đóng chi tiết chính th�
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('info-title')).toBeVisible();
 });
+
+test('cờ tải lỗi không làm hỏng cảnh', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.route('**/flags/**', (r) => r.abort());
+  await ready(page, '?y=1471');
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByTestId('info-title')).toHaveText(
+    SNAPSHOTS[SNAPSHOTS.findIndex((s) => s.id === '1471') + 1].title
+  );
+  expect(errors).toEqual([]);
+});
