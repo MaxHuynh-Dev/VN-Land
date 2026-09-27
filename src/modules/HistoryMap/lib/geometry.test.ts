@@ -1,5 +1,8 @@
+import type { FeatureCollection, Polygon } from 'geojson';
+import { topology } from 'topojson-server';
 import { describe, expect, it } from 'vitest';
 import { buildBorderPositions, buildCoastPositions } from './borders';
+import type { CellMeta, CellsTopology } from './cells';
 import { DEPTH, LAT0, LON0, px, pz, unprojectX, unprojectZ } from './projection';
 import { buildTerrainGeometry, cellAtVertex } from './terrainGeometry';
 import { makeFixtureTopology } from './topoFixture';
@@ -46,6 +49,24 @@ describe('buildTerrainGeometry', () => {
   });
   it('cellAtVertex đọc đúng chỉ số', () => {
     expect(cellAtVertex(geo, 0)).toBe(aCell.getX(0));
+  });
+  it('ô không có hình học hợp lệ phải ném lỗi', () => {
+    const emptyTopo: CellsTopology = {
+      type: 'Topology',
+      arcs: [],
+      objects: {
+        cells: {
+          type: 'GeometryCollection',
+          geometries: [
+            {
+              type: 'Polygon',
+              arcs: []
+            }
+          ]
+        }
+      }
+    };
+    expect(() => buildTerrainGeometry(emptyTopo)).toThrow(/Không có ô hợp lệ/);
   });
 });
 

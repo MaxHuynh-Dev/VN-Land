@@ -52,6 +52,7 @@ export function buildTerrainGeometry(topo: CellsTopology): THREE.BufferGeometry 
       parts.push(geo);
     }
   });
+  if (parts.length === 0) throw new Error('Không có ô hợp lệ để dựng địa hình');
   const merged = mergeGeometries(parts, false);
   if (!merged) throw new Error('Không gộp được hình học các ô');
   for (const p of parts) p.dispose();
