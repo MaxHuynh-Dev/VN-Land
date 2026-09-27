@@ -21,14 +21,25 @@ describe('resolveLabelOverlaps', () => {
     expect(resolveLabelOverlaps(rects)).toEqual(new Set(['b']));
   });
 
-  it('chuỗi ba nhãn: a-b chồng, b-c chồng, a-c không chồng → b và c đều bị ẩn, a còn hiện', () => {
+  it('chuỗi ba nhãn: a-b chồng, b-c chồng, a-c không chồng → chỉ ẩn b (c không bị nhãn đã ẩn che)', () => {
     // a: [0,10)  b: [8,18)  c: [16,26) — a∩b, b∩c, nhưng a∩c rỗng (16 ≥ 10).
     const rects = [
       rect('a', 0, 0, 10, 10, 300),
       rect('b', 8, 0, 10, 10, 200),
       rect('c', 16, 0, 10, 10, 100)
     ];
-    expect(resolveLabelOverlaps(rects)).toEqual(new Set(['b', 'c']));
+    expect(resolveLabelOverlaps(rects)).toEqual(new Set(['b']));
+  });
+
+  it('tham lam theo priority giảm dần, không phụ thuộc thứ tự đầu vào', () => {
+    // c (ưu tiên cao nhất) che b; b đã ẩn nên không còn che a → a hiện.
+    const rects = [
+      rect('a', 0, 0, 10, 10, 100),
+      rect('b', 8, 0, 10, 10, 200),
+      rect('c', 16, 0, 10, 10, 300)
+    ];
+    expect(resolveLabelOverlaps(rects)).toEqual(new Set(['b']));
+    expect(resolveLabelOverlaps([...rects].reverse())).toEqual(new Set(['b']));
   });
 
   it('priority bằng nhau → id theo thứ tự bảng chữ cái thắng (tie-break ổn định)', () => {

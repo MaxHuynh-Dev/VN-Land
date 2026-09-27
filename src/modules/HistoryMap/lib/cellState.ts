@@ -14,6 +14,11 @@ export class CellStateStore {
   readonly width: number;
   readonly height: number;
   readonly data: Float32Array;
+  /**
+   * RGBA mỗi ô: `fromSlot, toSlot, blend 0..1, 0`. Slot = chỉ số chính thể trong `POLITIES`
+   * (-1 = không có chủ). Shader phủ cờ (Terrain.tsx) trộn cờ của `fromSlot` sang `toSlot`.
+   */
+  readonly ownerData: Float32Array;
   private from: Float32Array;
   private to: Float32Array;
   private elapsed: Float32Array;
@@ -21,6 +26,10 @@ export class CellStateStore {
   private changed: Uint8Array;
   private lift: Float32Array;
   private liftTarget: Float32Array;
+  private slotFrom: Float32Array;
+  private slotTo: Float32Array;
+  private slotElapsed: Float32Array;
+  private slotDelay: Float32Array;
   private animating = false;
   private dirty = true;
 
@@ -36,6 +45,11 @@ export class CellStateStore {
     this.changed = new Uint8Array(count);
     this.lift = new Float32Array(count);
     this.liftTarget = new Float32Array(count);
+    this.ownerData = new Float32Array(this.width * this.height * 4);
+    this.slotFrom = new Float32Array(count).fill(-1);
+    this.slotTo = new Float32Array(count).fill(-1);
+    this.slotElapsed = new Float32Array(count).fill(Number.POSITIVE_INFINITY);
+    this.slotDelay = new Float32Array(count);
   }
 
   private currentColor(i: number, k: number): number {
@@ -59,6 +73,34 @@ export class CellStateStore {
     this.dirty = true;
   }
 
+  /**
+   * Gán chủ (slot chính thể) cho từng ô. `animate`: ô đổi chủ trộn dần từ cờ cũ sang cờ mới
+   * (cùng `ease`, `TRANSITION_S` và `delays` với màu); ô giữ nguyên chủ không chạy blend.
+   */
+  setOwnerSlots(
+    slots: Float32Array,
+    opts: { animate?: boolean; delays?: Float32Array } = {}
+  ): void {
+    for (let i = 0; i < this.count; i++) {
+      const next = slots[i];
+      if (opts.animate && next !== this.slotTo[i]) {
+        this.slotFrom[i] = this.slotTo[i];
+        this.slotElapsed[i] = 0;
+        this.slotDelay[i] = opts.delays?.[i] ?? 0;
+      } else if (!opts.animate) {
+        this.slotFrom[i] = next;
+        this.slotElapsed[i] = Number.POSITIVE_INFINITY;
+      }
+      this.slotTo[i] = next;
+    }
+    this.dirty = true;
+  }
+
+  private slotBlend(i: number): number {
+    if (this.slotElapsed[i] === Number.POSITIVE_INFINITY) return 1;
+    return ease(Math.min(1, Math.max(0, (this.slotElapsed[i] - this.slotDelay[i]) / TRANSITION_S)));
+  }
+
   setLiftMask(mask: Uint8Array | null): void {
     for (let i = 0; i < this.count; i++) this.liftTarget[i] = mask?.[i] ? HOVER_LIFT : 0;
     this.dirty = true;
@@ -79,6 +121,13 @@ export class CellStateStore {
           this.elapsed[i] = Number.POSITIVE_INFINITY;
         else active = true;
       }
+      if (this.slotElapsed[i] !== Number.POSITIVE_INFINITY) {
+        this.slotElapsed[i] += dt;
+        if (this.slotElapsed[i] - this.slotDelay[i] >= TRANSITION_S) {
+          this.slotElapsed[i] = Number.POSITIVE_INFINITY;
+          this.slotFrom[i] = this.slotTo[i];
+        } else active = true;
+      }
       const d = this.liftTarget[i] - this.lift[i];
       if (Math.abs(d) > 1e-4) {
         this.lift[i] = Math.abs(d) < 1e-3 ? this.liftTarget[i] : this.lift[i] + d * k;
@@ -94,6 +143,9 @@ export class CellStateStore {
         pulse = Math.sin(Math.PI * p) * PULSE_LIFT;
       }
       this.data[i * 4 + 3] = Math.min(1, pulse + this.lift[i]);
+      this.ownerData[i * 4] = this.slotFrom[i];
+      this.ownerData[i * 4 + 1] = this.slotTo[i];
+      this.ownerData[i * 4 + 2] = this.slotBlend(i);
     }
     this.animating = active;
     this.dirty = false;

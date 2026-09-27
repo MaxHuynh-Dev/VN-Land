@@ -6,6 +6,8 @@ export interface Anchor {
   lat: number;
   area: number;
   cellCount: number;
+  /** Khung bao (độ) của cụm ô liền kề lớn nhất — dùng để phủ cờ lên lãnh thổ (flagCover.ts). */
+  bbox: { minLon: number; maxLon: number; minLat: number; maxLat: number };
 }
 
 export function polityAnchors(
@@ -53,6 +55,19 @@ export function polityAnchors(
     }
     cx /= area || 1;
     cy /= area || 1;
+    const bbox = {
+      minLon: Number.POSITIVE_INFINITY,
+      maxLon: Number.NEGATIVE_INFINITY,
+      minLat: Number.POSITIVE_INFINITY,
+      maxLat: Number.NEGATIVE_INFINITY
+    };
+    for (const i of comp) {
+      const { lon, lat } = cells[i];
+      if (lon < bbox.minLon) bbox.minLon = lon;
+      if (lon > bbox.maxLon) bbox.maxLon = lon;
+      if (lat < bbox.minLat) bbox.minLat = lat;
+      if (lat > bbox.maxLat) bbox.maxLat = lat;
+    }
     let pick = comp[0];
     let pd = Number.POSITIVE_INFINITY;
     for (const i of comp) {
@@ -68,7 +83,8 @@ export function polityAnchors(
       lon: cells[pick].lon,
       lat: cells[pick].lat,
       area: t.area,
-      cellCount: t.count
+      cellCount: t.count,
+      bbox
     });
   }
   return out;

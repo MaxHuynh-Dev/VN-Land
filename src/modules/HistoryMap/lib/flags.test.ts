@@ -16,6 +16,13 @@ describe('polityAnchors', () => {
     expect(owners[x?.cellIndex ?? -1]).toBe('x');
     expect(x?.area).toBe(700);
     expect(x?.cellCount).toBe(3);
+    // khung bao chỉ của cụm lớn nhất ({2}), không gồm cụm {0,1}
+    expect(x?.bbox).toEqual({
+      minLon: CELLS[2].lon,
+      maxLon: CELLS[2].lon,
+      minLat: CELLS[2].lat,
+      maxLat: CELLS[2].lat
+    });
   });
   it('trong cụm, chọn ô gần tâm diện tích nhất', () => {
     const owners = ['x', 'x', null, null, null, null];
@@ -29,7 +36,14 @@ describe('polityAnchors', () => {
 });
 
 describe('reconcileFlags', () => {
-  const A = { cellIndex: 0, lon: 1, lat: 1, area: 1, cellCount: 1 };
+  const A = {
+    cellIndex: 0,
+    lon: 1,
+    lat: 1,
+    area: 1,
+    cellCount: 1,
+    bbox: { minLon: 1, maxLon: 1, minLat: 1, maxLat: 1 }
+  };
   const B = { ...A, lon: 2 };
   it('mới → enter; còn → stay kèm neo mới; mất → exit', () => {
     const r1 = reconcileFlags([], new Map([['a', A]]));

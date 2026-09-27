@@ -4,7 +4,7 @@ export const LABEL_TARGET_PX = 22;
 /**
  * Tính `scale` cho `<sprite>` nhãn tên chính thể khi `spriteMaterial` đặt
  * `sizeAttenuation={false}` (giữ kích thước không đổi trên màn hình bất kể
- * khoảng cách camera — xem FlagPole.tsx và task-8-report.md, "Fix round 1",
+ * khoảng cách camera — xem scene/Labels.tsx và task-8-report.md, "Fix round 1",
  * finding 1). Suy ra từ mã nguồn shader sprite của three.js
  * (`node_modules/three/src/renderers/shaders/ShaderLib/sprite.glsl.js`): khi
  * tắt attenuation, phép chia phối cảnh bị triệt tiêu và

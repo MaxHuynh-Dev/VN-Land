@@ -128,3 +128,35 @@ describe('internalWallColorIsA', () => {
     expect(internalWallColorIsA(0.4, 0.4)).toBe(true);
   });
 });
+
+describe('CellStateStore owner slots', () => {
+  it('không animate: from = to = slot mới, blend = 1', () => {
+    const s = new CellStateStore(2);
+    s.setOwnerSlots(new Float32Array([3, -1]));
+    s.tick(0);
+    expect([...s.ownerData.slice(0, 8)]).toEqual([3, 3, 1, 0, -1, -1, 1, 0]);
+  });
+  it('animate: from = slot cũ, to = slot mới, blend đi từ 0 → 1 (tôn trọng delay)', () => {
+    const s = new CellStateStore(1);
+    s.setOwnerSlots(new Float32Array([2]));
+    s.tick(0);
+    s.setOwnerSlots(new Float32Array([5]), { animate: true, delays: new Float32Array([0.2]) });
+    s.tick(0.1);
+    expect(s.ownerData[0]).toBe(2);
+    expect(s.ownerData[1]).toBe(5);
+    expect(s.ownerData[2]).toBe(0);
+    s.tick(TRANSITION_S / 2 + 0.1);
+    expect(s.ownerData[2]).toBeGreaterThan(0);
+    expect(s.ownerData[2]).toBeLessThan(1);
+    s.tick(TRANSITION_S);
+    expect(s.ownerData[2]).toBe(1);
+  });
+  it('slot không đổi thì không chạy blend', () => {
+    const s = new CellStateStore(1);
+    s.setOwnerSlots(new Float32Array([4]));
+    s.tick(0);
+    s.setOwnerSlots(new Float32Array([4]), { animate: true });
+    s.tick(0.1);
+    expect(s.ownerData[2]).toBe(1);
+  });
+});

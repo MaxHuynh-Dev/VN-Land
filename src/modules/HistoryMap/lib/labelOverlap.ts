@@ -15,27 +15,21 @@ function intersects(a: LabelRect, b: LabelRect): boolean {
 }
 
 /**
- * Trả về tập id các nhãn nên ẨN vì chồng lấn màn hình với một nhãn khác có
- * `priority` (diện tích lãnh thổ) cao hơn — cờ vẫn hiện bình thường, chỉ ẩn
- * chữ. Luật đơn giản, xét TỪNG CẶP độc lập (không bỏ qua cặp đã có một bên bị
- * ẩn bởi cặp khác): với chuỗi 3 nhãn chồng lấn liên tiếp (a-b, b-c, a không
- * chồng c), cả b lẫn c đều bị ẩn nếu priority giảm dần a > b > c, chỉ nhãn ưu
- * tiên cao nhất trong chuỗi còn hiện — xem `labelOverlap.test.ts`.
- * O(n²) — số cờ hiển thị cùng lúc rất nhỏ (≤ ~15), chạy mỗi khung hình được.
+ * Trả về tập id các nhãn nên ẨN vì chồng lấn màn hình với một nhãn đang hiện có `priority`
+ * (diện tích lãnh thổ) cao hơn. Tham lam theo priority giảm dần (hòa → id nhỏ hơn theo thứ tự
+ * chữ cái đi trước): giữ một nhãn nếu nó không chồng nhãn nào ĐÃ GIỮ. Nhãn đã bị ẩn không che
+ * nhãn khác — chuỗi a-b-c (a∩b, b∩c, a không chồng c) chỉ ẩn b. Kết quả không phụ thuộc thứ tự
+ * đầu vào. O(n²) — số nhãn hiển thị cùng lúc rất nhỏ (≤ ~15), chạy mỗi khung hình được.
  */
 export function resolveLabelOverlaps(rects: LabelRect[]): Set<string> {
+  const order = [...rects].sort((a, b) =>
+    b.priority !== a.priority ? b.priority - a.priority : a.id < b.id ? -1 : a.id > b.id ? 1 : 0
+  );
+  const kept: LabelRect[] = [];
   const hidden = new Set<string>();
-  for (let i = 0; i < rects.length; i++) {
-    for (let j = i + 1; j < rects.length; j++) {
-      const a = rects[i];
-      const b = rects[j];
-      if (!intersects(a, b)) continue;
-      if (a.priority === b.priority) {
-        hidden.add(a.id < b.id ? b.id : a.id);
-      } else {
-        hidden.add(a.priority < b.priority ? a.id : b.id);
-      }
-    }
+  for (const r of order) {
+    if (kept.some((k) => intersects(k, r))) hidden.add(r.id);
+    else kept.push(r);
   }
   return hidden;
 }
