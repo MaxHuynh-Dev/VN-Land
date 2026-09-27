@@ -63,3 +63,14 @@ test('focus bàn phím vào thanh trượt hiện viền focus rõ', async ({ pa
   const outlineStyle = await track.evaluate((el) => getComputedStyle(el).outlineStyle);
   expect(outlineStyle).not.toBe('none');
 });
+
+test('thẻ thông tin đổi theo mốc; mở và đóng chi tiết chính thể', async ({ page }) => {
+  await ready(page);
+  await expect(page.getByTestId('info-title')).toHaveText(SNAPSHOTS[0].title);
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByTestId('info-title')).toHaveText(SNAPSHOTS[1].title);
+  await page.locator('aside li button').first().click();
+  await expect(page.getByTestId('polity-detail')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('info-title')).toBeVisible();
+});
