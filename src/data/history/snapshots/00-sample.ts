@@ -23,12 +23,12 @@ export const SAMPLE_SNAPSHOTS: Snapshot[] = [
     sources: S,
     focus: { lon: 108.9, lat: 14.0 },
     assign: {
-      VNM: 'dai-viet',
+      VNM: 'hau-le',
       'group:champa-sau-1471': 'champa',
-      'group:nam-bo': 'khmer',
-      KHM: 'khmer',
+      'group:nam-bo': 'campuchia-hau-angkor',
+      KHM: 'campuchia-hau-angkor',
       LAO: 'lan-xang',
-      CHN: 'minh',
+      CHN: 'nha-minh',
       'VNM.hoang-sa': null,
       'VNM.truong-sa': null
     }
@@ -41,6 +41,11 @@ export const SAMPLE_SNAPSHOTS: Snapshot[] = [
     title: 'Ngày nay (mẫu)',
     summary: 'Dữ liệu mẫu để dựng giao diện.',
     sources: S,
-    assign: { VNM: 'viet-nam', LAO: 'lao', KHM: 'campuchia', CHN: 'trung-quoc' }
+    assign: {
+      VNM: 'chxhcnvn',
+      LAO: 'chdcnd-lao',
+      KHM: 'vuong-quoc-campuchia',
+      CHN: 'chnd-trung-hoa'
+    }
   }
 ];

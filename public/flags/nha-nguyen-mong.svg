@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg width="600" height="400"
+  
+  
+   viewBox="0 0 150 100"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   sodipodi:docname="Golden Horde Tamga — копия.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><rect x="0" y="0" width="150" height="100" fill="#ffffff"/>
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="287.79245"
+     inkscape:cy="148.84597"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Слой 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       d="m 0,100 h 125.5 c 0,0 2,-29 7.5,-37.5 C 138.5,54.000001 150,50 150,50 150,50 138.5,45.999999 133,37.5 127.5,29 125.5,0 125.5,0 H 0"
+       fill="#ffffff"
+       id="path1"
+       style="stroke-width:0.499999;stroke:none;fill:#ffffff;fill-opacity:1" />
+    <g
+       id="g11"
+       transform="translate(-8.4666671)">
+      <path
+         id="path3"
+         style="fill:#e60000;fill-opacity:1;stroke:none;stroke-width:4.44541;stroke-linecap:square;paint-order:markers fill stroke"
+         d="M 56.276296,52.446171 A 18.084453,18.084453 0 0 0 46.165874,68.634344 18.084453,18.084453 0 0 0 64.250224,86.719094 18.084453,18.084453 0 0 0 82.334576,68.634344 18.084453,18.084453 0 0 0 72.224153,52.446171 13.076942,13.076942 0 0 1 77.327069,62.809285 13.076942,13.076942 0 0 1 64.250224,75.886526 13.076942,13.076942 0 0 1 51.17338,62.809285 13.076942,13.076942 0 0 1 56.276296,52.446171 Z"
+         transform="translate(8.4666671)" />
+      <path
+         id="path4"
+         style="fill:#e60000;fill-opacity:1;stroke:none;stroke-width:4.44541;stroke-linecap:square;paint-order:markers fill stroke"
+         d="M 32.561906,13.280904 A 18.084453,18.084453 0 0 0 22.451469,29.469076 18.084453,18.084453 0 0 0 40.535836,47.553826 18.084453,18.084453 0 0 0 58.620186,29.469076 18.084453,18.084453 0 0 0 48.509763,13.280904 13.076942,13.076942 0 0 1 53.612678,23.644017 13.076942,13.076942 0 0 1 40.535836,36.721258 13.076942,13.076942 0 0 1 27.45899,23.644017 13.076942,13.076942 0 0 1 32.561906,13.280904 Z"
+         transform="translate(8.4666671)" />
+      <path
+         id="path5"
+         style="fill:#e60000;fill-opacity:1;stroke:none;stroke-width:4.44541;stroke-linecap:square;paint-order:markers fill stroke"
+         d="M 79.786575,13.280904 A 18.084453,18.084453 0 0 0 69.676152,29.469076 18.084453,18.084453 0 0 0 87.760502,47.553826 18.084453,18.084453 0 0 0 105.84485,29.469076 18.084453,18.084453 0 0 0 95.734417,13.280904 13.076942,13.076942 0 0 1 100.83734,23.644017 13.076942,13.076942 0 0 1 87.760502,36.721258 13.076942,13.076942 0 0 1 74.683659,23.644017 13.076942,13.076942 0 0 1 79.786575,13.280904 Z"
+         transform="translate(8.4666671)" />
+    </g>
+  </g>
+</svg>
