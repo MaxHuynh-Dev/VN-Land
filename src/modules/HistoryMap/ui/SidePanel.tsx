@@ -26,7 +26,14 @@ export default function SidePanel({ data }: { data: MapData }): React.ReactEleme
     );
   }
   return (
-    <section className="absolute inset-x-0 bottom-[132px] z-10">
+    // `bottom` đọc biến CSS `--timeline-h` do Timeline đo thật (ResizeObserver) và phơi ra trên
+    // :root — không còn số ma đoán trước, luôn khớp chiều cao thật của thanh thời gian bên dưới.
+    // 132px chỉ là giá trị dự phòng cho khung hình đầu tiên, trước khi Timeline kịp đo.
+    <section
+      data-testid="mobile-sheet"
+      className="absolute inset-x-0 z-10"
+      style={{ bottom: 'var(--timeline-h, 132px)' }}
+    >
       <button
         type="button"
         data-testid="sheet-toggle"

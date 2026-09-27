@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { cameraTarget, distanceForArea, focusPose } from './cameraPose';
+import {
+  cameraTarget,
+  distanceForArea,
+  focusPose,
+  HOME_POS,
+  homeDistance,
+  homePose,
+  homeScale
+} from './cameraPose';
 import type { Anchor } from './centroid';
 import { px, pz } from './projection';
 
@@ -27,6 +35,38 @@ describe('focusPose', () => {
       p.position[2] - p.target[2]
     );
     expect(d).toBeCloseTo(100);
+  });
+});
+
+describe('homePose', () => {
+  it('màn ngang (aspect tham chiếu 1.6, ví dụ desktop 1440×900) → giữ nguyên HOME_POS', () => {
+    const p = homePose(1440 / 900);
+    expect(p.position).toEqual(HOME_POS);
+    expect(p.target).toEqual([0, 0, 0]);
+  });
+
+  it('màn dọc hẹp (aspect 0.47) → lùi xa hơn, cùng hướng nhìn với HOME_POS', () => {
+    const p = homePose(0.47);
+    const homeLen = Math.hypot(...HOME_POS);
+    const len = Math.hypot(...p.position);
+    expect(len).toBeGreaterThan(homeLen);
+    // cùng hướng: mỗi trục theo đúng tỉ lệ với HOME_POS (tích chéo chuẩn hóa ~ 0)
+    const scale = len / homeLen;
+    expect(p.position[0]).toBeCloseTo(HOME_POS[0] * scale);
+    expect(p.position[1]).toBeCloseTo(HOME_POS[1] * scale);
+    expect(p.position[2]).toBeCloseTo(HOME_POS[2] * scale);
+  });
+
+  it('hệ số bị kẹp ở 2.4 kể cả màn cực hẹp', () => {
+    expect(homeScale(0.1)).toBe(2.4);
+    expect(homeScale(1.6)).toBe(1);
+    expect(homeScale(3.2)).toBe(1); // màn rất ngang không lùi thêm, không tiến gần hơn HOME_POS
+  });
+
+  it('homeDistance tăng cùng chiều với homeScale', () => {
+    const homeLen = Math.hypot(...HOME_POS);
+    expect(homeDistance(1.6)).toBeCloseTo(homeLen);
+    expect(homeDistance(0.47)).toBeCloseTo(homeLen * 2.4);
   });
 });
 

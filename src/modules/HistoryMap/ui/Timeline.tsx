@@ -3,6 +3,7 @@
 import { useSignals } from '@preact/signals-react/runtime';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import type React from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { SNAPSHOTS } from '@/data/history';
 import { COPY } from '../copy';
 import { clampIndex } from '../lib/timeline';
@@ -19,8 +20,30 @@ export default function Timeline(): React.ReactElement {
   const i = snapshotIndex.value;
   const snap = SNAPSHOTS[i];
   const last = SNAPSHOTS.length - 1;
+  const navRef = useRef<HTMLElement>(null);
+
+  // Chiều cao thanh thời gian đổi theo nội dung/màn hình (padding responsive…) — đo thật bằng
+  // ResizeObserver và phơi ra biến CSS `--timeline-h` trên :root, thay vì một số cố định đoán
+  // trước. SidePanel (bottom sheet trên mobile) đọc biến này để luôn nằm sát phía trên, không
+  // chồng lấn và không để hở, kể cả khi chiều cao thanh này đổi.
+  useLayoutEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const set = (): void => {
+      document.documentElement.style.setProperty(
+        '--timeline-h',
+        `${el.getBoundingClientRect().height}px`
+      );
+    };
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <nav
+      ref={navRef}
       aria-label={COPY.timelineLabel}
       className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a1420] via-[#0a1420]/85 to-transparent px-4 pt-10 pb-4 md:px-10 md:pb-6"
     >

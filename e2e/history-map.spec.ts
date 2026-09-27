@@ -118,3 +118,41 @@ test('mở trang Nguồn & ghi công', async ({ page }) => {
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toBeHidden();
 });
+
+test('nút Nguồn & ghi công không chồng lên tiêu đề ở màn rất hẹp (360px)', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await ready(page);
+  const credits = page.getByRole('button', { name: 'Nguồn & ghi công' });
+  await expect(credits).toBeVisible();
+  const eyebrow = page.locator('header p').first();
+  const h1 = page.locator('header h1');
+  const [creditsBox, eyebrowBox, h1Box] = await Promise.all([
+    credits.boundingBox(),
+    eyebrow.boundingBox(),
+    h1.boundingBox()
+  ]);
+  expect(creditsBox).not.toBeNull();
+  expect(eyebrowBox).not.toBeNull();
+  expect(h1Box).not.toBeNull();
+  const intersects = (
+    a: { x: number; y: number; width: number; height: number },
+    b: { x: number; y: number; width: number; height: number }
+  ): boolean =>
+    a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+  if (creditsBox && eyebrowBox) expect(intersects(creditsBox, eyebrowBox)).toBe(false);
+  if (creditsBox && h1Box) expect(intersects(creditsBox, h1Box)).toBe(false);
+});
+
+test('mobile: sheet mở ra không chồng lên thanh thời gian bên dưới', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'chỉ chạy project mobile');
+  await ready(page, '?y=1471');
+  await page.getByTestId('sheet-toggle').click();
+  await expect(page.getByTestId('info-title')).toBeVisible();
+  const [sheetBox, navBox] = await Promise.all([
+    page.getByTestId('mobile-sheet').boundingBox(),
+    page.getByRole('navigation', { name: 'Dòng thời gian' }).boundingBox()
+  ]);
+  expect(sheetBox).not.toBeNull();
+  expect(navBox).not.toBeNull();
+  if (sheetBox && navBox) expect(sheetBox.y + sheetBox.height).toBeLessThanOrEqual(navBox.y + 1);
+});

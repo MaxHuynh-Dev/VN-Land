@@ -3,10 +3,11 @@
 import { Bvh } from '@react-three/drei';
 import { Canvas, type ThreeEvent } from '@react-three/fiber';
 import type React from 'react';
+import { homePose } from '../lib/cameraPose';
 import type { CellStateStore } from '../lib/cellState';
 import type { MapData } from '../lib/loadMapData';
 import Borders from './Borders';
-import CameraRig, { HOME_POS } from './CameraRig';
+import CameraRig from './CameraRig';
 import Labels from './Labels';
 import Lights from './Lights';
 import Sea from './Sea';
@@ -28,11 +29,12 @@ export default function Scene({
   children?: React.ReactNode;
 }): React.ReactElement {
   const mobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const aspect = typeof window !== 'undefined' ? window.innerWidth / window.innerHeight : 16 / 10;
   return (
     <Canvas
       shadows={!mobile}
       dpr={mobile ? [1, 1.5] : [1, 2]}
-      camera={{ fov: 40, position: HOME_POS, near: 1, far: 1200 }}
+      camera={{ fov: 40, position: homePose(aspect).position, near: 1, far: 1200 }}
       gl={{ antialias: true, toneMappingExposure: 1.25 }}
       onPointerMissed={onMissed}
     >

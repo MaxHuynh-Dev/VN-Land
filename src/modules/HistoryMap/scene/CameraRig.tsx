@@ -8,18 +8,18 @@ import type React from 'react';
 import { useEffect, useRef } from 'react';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { SNAPSHOTS } from '@/data/history';
-import { cameraTarget, type Pose } from '../lib/cameraPose';
+import { cameraTarget, HOME_TARGET, homeDistance, homePose, type Pose } from '../lib/cameraPose';
 import { polityAnchors } from '../lib/centroid';
 import type { MapData } from '../lib/loadMapData';
 import { playing, reducedMotion, selectedPolity, snapshotIndex } from '../state/store';
 
-export const HOME_POS: [number, number, number] = [10, 130, 120];
-export const HOME_TARGET: [number, number, number] = [0, 0, 0];
-const HOME: Pose = { position: HOME_POS, target: HOME_TARGET };
+export { HOME_POS, HOME_TARGET } from '../lib/cameraPose';
 
 export default function CameraRig({ data }: { data: MapData }): React.ReactElement {
   const controls = useRef<OrbitControlsImpl>(null);
   const camera = useThree((s) => s.camera);
+  const size = useThree((s) => s.size);
+  const aspect = size.width / size.height;
   const tl = useRef<gsap.core.Timeline | null>(null);
   const wasSelected = useRef(false);
   const lastAnchorKey = useRef<string | null>(null);
@@ -97,7 +97,7 @@ export default function CameraRig({ data }: { data: MapData }): React.ReactEleme
     } else if (wasSelected.current) {
       wasSelected.current = false;
       lastAnchorKey.current = null;
-      fly(HOME);
+      fly(homePose(aspect));
     }
   });
 
@@ -108,7 +108,9 @@ export default function CameraRig({ data }: { data: MapData }): React.ReactEleme
       enableDamping
       dampingFactor={0.06}
       minDistance={40}
-      maxDistance={260}
+      // Màn dọc hẹp lùi camera home xa hơn (xem homePose) — trần phải theo kịp, không thì
+      // OrbitControls tự kẹp lại gần hơn tư thế home mong muốn.
+      maxDistance={Math.max(260, Math.ceil(homeDistance(aspect)) + 40)}
       minPolarAngle={0.12}
       maxPolarAngle={1.25}
       target={HOME_TARGET}
