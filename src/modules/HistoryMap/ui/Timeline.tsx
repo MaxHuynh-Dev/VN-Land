@@ -65,14 +65,6 @@ export default function Timeline(): React.ReactElement {
       </div>
       <EraBand current={i} />
       <div className="relative mt-2 h-8">
-        <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-between px-[7px]">
-          {SNAPSHOTS.map((s, k) => (
-            <span
-              key={s.id}
-              className={`h-2 w-2 rounded-full ${k <= i ? 'bg-[#f4e3c1]' : 'bg-white/25'}`}
-            />
-          ))}
-        </div>
         <input
           type="range"
           min={0}
@@ -82,8 +74,19 @@ export default function Timeline(): React.ReactElement {
           aria-label={COPY.timelineLabel}
           aria-valuetext={`${snap.yearLabel} — ${snap.title}`}
           onChange={(e) => go(Number(e.target.value))}
-          className="absolute inset-0 w-full cursor-pointer opacity-0"
+          className="peer absolute inset-0 z-10 w-full cursor-pointer opacity-0"
         />
+        <div
+          data-testid="timeline-track"
+          className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-between rounded px-[7px] outline-offset-4 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[#f4e3c1]"
+        >
+          {SNAPSHOTS.map((s, k) => (
+            <span
+              key={s.id}
+              className={`h-2 w-2 rounded-full ${k <= i ? 'bg-[#f4e3c1]' : 'bg-white/25'}`}
+            />
+          ))}
+        </div>
       </div>
     </nav>
   );

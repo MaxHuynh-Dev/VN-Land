@@ -53,3 +53,13 @@ test('phím → chuyển mốc và cập nhật URL', async ({ page }) => {
   await expect(page.getByTestId('timeline-current')).toHaveText(SNAPSHOTS[1].yearLabel);
   await expect(page).toHaveURL(new RegExp(`[?&]y=${SNAPSHOTS[1].id}`));
 });
+
+test('focus bàn phím vào thanh trượt hiện viền focus rõ', async ({ page }) => {
+  await ready(page);
+  const slider = page.getByRole('slider');
+  await slider.focus();
+  await expect(slider).toBeFocused();
+  const track = page.getByTestId('timeline-track');
+  const outlineStyle = await track.evaluate((el) => getComputedStyle(el).outlineStyle);
+  expect(outlineStyle).not.toBe('none');
+});
