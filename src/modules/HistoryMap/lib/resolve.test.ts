@@ -40,7 +40,7 @@ describe('resolveAllSnapshots', () => {
   });
   it('selector cụ thể hơn thắng, bất kể thứ tự khóa', () => {
     // s3: 'VNM.nam.c' đứng trước 'VNM' trong object nhưng vẫn phải được áp sau
-    expect(owners[2]).toEqual(['dai-viet', 'dai-viet', 'dai-viet', 'dai-viet', 'khmer', null]);
+    expect(owners[2]).toEqual(['dai-viet', 'dai-viet', 'champa', 'dai-viet', 'khmer', null]);
   });
   it('không sửa mảng của mốc trước', () => {
     expect(owners[0][2]).toBeNull();

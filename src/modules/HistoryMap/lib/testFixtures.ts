@@ -75,7 +75,9 @@ export const SNAPSHOTS: Snapshot[] = [
     title: 't',
     summary: 's',
     sources: src,
-    assign: { 'VNM.nam.c': 'dai-viet', VNM: 'dai-viet' },
+    // key order: cell-level 'VNM.nam.c' đứng trước, country-level 'VNM' đứng sau —
+    // nhưng selector cụ thể hơn ('VNM.nam.c') phải thắng dù đứng trước trong object
+    assign: { 'VNM.nam.c': 'champa', VNM: 'dai-viet' },
     polityOverrides: { 'dai-viet': { flag: '/flags/tran.svg' } }
   }
 ];
