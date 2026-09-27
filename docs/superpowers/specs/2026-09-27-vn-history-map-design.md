@@ -56,8 +56,8 @@ src/modules/HistoryMap/
   scene/
     Terrain.tsx                       # mesh các ô, màu theo chính thể, animation đổi chủ
     Sea.tsx  Lights.tsx
-    FlagPole.tsx                      # cột và cờ vải (shader gợn sóng), hoặc đĩa biểu tượng
-    Flags.tsx                         # đặt cờ tại tâm lãnh thổ từng chính thể
+    flagAtlas.ts (lib)                # gộp mọi ảnh cờ vào một texture atlas
+    Labels.tsx                        # nhãn tên chính thể tại điểm neo
     CameraRig.tsx                     # OrbitControls + bay tới focus bằng GSAP
   ui/
     Timeline.tsx  EraBand.tsx
@@ -136,7 +136,7 @@ Mốc đầu tiên gán đầy đủ. Các mốc sau chỉ ghi phần thay đổ
 1. `loadCells()` fetch TopoJSON một lần, dùng Suspense, rồi dựng một `ExtrudeGeometry` cho mỗi ô (tương tự `main.js` tham khảo) cùng lớp proxy tĩnh để raycast.
 2. `currentSnapshotIndex` (signal) thay đổi, `resolveSnapshot(i)` được gọi. Hàm này áp delta từ mốc 0 đến mốc i và memo kết quả theo i, trả về `Map<CellId, PolityId|null>`.
 3. `Terrain` là **một mesh gộp** cho mọi ô. Màu và độ nổi từng ô được đọc từ một `DataTexture` trong shader. Khi đổi mốc, các ô đổi chủ chuyển màu trong khoảng 0,8 giây, trễ dần theo khoảng cách tới lãnh thổ cũ để tạo hiệu ứng lãnh thổ **loang ra**, kèm một nhịp nổi nhẹ. Khi đứng yên, cả lãnh thổ là một khối đồng màu.
-4. `Flags` tính `polityCentroid` cho mỗi chính thể đang có. Cách tính: lấy cụm ô liền kề lớn nhất, rồi tìm điểm nằm trong đa giác gần tâm diện tích nhất. Cờ mới mọc lên, cờ mất đi thì hạ xuống, cờ còn lại trượt tới vị trí mới.
+4. Với mỗi chính thể, tính cụm ô liền kề lớn nhất: ô neo (cho nhãn tên và camera) và khung bao (cho phép phủ cờ). Shader mặt trên lấy mẫu atlas cờ theo chủ của ô, dùng phép chiếu cover-fit của chính thể đó. Nhãn mới hiện dần, nhãn cũ mờ dần.
 5. URL `?y=<year>` đồng bộ hai chiều bằng `history.replaceState`, không gây điều hướng.
 
 ## 4. Hiển thị và tương tác
@@ -144,10 +144,13 @@ Mốc đầu tiên gán đầy đủ. Các mốc sau chỉ ghi phần thay đổ
 - **Không khí:** biển đêm, ánh sáng ấm, đổ bóng mềm, tone mapping ACES, sương mù (theo repo tham khảo). Đất liền là khối đùn thấp.
 - **Chỉ hiện lãnh thổ, không hiện tỉnh/huyện:** các ô là đơn vị dữ liệu ẩn. Mọi ô cùng chính thể có **cùng một màu** và cùng độ cao, nên mặt trên liền thành một khối lãnh thổ. Không vẽ ranh giới tỉnh hay huyện. Chỉ vẽ **đường biên giữa các chính thể** (sáng nhẹ) và đường bờ biển. Ô `null` dùng màu đá xám.
 - **Không hiện tên địa danh hiện đại** trên bản đồ, tooltip hay thẻ thông tin. Tên tỉnh và huyện chỉ dùng nội bộ để soạn dữ liệu.
-- **Cờ:**
-  - Cột cờ với lá cờ vải `PlaneGeometry`, gợn sóng bằng vertex shader, texture từ SVG.
-  - Lãnh thổ nhỏ trên màn hình chỉ hiện huy hiệu.
-  - `flagKind: 'symbol'` thì hiện đĩa biểu tượng xoay chậm.
+- **Cờ phủ lãnh thổ (cập nhật 2026-09-27 theo yêu cầu người dùng — thay cho cột cờ):**
+  - Mặt trên lãnh thổ của mỗi chính thể được phủ bằng chính lá cờ (hoặc biểu tượng) của chính thể đó. Không còn cột cờ.
+  - Cách phủ: **phủ kín, giữ tỉ lệ** (kiểu CSS `object-fit: cover`) theo khung bao của cụm lãnh thổ liền kề lớn nhất, tâm cờ ở tâm khung. Phần thừa bị cắt theo đường biên. Ô rời (ví dụ Hoàng Sa, Trường Sa) lấy màu mép cờ gần nhất.
+  - Tường bên dùng màu chủ đạo `polity.color`, tối hơn, để giữ cảm giác khối 3D.
+  - Khi đổi mốc, ô đổi chủ chuyển dần từ cờ cũ sang cờ mới, kèm nhịp nổi như cũ.
+  - **Nhãn tên nhỏ** (viên nhãn cao khoảng 22px trên màn hình, kích thước không đổi theo khoảng cách camera) đặt ở điểm neo của mỗi lãnh thổ. Nếu hai nhãn chồng nhau thì ẩn nhãn của chính thể có diện tích nhỏ hơn.
+  - Ảnh cờ lỗi: phần lãnh thổ đó dùng màu trơn `polity.color`.
 - **Dòng thời gian (đáy màn hình):**
   - Các mốc cách đều nhau (trục không tuyến tính), kèm nhãn năm.
   - Dải thời kỳ lớn phía trên: Tiền sử, Hồng Bàng, Bắc thuộc, Độc lập tự chủ, Nam tiến và phân tranh, Nhà Nguyễn, Pháp thuộc, Kháng chiến và chia cắt, Thống nhất.
