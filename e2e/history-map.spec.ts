@@ -212,7 +212,9 @@ test('đổi mốc sang thời kỳ khác: hiện màn mở đầu thời kỳ �
   // dư nhiều so với 300 ms vì timer JS có thể bị trễ đáng kể trên máy chậm.
   await expect(card).toBeVisible({ timeout: 6000 });
   await expect(card).toContainText(targetEra?.label ?? '');
-  await expect(page.getByTestId('timeline-current')).toHaveText(SNAPSHOTS[ERA_CHANGE_IDX].yearLabel);
+  await expect(page.getByTestId('timeline-current')).toHaveText(
+    SNAPSHOTS[ERA_CHANGE_IDX].yearLabel
+  );
   // Tổng thời lượng ~2,2 s kể từ lúc hiện — chờ dư để chắc chắn đã tự biến mất.
   await expect(card).toBeHidden({ timeout: 8000 });
 });
@@ -231,7 +233,9 @@ test('prefers-reduced-motion: đổi thời kỳ không hiện màn mở đầu 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await ready(page, `?y=${SNAPSHOTS[ERA_CHANGE_IDX - 1].id}`);
   await page.keyboard.press('ArrowRight');
-  await expect(page.getByTestId('timeline-current')).toHaveText(SNAPSHOTS[ERA_CHANGE_IDX].yearLabel);
+  await expect(page.getByTestId('timeline-current')).toHaveText(
+    SNAPSHOTS[ERA_CHANGE_IDX].yearLabel
+  );
   await page.waitForTimeout(1500);
   await expect(page.getByTestId('era-title-card')).toHaveCount(0);
 });

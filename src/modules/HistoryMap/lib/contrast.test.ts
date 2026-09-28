@@ -21,7 +21,10 @@ describe('contrastRatio', () => {
     expect(contrastRatio('#b08a3e', '#b08a3e')).toBeCloseTo(1, 5);
   });
   it('đối xứng — thứ tự tham số không đổi kết quả', () => {
-    expect(contrastRatio('#6b6358', '#f4e3c1')).toBeCloseTo(contrastRatio('#f4e3c1', '#6b6358'), 10);
+    expect(contrastRatio('#6b6358', '#f4e3c1')).toBeCloseTo(
+      contrastRatio('#f4e3c1', '#6b6358'),
+      10
+    );
   });
 });
 
@@ -79,13 +82,16 @@ describe('Tương phản màn mở đầu thời kỳ trên nền bản đồ th
   });
 
   it('không phủ dải (bandAlpha giả định 0) thì ít nhất một thời kỳ KHÔNG đạt 4.5:1 trên nền sáng nhất — xác nhận dải tối thật sự cần thiết, không phải test tự nó luôn đạt', () => {
-    const worstEra = ERAS.reduce((worst, e) => {
-      const c = contrastRatio(
-        lightenTowardWhite(e.color, HEADLINE_LIGHTEN_AMOUNT),
-        LIGHTEST_POLITY_COLOR
-      );
-      return c < worst.c ? { e, c } : worst;
-    }, { e: ERAS[0], c: Number.POSITIVE_INFINITY }).c;
+    const worstEra = ERAS.reduce(
+      (worst, e) => {
+        const c = contrastRatio(
+          lightenTowardWhite(e.color, HEADLINE_LIGHTEN_AMOUNT),
+          LIGHTEST_POLITY_COLOR
+        );
+        return c < worst.c ? { e, c } : worst;
+      },
+      { e: ERAS[0], c: Number.POSITIVE_INFINITY }
+    ).c;
     expect(worstEra).toBeLessThan(4.5);
   });
 });

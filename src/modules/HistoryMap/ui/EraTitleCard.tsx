@@ -126,10 +126,15 @@ export default function EraTitleCard(): React.ReactElement {
               KHÔNG đủ vì tâm màn hình (nơi chữ nằm) trong suốt hoàn toàn ở đó; dải này phủ
               đúng vùng chữ, độ mờ đỉnh khớp `BAND_ALPHA` mà `lib/contrast.test.ts` đã kiểm
               tương phản ≥ 4,5:1 so với nền bản đồ xấu nhất (ô không chủ + lãnh thổ sáng nhất). */}
-          <div className={styles.band} style={{ '--band-color': BAND_RGBA } as React.CSSProperties} />
+          <div
+            className={styles.band}
+            style={{ '--band-color': BAND_RGBA } as React.CSSProperties}
+          />
           <div
             className={styles.content}
-            style={{ '--era-color': eraColor, '--range-color': RANGE_TEXT_COLOR } as React.CSSProperties}
+            style={
+              { '--era-color': eraColor, '--range-color': RANGE_TEXT_COLOR } as React.CSSProperties
+            }
           >
             <p className={styles.eraName}>{card.label}</p>
             <p className={styles.eraRange}>{card.range}</p>
