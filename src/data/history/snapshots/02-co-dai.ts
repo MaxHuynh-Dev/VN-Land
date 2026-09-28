@@ -363,7 +363,7 @@ export const CO_DAI: Snapshot[] = [
     era: 'bac-thuoc-3',
     title: 'Khởi nghĩa Mai Thúc Loan',
     summary:
-      'Mai Thúc Loan dấy binh ở Hoan Châu (Nghệ An), xưng đế (Mai Hắc Đế), xây thành Vạn An. Sử cũ chép ông được nhiều châu hưởng ứng, nhưng phạm vi kiểm soát thực tế nhiều khả năng chủ yếu ở vùng Nghệ An – Hà Tĩnh; cuộc khởi nghĩa bị tướng Đường là Dương Tư Húc dẹp trong cùng năm. Thư tịch Trung Hoa bắt đầu gọi Lâm Ấp bằng tên khác — Hoàn Vương — cụ thể hơn vào khoảng năm 749–757; bản đồ đổi tên chính thể ngay tại mốc 722 chỉ vì đây là điểm gần đúng nhất có sẵn trong dãy mốc của task này, không phải năm đổi tên chính xác.',
+      'Mai Thúc Loan dấy binh ở Hoan Châu (Nghệ An), xưng đế (Mai Hắc Đế), xây thành Vạn An. Sử cũ chép ông được nhiều châu hưởng ứng, nhưng phạm vi kiểm soát thực tế nhiều khả năng chủ yếu ở vùng Nghệ An – Hà Tĩnh; cuộc khởi nghĩa bị tướng Đường là Dương Tư Húc dẹp trong cùng năm. Thư tịch Trung Hoa bắt đầu gọi Lâm Ấp bằng tên khác — Hoàn Vương — cụ thể hơn vào khoảng năm 749–757; bản đồ đổi tên chính thể từ mốc 722 vì đây là mốc gần nhất trước thời điểm đó trên dòng thời gian, không phải năm đổi tên chính xác.',
     assign: {
       ...assignAll(GIAO_CHAU, 'mai-thuc-loan'),
       ...assignAll(NHAT_NAM, 'champa')
