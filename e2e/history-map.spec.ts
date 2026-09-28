@@ -171,3 +171,19 @@ test('mobile: sheet mở ra không chồng lên thanh thời gian bên dưới',
   expect(navBox).not.toBeNull();
   if (sheetBox && navBox) expect(sheetBox.y + sheetBox.height).toBeLessThanOrEqual(navBox.y + 1);
 });
+
+test('nhạc nền: tự bật ở thao tác đầu tiên, nút loa tắt và nhớ lựa chọn', async ({ page }) => {
+  await ready(page);
+  const toggle = page.getByRole('button', { name: /nhạc nền/ });
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await page.getByTestId('timeline-current').click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true', { timeout: 10_000 });
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await page.reload();
+  await expect(page.getByTestId('history-map-root')).toHaveAttribute('data-status', 'ready', {
+    timeout: 30_000
+  });
+  await page.getByTestId('timeline-current').click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+});

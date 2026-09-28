@@ -5,6 +5,7 @@ import type React from 'react';
 import { useRef } from 'react';
 import { POLITIES } from '@/data/history';
 import { COPY } from '../copy';
+import { TRACKS } from '../music/tracks';
 
 export default function CreditsDialog(): React.ReactElement {
   const ref = useRef<HTMLDialogElement>(null);
@@ -57,6 +58,22 @@ export default function CreditsDialog(): React.ReactElement {
           {COPY.creditsBoundariesNote}
         </p>
         <p className="mb-2 text-sm">{COPY.creditsMapTechnique}</p>
+        <h3 className="mb-2 font-semibold">{COPY.creditsMusicHeading}</h3>
+        <ul className="mb-3 space-y-1 text-xs">
+          {TRACKS.map((t) => (
+            <li key={t.src}>
+              <span className="font-semibold">{t.title}</span> — {t.author} ·{' '}
+              <a
+                className="underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#f4e3c1]"
+                href={t.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t.license}
+              </a>
+            </li>
+          ))}
+        </ul>
         <h3 className="mb-2 font-semibold">{COPY.creditsFlagsHeading}</h3>
         <p className="mb-3 text-xs opacity-80">{COPY.creditsFlagsOnLandNote}</p>
         <ul className="space-y-1 text-xs">

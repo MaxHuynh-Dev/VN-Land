@@ -24,6 +24,7 @@ import CellTooltip from './ui/CellTooltip';
 import CreditsDialog from './ui/CreditsDialog';
 import LoadError from './ui/LoadError';
 import Masthead from './ui/Masthead';
+import MusicToggle from './ui/MusicToggle';
 import NoWebGLFallback from './ui/NoWebGLFallback';
 import SidePanel from './ui/SidePanel';
 import Timeline from './ui/Timeline';
@@ -96,6 +97,7 @@ function ReadyView({ data }: { data: MapData }): React.ReactElement {
       {hasFinePointer && <CellTooltip />}
       <SidePanel data={data} />
       <CreditsDialog />
+      <MusicToggle />
       <p className="pointer-events-none absolute bottom-36 left-1/2 hidden -translate-x-1/2 text-xs opacity-50 md:block">
         {COPY.hint}
       </p>

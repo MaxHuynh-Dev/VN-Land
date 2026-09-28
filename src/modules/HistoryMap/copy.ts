@@ -41,5 +41,8 @@ export const COPY = {
   creditsFlagsHeading: 'Cờ và biểu tượng',
   creditsFlagsOnLandNote:
     'Cờ vẽ trên lãnh thổ là quốc kỳ hoặc cờ hiệu gốc của mỗi chính thể; cờ riêng theo từng triều đại hoặc quốc hiệu chỉ hiện trong thẻ chi tiết chính thể.',
-  creditsNoCredit: 'Biểu tượng tự vẽ cho dự án.'
+  creditsNoCredit: 'Biểu tượng tự vẽ cho dự án.',
+  creditsMusicHeading: 'Nhạc nền',
+  musicOn: 'Bật nhạc nền',
+  musicOff: 'Tắt nhạc nền'
 } as const;
