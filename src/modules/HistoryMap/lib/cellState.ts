@@ -1,0 +1,244 @@
+import * as THREE from 'three';
+import type { CellMeta } from './cells';
+
+/**
+ * Thời lượng chuyển chủ khi đổi mốc (màu vách + mặt trận loang cờ trên mặt trên + nhịp nổi).
+ * Hover không dùng hằng này (độ nổi hover bám mục tiêu theo hệ số tắt dần trong `tick`).
+ */
+export const OWNER_TRANSITION_S = 1.4;
+export const LIFT_MAX = 0.8;
+export const NULL_COLOR = '#6b6358';
+const HOVER_LIFT = 0.5; // tỉ lệ của LIFT_MAX
+const PULSE_LIFT = 0.6;
+/** Thời gian để phần nổi "gối" (khi đổi mốc giữa lúc đang nổi) hạ hết từ PULSE_LIFT về 0. */
+const PULSE_CARRY_S = OWNER_TRANSITION_S / 2;
+
+const ease = (t: number): number => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+
+export class CellStateStore {
+  readonly count: number;
+  readonly width: number;
+  readonly height: number;
+  readonly data: Float32Array;
+  /**
+   * RGBA mỗi ô: `fromSlot, toSlot, blend 0..1 (đã ease), progress 0..1 (tuyến tính)`. Slot = chỉ
+   * số chính thể trong `POLITIES` (-1 = không có chủ). Shader phủ cờ (Terrain.tsx) dựng mặt
+   * trận loang (dissolve.ts) từ cờ `fromSlot` sang `toSlot` theo `progress`; ô không chuyển
+   * có progress = 1 (không có vệt sáng).
+   */
+  readonly ownerData: Float32Array;
+  private from: Float32Array;
+  private to: Float32Array;
+  private elapsed: Float32Array;
+  private delay: Float32Array;
+  private changed: Uint8Array;
+  private lift: Float32Array;
+  private liftTarget: Float32Array;
+  private slotFrom: Float32Array;
+  private slotTo: Float32Array;
+  private slotElapsed: Float32Array;
+  private slotDelay: Float32Array;
+  /** Phần nổi còn lại khi nhịp nổi bị cắt ngang bởi lần đổi mốc mới; hạ tuyến tính về 0. */
+  private pulseCarry: Float32Array;
+  private animating = false;
+  private dirty = true;
+
+  constructor(count: number) {
+    this.count = count;
+    this.width = 2 ** Math.ceil(Math.log2(Math.ceil(Math.sqrt(Math.max(1, count)))));
+    this.height = Math.ceil(count / this.width);
+    this.data = new Float32Array(this.width * this.height * 4);
+    this.from = new Float32Array(count * 3);
+    this.to = new Float32Array(count * 3);
+    this.elapsed = new Float32Array(count).fill(Number.POSITIVE_INFINITY);
+    this.delay = new Float32Array(count);
+    this.changed = new Uint8Array(count);
+    this.lift = new Float32Array(count);
+    this.liftTarget = new Float32Array(count);
+    this.ownerData = new Float32Array(this.width * this.height * 4);
+    this.slotFrom = new Float32Array(count).fill(-1);
+    this.slotTo = new Float32Array(count).fill(-1);
+    this.slotElapsed = new Float32Array(count).fill(Number.POSITIVE_INFINITY);
+    this.slotDelay = new Float32Array(count);
+    this.pulseCarry = new Float32Array(count);
+  }
+
+  private currentColor(i: number, k: number): number {
+    const t = ease(
+      Math.min(1, Math.max(0, (this.elapsed[i] - this.delay[i]) / OWNER_TRANSITION_S))
+    );
+    return this.from[i * 3 + k] + (this.to[i * 3 + k] - this.from[i * 3 + k]) * t;
+  }
+
+  /** Nhịp nổi `sin(πp)` của lần chuyển màu hiện tại (0 nếu ô không chuyển). */
+  private pulseWave(i: number): number {
+    if (!this.changed[i] || this.elapsed[i] === Number.POSITIVE_INFINITY) return 0;
+    const p = Math.min(1, Math.max(0, (this.elapsed[i] - this.delay[i]) / OWNER_TRANSITION_S));
+    return Math.sin(Math.PI * p) * PULSE_LIFT;
+  }
+
+  private pulse(i: number): number {
+    return Math.max(this.pulseWave(i), this.pulseCarry[i]);
+  }
+
+  setColors(rgb: Float32Array, opts: { animate?: boolean; delays?: Float32Array } = {}): void {
+    for (let i = 0; i < this.count; i++) {
+      // Đang nổi dở mà bị đổi mốc: giữ độ nổi hiện tại làm "gối" rồi hạ dần (pulse = max(sóng
+      // mới, gối)) — sóng mới bắt đầu từ 0 nên nếu không có gối ô sẽ rơi phựt xuống.
+      this.pulseCarry[i] = opts.animate ? this.pulse(i) : 0;
+      const cur = [0, 1, 2].map((k) => this.currentColor(i, k));
+      const same = cur.every((v, k) => Math.abs(v - rgb[i * 3 + k]) < 1e-4);
+      for (let k = 0; k < 3; k++) {
+        this.from[i * 3 + k] = opts.animate ? cur[k] : rgb[i * 3 + k];
+        this.to[i * 3 + k] = rgb[i * 3 + k];
+      }
+      this.changed[i] = opts.animate && !same ? 1 : 0;
+      this.delay[i] = opts.animate ? (opts.delays?.[i] ?? 0) : 0;
+      this.elapsed[i] = opts.animate && !same ? 0 : Number.POSITIVE_INFINITY;
+    }
+    this.animating = !!opts.animate;
+    this.dirty = true;
+  }
+
+  /**
+   * Gán chủ (slot chính thể) cho từng ô. `animate`: ô đổi chủ trộn dần từ cờ cũ sang cờ mới
+   * (cùng `ease`, `OWNER_TRANSITION_S` và `delays` với màu); ô giữ nguyên chủ không chạy blend.
+   */
+  setOwnerSlots(
+    slots: Float32Array,
+    opts: { animate?: boolean; delays?: Float32Array } = {}
+  ): void {
+    for (let i = 0; i < this.count; i++) {
+      const next = slots[i];
+      if (opts.animate && next !== this.slotTo[i]) {
+        // Đổi đích giữa lúc đang trộn: nếu cờ cũ (from) vẫn đang trội (blend < 0.5) thì giữ
+        // from, chỉ đổi đích — tránh cờ nhảy phựt sang đích dở dang rồi mới mờ đi.
+        if (this.slotBlend(i) >= 0.5) this.slotFrom[i] = this.slotTo[i];
+        this.slotElapsed[i] = 0;
+        this.slotDelay[i] = opts.delays?.[i] ?? 0;
+      } else if (!opts.animate) {
+        this.slotFrom[i] = next;
+        this.slotElapsed[i] = Number.POSITIVE_INFINITY;
+      }
+      this.slotTo[i] = next;
+    }
+    this.dirty = true;
+  }
+
+  /** Tiến độ tuyến tính 0..1 của lần đổi chủ (1 = đã xong hoặc không đổi). */
+  private slotProgress(i: number): number {
+    if (this.slotElapsed[i] === Number.POSITIVE_INFINITY) return 1;
+    return Math.min(1, Math.max(0, (this.slotElapsed[i] - this.slotDelay[i]) / OWNER_TRANSITION_S));
+  }
+
+  private slotBlend(i: number): number {
+    return ease(this.slotProgress(i));
+  }
+
+  setLiftMask(mask: Uint8Array | null): void {
+    for (let i = 0; i < this.count; i++) this.liftTarget[i] = mask?.[i] ? HOVER_LIFT : 0;
+    this.dirty = true;
+  }
+
+  isAnimating(): boolean {
+    return this.animating;
+  }
+
+  tick(dt: number): boolean {
+    let active = false;
+    let liftMoving = false;
+    const k = Math.min(1, dt * 10);
+    for (let i = 0; i < this.count; i++) {
+      if (this.elapsed[i] !== Number.POSITIVE_INFINITY) {
+        this.elapsed[i] += dt;
+        if (this.elapsed[i] - this.delay[i] >= OWNER_TRANSITION_S)
+          this.elapsed[i] = Number.POSITIVE_INFINITY;
+        else active = true;
+      }
+      if (this.slotElapsed[i] !== Number.POSITIVE_INFINITY) {
+        this.slotElapsed[i] += dt;
+        if (this.slotElapsed[i] - this.slotDelay[i] >= OWNER_TRANSITION_S) {
+          this.slotElapsed[i] = Number.POSITIVE_INFINITY;
+          this.slotFrom[i] = this.slotTo[i];
+        } else active = true;
+      }
+      if (this.pulseCarry[i] > 0) {
+        this.pulseCarry[i] = Math.max(0, this.pulseCarry[i] - (dt * PULSE_LIFT) / PULSE_CARRY_S);
+        if (this.pulseCarry[i] > 0) active = true;
+      }
+      const d = this.liftTarget[i] - this.lift[i];
+      if (Math.abs(d) > 1e-4) {
+        this.lift[i] = Math.abs(d) < 1e-3 ? this.liftTarget[i] : this.lift[i] + d * k;
+        liftMoving = true;
+      }
+    }
+    if (!active && !liftMoving && !this.dirty && !this.animating) return false;
+    for (let i = 0; i < this.count; i++) {
+      for (let c = 0; c < 3; c++) this.data[i * 4 + c] = this.currentColor(i, c);
+      this.data[i * 4 + 3] = Math.min(1, this.pulse(i) + this.lift[i]);
+      this.ownerData[i * 4] = this.slotFrom[i];
+      this.ownerData[i * 4 + 1] = this.slotTo[i];
+      this.ownerData[i * 4 + 2] = this.slotBlend(i);
+      this.ownerData[i * 4 + 3] = this.slotProgress(i);
+    }
+    this.animating = active;
+    this.dirty = false;
+    return true;
+  }
+}
+
+export function ownerColors(
+  owners: (string | null)[],
+  colorOf: (id: string) => string
+): Float32Array {
+  const out = new Float32Array(owners.length * 3);
+  const cache = new Map<string, THREE.Color>();
+  owners.forEach((o, i) => {
+    const hex = o === null ? NULL_COLOR : colorOf(o);
+    let c = cache.get(hex);
+    if (!c) {
+      c = new THREE.Color(hex);
+      cache.set(hex, c);
+    }
+    out[i * 3] = c.r;
+    out[i * 3 + 1] = c.g;
+    out[i * 3 + 2] = c.b;
+  });
+  return out;
+}
+
+export function spreadDelays(
+  cells: CellMeta[],
+  prev: (string | null)[],
+  next: (string | null)[]
+): Float32Array {
+  const out = new Float32Array(cells.length);
+  for (let i = 0; i < cells.length; i++) {
+    if (prev[i] === next[i] || next[i] === null) continue;
+    let best = Number.POSITIVE_INFINITY;
+    for (let j = 0; j < cells.length; j++) {
+      if (prev[j] !== next[i]) continue;
+      const d = Math.hypot(cells[i].lon - cells[j].lon, cells[i].lat - cells[j].lat);
+      if (d < best) best = d;
+    }
+    out[i] = best === Number.POSITIVE_INFINITY ? 0 : Math.min(1.2, best * 0.12);
+  }
+  return out;
+}
+
+/**
+ * Vai trò đỉnh của vách nội bộ (giữa hai ô liền kề, xem terrainGeometry.ts):
+ * 1 = mép trên (theo bên có độ nổi lớn hơn), 2 = mép dưới (theo bên có độ nổi nhỏ hơn).
+ * Hai bên bằng nhau (lúc nghỉ, hoặc cả lãnh thổ được nâng đều) → mép trên và mép dưới trùng
+ * nhau, vách cao 0 nên vô hình; khác nhau → vách trải đúng khoảng hở giữa hai mặt trên.
+ * Hàm thuần này mô tả đúng logic mà vertex shader trong Terrain.tsx thực hiện (không gọi được
+ * trực tiếp từ GLSL, nhưng phải giữ tương đương tuyệt đối về mặt toán học).
+ */
+export function internalWallLift(liftA: number, liftB: number, role: 1 | 2): number {
+  return role === 1 ? Math.max(liftA, liftB) : Math.min(liftA, liftB);
+}
+
+/** true nếu bên A được chọn màu cho đỉnh vách nội bộ (độ nổi lớn hơn; hòa → bên A). */
+export function internalWallColorIsA(liftA: number, liftB: number): boolean {
+  return liftA >= liftB;
+}

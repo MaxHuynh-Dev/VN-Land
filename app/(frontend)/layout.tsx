@@ -1,6 +1,6 @@
 import '@Styles/global.css';
 
-import { inter, raleway } from '@Constants/fonts';
+import { beVietnam } from '@Constants/fonts';
 import { DEFAULT_METADATA } from '@Constants/metadata';
 import MainLayout from '@Layout/MainLayout';
 import { uiHelper } from '@Utils/uiHelper';
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>): React.ReactElement {
   return (
-    <html lang="en">
+    <html lang="vi">
       <head>
         <script
           // biome-ignore lint/security/noDangerouslySetInnerHtml: Required for scroll restoration control
@@ -28,7 +28,7 @@ export default function RootLayout({
           <Script src="https://unpkg.com/react-scan/dist/auto.global.js" />
         )}
       </head>
-      <body className={`${inter.variable} ${raleway.variable}`}>
+      <body className={`${beVietnam.variable} font-[family-name:var(--font-be-vietnam)]`}>
         <MainLayout>{children}</MainLayout>
       </body>
     </html>
