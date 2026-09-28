@@ -4,6 +4,9 @@ import type { NextConfig } from 'next';
 
 const isProd = process.env.NEXT_PUBLIC_APP_ENV === PROD_ENV;
 const baseConfig: NextConfig = {
+  // Next 16 khóa mỗi thư mục output cho một `next dev`; e2e (cổng 3100) dùng thư mục riêng để
+  // chạy song song với dev server của người dùng.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
   images: {
     minimumCacheTTL: 3600,

@@ -15,7 +15,7 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['Pixel 7'] } }
   ],
   webServer: {
-    command: 'yarn dev --port 3100',
+    command: 'NEXT_DIST_DIR=.next-e2e yarn dev --port 3100',
     url: 'http://localhost:3100',
     reuseExistingServer: true,
     timeout: 180_000
