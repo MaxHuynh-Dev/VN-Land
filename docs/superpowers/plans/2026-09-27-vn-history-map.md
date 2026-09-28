@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Thay trang Home của VN-Land bằng một bản đồ 3D khám phá: kéo dòng thời gian qua 146 mốc (bản mở rộng 2026-09-28) từ thời đồ đá đến 2025, thấy lãnh thổ và cờ của từng chính thể trên Việt Nam, Lào, Campuchia và Hoa Nam.
+**Goal:** Thay trang Home của VN-Land bằng một bản đồ 3D khám phá: kéo dòng thời gian qua 152 mốc (bản mở rộng 2026-09-28) từ thời đồ đá đến 2025, thấy lãnh thổ và cờ của từng chính thể trên Việt Nam, Lào, Campuchia và Hoa Nam.
 
 **Architecture:** Một pipeline Node (chạy tay) biến ranh giới hành chính geoBoundaries thành ~1.300 "ô nguyên tử" trong `public/data/cells.topo.json`. Dữ liệu lịch sử viết tay bằng TypeScript (`src/data/history/`) gán ô → chính thể theo delta từng mốc. Client dùng React Three Fiber và dựng **một mesh gộp duy nhất** cho mọi ô. Màu và độ nổi của từng ô được đọc từ một `DataTexture` trong shader, nhờ đó đổi mốc chỉ phải cập nhật texture chứ không dựng lại hình học.
 
@@ -4440,7 +4440,7 @@ git commit -m "feat(map): drape polity flags over territories via shader atlas; 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
-## Thay đổi thiết kế giữa chừng (2026-09-28): mở rộng lên 146 mốc, 21 thời kỳ
+## Thay đổi thiết kế giữa chừng (2026-09-28): mở rộng lên 152 mốc, 21 thời kỳ
 
 Người dùng thấy 59 mốc và 9 thời kỳ là quá ít, muốn dòng thời gian chi tiết hơn (nhà Nguyễn, Tây Sơn, Việt Nam Cộng hòa…) và nguồn chi tiết hơn. Spec mục 2, 4, 6, 6a đã cập nhật.
 
@@ -4613,17 +4613,23 @@ Người dùng thấy 59 mốc và 9 thời kỳ là quá ít, muốn dòng th�
 | 133 | `1955` | 1955 | 1955 | chia-cat | 08-hien-dai | Việt Nam Cộng hòa |
 | 134 | `1956` | 1956 | 1956 | chia-cat | 08-hien-dai | Trung Quốc chiếm nhóm An Vĩnh (Hoàng Sa) *(mới)* |
 | 135 | `1960` | 1960 | 1960 | chia-cat | 08-hien-dai | Mặt trận Dân tộc Giải phóng miền Nam *(mới)* |
-| 136 | `1969` | 1969 | 1969 | chia-cat | 08-hien-dai | Chính phủ Cách mạng lâm thời CHMNVN |
-| 137 | `1973` | 1973 | 1973 | chia-cat | 08-hien-dai | Hiệp định Paris *(mới)* |
-| 138 | `1974` | 1974 | 1974 | chia-cat | 08-hien-dai | Hoàng Sa bị chiếm |
-| 139 | `1975-03` | 1975.2 | 3/1975 | chia-cat | 08-hien-dai | Chiến dịch Tây Nguyên, Huế – Đà Nẵng *(mới)* |
-| 140 | `1975` | 1975.33 | 30/4/1975 | thong-nhat | 08-hien-dai | Kết thúc chiến tranh |
-| 141 | `1976` | 1976 | 1976 | thong-nhat | 08-hien-dai | Cộng hòa Xã hội chủ nghĩa Việt Nam |
-| 142 | `1979` | 1979 | 1979 | thong-nhat | 08-hien-dai | CHND Campuchia; chiến tranh biên giới phía Bắc *(mới)* |
-| 143 | `1988` | 1988 | 1988 | thong-nhat | 08-hien-dai | Sự kiện Gạc Ma (Trường Sa) *(mới)* |
-| 144 | `1993` | 1993 | 1993 | thong-nhat | 08-hien-dai | Vương quốc Campuchia tái lập *(mới)* |
-| 145 | `1999` | 1999 | 1999 | thong-nhat | 08-hien-dai | Hiệp ước biên giới trên đất liền Việt – Trung *(mới)* |
-| 146 | `2025` | 2025 | 2025 | thong-nhat | 08-hien-dai | Ngày nay |
+| 136 | `1963` | 1963 | 11/1963 | chia-cat | 08-hien-dai | Đảo chính 1/11/1963, kết thúc Đệ nhất Cộng hòa *(mới)* |
+| 137 | `1965` | 1965 | 1965 | chia-cat | 08-hien-dai | Quân đội Mỹ trực tiếp tham chiến *(mới)* |
+| 138 | `1967` | 1967 | 1967 | chia-cat | 08-hien-dai | Hiến pháp 1967, Đệ nhị Cộng hòa *(mới)* |
+| 139 | `1968` | 1968 | 1968 | chia-cat | 08-hien-dai | Sự kiện Tết Mậu Thân *(mới)* |
+| 140 | `1969` | 1969 | 1969 | chia-cat | 08-hien-dai | Chính phủ Cách mạng lâm thời CHMNVN |
+| 141 | `1970` | 1970 | 1970 | chia-cat | 08-hien-dai | Cộng hòa Khmer thành lập; chiến sự lan sang Campuchia *(mới)* |
+| 142 | `1972` | 1972 | 1972 | chia-cat | 08-hien-dai | Chiến sự Quảng Trị năm 1972 *(mới)* |
+| 143 | `1973` | 1973 | 1973 | chia-cat | 08-hien-dai | Hiệp định Paris *(mới)* |
+| 144 | `1974` | 1974 | 1974 | chia-cat | 08-hien-dai | Hoàng Sa bị chiếm |
+| 145 | `1975-03` | 1975.2 | 3/1975 | chia-cat | 08-hien-dai | Chiến dịch Tây Nguyên, Huế – Đà Nẵng *(mới)* |
+| 146 | `1975` | 1975.33 | 30/4/1975 | thong-nhat | 08-hien-dai | Kết thúc chiến tranh |
+| 147 | `1976` | 1976 | 1976 | thong-nhat | 08-hien-dai | Cộng hòa Xã hội chủ nghĩa Việt Nam |
+| 148 | `1979` | 1979 | 1979 | thong-nhat | 08-hien-dai | CHND Campuchia; chiến tranh biên giới phía Bắc *(mới)* |
+| 149 | `1988` | 1988 | 1988 | thong-nhat | 08-hien-dai | Sự kiện Gạc Ma (Trường Sa) *(mới)* |
+| 150 | `1993` | 1993 | 1993 | thong-nhat | 08-hien-dai | Vương quốc Campuchia tái lập *(mới)* |
+| 151 | `1999` | 1999 | 1999 | thong-nhat | 08-hien-dai | Hiệp ước biên giới trên đất liền Việt – Trung *(mới)* |
+| 152 | `2025` | 2025 | 2025 | thong-nhat | 08-hien-dai | Ngày nay |
 
 ### Quy ước bổ sung cho các task nội dung v2
 
@@ -4635,7 +4641,7 @@ Người dùng thấy 59 mốc và 9 thời kỳ là quá ít, muốn dòng th�
 - **Chạy sau mỗi thay đổi:** `yarn validate:history && yarn test`.
 - **Kiểm tra bằng mắt:** dev server chỉ ở cổng 3100 (`yarn dev --port 3100`); không đụng tiến trình ở cổng khác.
 
-### Task T: Dòng thời gian cho 146 mốc và 21 thời kỳ
+### Task T: Dòng thời gian cho 152 mốc và 21 thời kỳ
 
 **Files:**
 - Modify: `src/data/history/types.ts` (`EraId` = đúng 21 id ở bảng thời kỳ), `src/data/history/eras.ts` (21 thời kỳ, đúng label và color), `src/data/history/snapshots/00-sample.ts` (`1471` → `era: 'le-so'`; `tcn700` giữ `hong-bang`; `2025` giữ `thong-nhat`)
@@ -4778,12 +4784,12 @@ Mỗi task soạn **một** file `src/data/history/snapshots/0N-*.ts` gồm đú
 | C5 | `05-trinh-nguyen.ts` `TRINH_NGUYEN` | `1600` → `1757` (19 mốc) | Thuận Quảng tách khỏi Đàng Ngoài 1600; Phú Yên 1611; Prey Nokor 1623 (trạm thu thuế, chưa phải lãnh thổ: chỉ nêu trong `summary`); sông Gianh 1627–1672 và 1655–1660; Thái Khang 1653; Mô Xoài 1658; Chân Lạp hai vua 1674; hết Mạc Cao Bằng 1677; Biên Hòa, Mỹ Tho 1679; 1692–1697 Chiêm Thành thành trấn Thuận Thành rồi phủ Bình Thuận (`panduranga` còn tự trị một phần); Gia Định 1698; Hà Tiên 1708 và 1739 (`ha-tien`); Long Hồ 1732; Tầm Bôn, Lôi Lạp 1756; Tầm Phong Long 1757; đội Hoàng Sa: gán `VNM.hoang-sa`, `VNM.truong-sa` cho `dang-trong` từ mốc có nguồn ghi nhận; Lan Xang phân liệt 1707 |
 | C6 | `06-tay-son-nguyen.ts` `TAY_SON_NGUYEN` | `1771` → `1847` (23 mốc) | Tây Sơn: Quy Nhơn 1773, Trịnh chiếm Phú Xuân 1775 (`le-trung-hung`), Gia Định 1777, xưng đế 1778, Gia Định đổi chủ nhiều lần 1777–1788 (Nguyễn Ánh dùng `dang-trong` với override tên), Rạch Gầm 1785, chia đất 1786 (`tay-son` = Nguyễn Nhạc, `tay-son-phu-xuan` = Nguyễn Huệ, Gia Định của Nguyễn Lữ gán `tay-son` với ghi chú), 1788–1789 (Bắc Hà về `tay-son-phu-xuan`), Diên Khánh 1793, Quy Nhơn 1799, Phú Xuân 1801; nhà Nguyễn 1802, quốc hiệu 1804 và 1838 (override tên), bảo hộ Chân Lạp 1813, Hoàng Sa 1816, Trấn Ninh và Cam Lộ 1828, cải cách 1832, Trấn Tây 1834–1841, hòa ước 1847 |
 | C7 | `07-phap-thuoc.ts` `PHAP_THUOC` | `1858` → `1945-03` (16 mốc) | Đà Nẵng 1858 (vùng chiếm đóng nhỏ, `lowConfidence`), Gia Định 1859; Nam Kỳ 1862, 1867, 1874; bảo hộ Campuchia 1863; 1884: Nam Kỳ là thuộc địa (`phap`), Trung Kỳ vẫn do triều Nguyễn cai quản dưới bảo hộ (`nha-nguyen` với override tên "Trung Kỳ (Nam triều, dưới bảo hộ Pháp)"), Bắc Kỳ bảo hộ (`phap`); Thiên Tân 1885; Liên bang Đông Dương và Công ước Pháp – Thanh 1887; Lào 1893; công ước bổ sung 1895 (Phong Thổ, Mường Tè nếu ô cho phép); Quảng Châu Loan 1899 (ô Quảng Đông tương ứng, `lowConfidence`); Battambang, Siem Reap 1907; Trường Sa 1933; Nhật và Thái Lan 1940–1941 (`thai-lan` chiếm Battambang, Siem Reap, Champasak hữu ngạn, Sayaboury); đảo chính 3/1945 |
-| C8 | `08-hien-dai.ts` `HIEN_DAI` | `1945-09` → `2025` (21 mốc) | 9/1945: VNDCCH; quân Trung Hoa Dân quốc phía bắc vĩ tuyến 16 và quân Anh phía nam chỉ nêu trong `summary` trừ khi có nguồn bản đồ rõ; 1946 Nam Kỳ tự trị và Thái Lan trả đất (Hiệp ước Washington 11/1946); Xứ Thái 1948; Quốc gia Việt Nam 1949; Hoàng triều Cương thổ 1950; Lào, Campuchia độc lập 1953; Genève 1954 (sông Bến Hải, id huyện Quảng Trị); VNCH 1955; An Vĩnh 1956 (vẫn gán cho chính thể Việt, `summary` ghi bị chiếm); Mặt trận 1960 và CPCMLT 1969, Paris 1973: **không** tô vùng kiểm soát nếu không có bản đồ học thuật đáng tin, chỉ nêu trong `summary`, và báo lại lựa chọn này trong báo cáo; Hoàng Sa 1974; 3/1975 và 30/4/1975: vùng VNCH mất kiểm soát gán `cpcmlt` (chính quyền miền Nam 1975–1976); CHXHCNVN 1976; 1979 CHND Campuchia và chiến tranh biên giới phía Bắc (lãnh thổ không đổi); Gạc Ma 1988 (vẫn gán Trường Sa cho Việt Nam, `summary` ghi bị chiếm một phần); 1993 Vương quốc Campuchia; 1999 Hiệp ước biên giới; 2025 hiện nay. Trung Hoa Dân quốc 1912 → CHND Trung Hoa 1949 cập nhật ở mốc gần nhất sau năm đó |
+| C8 | `08-hien-dai.ts` `HIEN_DAI` | `1945-09` → `2025` (27 mốc) | 9/1945: VNDCCH; quân Trung Hoa Dân quốc phía bắc vĩ tuyến 16 và quân Anh phía nam chỉ nêu trong `summary` trừ khi có nguồn bản đồ rõ; 1946 Nam Kỳ tự trị và Thái Lan trả đất (Hiệp ước Washington 11/1946); Xứ Thái 1948; Quốc gia Việt Nam 1949; Hoàng triều Cương thổ 1950; Lào, Campuchia độc lập 1953; Genève 1954 (sông Bến Hải, id huyện Quảng Trị); VNCH 1955; An Vĩnh 1956 (vẫn gán cho chính thể Việt, `summary` ghi bị chiếm); Thời Việt Nam Cộng hòa (người dùng yêu cầu thêm ngày 2026-09-28): 1963 đảo chính và kết thúc Đệ nhất Cộng hòa, 1965 quân Mỹ tham chiến, 1967 Hiến pháp và Đệ nhị Cộng hòa, 1968 Tết Mậu Thân, 1970 Cộng hòa Khmer (`cong-hoa-khmer`) và chiến sự ở Campuchia, 1972 chiến sự Quảng Trị (vùng kiểm soát ở Quảng Trị đổi chủ, dùng id huyện, `lowConfidence`) — giọng trung lập, nêu diễn biến và chính quyền kiểm soát, không đánh giá; Mặt trận 1960 và CPCMLT 1969, Paris 1973: **không** tô vùng kiểm soát nếu không có bản đồ học thuật đáng tin, chỉ nêu trong `summary`, và báo lại lựa chọn này trong báo cáo; Hoàng Sa 1974; 3/1975 và 30/4/1975: vùng VNCH mất kiểm soát gán `cpcmlt` (chính quyền miền Nam 1975–1976); CHXHCNVN 1976; 1979 CHND Campuchia và chiến tranh biên giới phía Bắc (lãnh thổ không đổi); Gạc Ma 1988 (vẫn gán Trường Sa cho Việt Nam, `summary` ghi bị chiếm một phần); 1993 Vương quốc Campuchia; 1999 Hiệp ước biên giới; 2025 hiện nay. Trung Hoa Dân quốc 1912 → CHND Trung Hoa 1949 cập nhật ở mốc gần nhất sau năm đó |
 
 ### Task C9: Bỏ dữ liệu mẫu và xuất bảng duyệt nội dung
 
 Giống Task C6 cũ, với các thay đổi:
-- Test cuối: `expect(REAL_SNAPSHOTS).toHaveLength(146)`, và mọi `id` trong bảng v2 đều có mặt theo đúng thứ tự.
+- Test cuối: `expect(REAL_SNAPSHOTS).toHaveLength(152)`, và mọi `id` trong bảng v2 đều có mặt theo đúng thứ tự.
 - `index.ts`: `export const SNAPSHOTS: Snapshot[] = [...TIEN_SU, ...CO_DAI, ...NGO_LY_TRAN, ...HO_LE_MAC, ...TRINH_NGUYEN, ...TAY_SON_NGUYEN, ...PHAP_THUOC, ...HIEN_DAI];`
-- `yarn history:review` → file có 146 mục, gom tiêu đề cấp 1 theo thời kỳ.
+- `yarn history:review` → file có 152 mục, gom tiêu đề cấp 1 theo thời kỳ.
 - Commit `chore(history): drop sample data and generate content review sheet`.

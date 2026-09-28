@@ -12,7 +12,7 @@ Một **công cụ khám phá** dạng bản đồ 3D, cho người xem tự ké
 **Người dùng:** người học và người tra cứu lịch sử (mục đích giáo dục). Độ chính xác lịch sử và việc minh bạch nguồn quan trọng hơn hiệu ứng.
 
 **Tiêu chí thành công:**
-1. Đủ 146 mốc (mục 6). Mỗi mốc có tóm tắt, bảng gán lãnh thổ và ≥2 nguồn.
+1. Đủ 152 mốc (mục 6). Mỗi mốc có tóm tắt, bảng gán lãnh thổ và ≥2 nguồn.
 2. Người xem nhận ra ngay quá trình Nam tiến: Đại Việt lớn dần, Chăm Pa và Chân Lạp thu hẹp.
 3. Mọi lá cờ đều có nhãn loại (quốc kỳ, cờ hiệu, cờ phục dựng, biểu tượng) và ghi nguồn.
 4. Đạt 60 fps trên laptop phổ thông, ≥30 fps trên điện thoại tầm trung.
@@ -27,7 +27,7 @@ Một **công cụ khám phá** dạng bản đồ 3D, cho người xem tự ké
 | Cờ thời chưa có quốc kỳ | Dùng **cờ hiệu hoặc cờ phục dựng, có nhãn và nguồn**. Thời chưa có nhà nước thì dùng biểu tượng (rìu đá, mặt trống Đông Sơn) |
 | Bắc thuộc, Pháp thuộc, 1945–1975 | **Đầy đủ, trung lập**: hiện mọi chính quyền thực tế kiểm soát lãnh thổ (Hán, Đường, Minh, Pháp, VNDCCH, QGVN, VNCH, CPCMLT), giọng văn sách giáo khoa, không bình luận |
 | Phạm vi bản đồ | **Việt Nam, Lào, Campuchia, Quảng Tây, Quảng Đông, Hải Nam**, kèm Hoàng Sa và Trường Sa |
-| Độ chi tiết thời gian | **146 mốc, chia 21 thời kỳ** (mở rộng ngày 2026-09-28 theo yêu cầu người dùng: chi tiết từng triều đại như Tây Sơn, nhà Nguyễn, Việt Nam Cộng hòa; bản đầu có 59 mốc). Thanh thời gian nhảy theo mốc, bản đồ chuyển màu mượt |
+| Độ chi tiết thời gian | **152 mốc, chia 21 thời kỳ** (mở rộng ngày 2026-09-28 theo yêu cầu người dùng: chi tiết từng triều đại như Tây Sơn, nhà Nguyễn, Việt Nam Cộng hòa; bản đầu có 59 mốc). Thanh thời gian nhảy theo mốc, bản đồ chuyển màu mượt |
 | Kỹ thuật | **Next.js + React Three Fiber**, cùng một pipeline dữ liệu dựng sẵn các "ô nguyên tử" |
 | Vị trí | **Thay trang Home** |
 | Hoàng Sa, Trường Sa | Theo quan điểm chính thức của Việt Nam. Hai quần đảo thuộc chúa Nguyễn và nhà Nguyễn từ khi có đội Hoàng Sa. Có chú thích "bị chiếm đóng" từ 1974 (Hoàng Sa) và 1988 (một phần Trường Sa) |
@@ -155,7 +155,7 @@ Mốc đầu tiên gán đầy đủ. Các mốc sau chỉ ghi phần thay đổ
   - Các mốc cách đều nhau (trục không tuyến tính), kèm nhãn năm.
   - Dải thời kỳ phía trên, 21 thời kỳ: Tiền sử; Hồng Bàng – Âu Lạc; Bắc thuộc lần I; Hai Bà Trưng; Bắc thuộc lần II; Vạn Xuân; Bắc thuộc lần III; Tự chủ (Khúc – Dương); Ngô – Đinh – Tiền Lê; Nhà Lý; Nhà Trần; Nhà Hồ & Minh thuộc; Lê sơ; Mạc & Nam – Bắc triều; Trịnh – Nguyễn phân tranh; Tây Sơn; Nhà Nguyễn; Pháp thuộc; Chiến tranh Đông Dương; Chia cắt hai miền; Thống nhất.
   - Bấm vào một thời kỳ trên dải thì nhảy tới mốc đầu tiên của thời kỳ đó. Thời kỳ đang xem luôn hiện đủ tên; tên các thời kỳ khác chỉ hiện khi đủ chỗ (không cắt chữ thành "…"), luôn có tooltip.
-  - Với 146 mốc, vạch mốc trên thanh kéo là các vạch mảnh, không tràn ngang trên màn hình 375px. Vạch đầu mỗi thời kỳ cao hơn các vạch khác.
+  - Với 152 mốc, vạch mốc trên thanh kéo là các vạch mảnh, không tràn ngang trên màn hình 375px. Vạch đầu mỗi thời kỳ cao hơn các vạch khác.
   - Điều khiển: kéo, bấm, phím ←/→, nút ▶ tự chạy (mỗi mốc khoảng 4 giây, bấm vào bản đồ thì dừng).
 - **Thẻ thông tin (bên phải; trên mobile là bottom sheet):**
   - Năm, tiêu đề, tóm tắt, danh sách chính thể đang tồn tại (cờ nhỏ, tên, kinh đô), nguồn.
@@ -184,7 +184,7 @@ Mốc đầu tiên gán đầy đủ. Các mốc sau chỉ ghi phần thay đổ
 | Dữ liệu tham chiếu tới ô hoặc chính thể không tồn tại, mốc thiếu nguồn, năm không tăng dần | `validate-history` báo lỗi. Script này chạy trong `prebuild` và trong test |
 | Texture cờ lỗi | Hiện cờ màu trơn theo `polity.color` kèm tên |
 
-## 6. Danh sách mốc (bản mở rộng 146 mốc — agent nghiên cứu hiệu chỉnh, người dùng duyệt)
+## 6. Danh sách mốc (bản mở rộng 152 mốc — agent nghiên cứu hiệu chỉnh, người dùng duyệt)
 
 Các mốc đánh dấu *(mới)* được thêm ở bản mở rộng. Mốc chỉ ghi sự kiện mà không đổi lãnh thổ (ví dụ 1010, 1288) vẫn được giữ: thẻ thông tin đổi, bản đồ đứng yên.
 
@@ -323,17 +323,23 @@ Các mốc đánh dấu *(mới)* được thêm ở bản mở rộng. Mốc ch
 133. 1955 — Việt Nam Cộng hòa
 134. 1956 — Trung Quốc chiếm nhóm An Vĩnh (Hoàng Sa) *(mới)*
 135. 1960 — Mặt trận Dân tộc Giải phóng miền Nam *(mới)*
-136. 1969 — Chính phủ Cách mạng lâm thời CHMNVN
-137. 1973 — Hiệp định Paris *(mới)*
-138. 1974 — Hoàng Sa bị chiếm
-139. 3/1975 — Chiến dịch Tây Nguyên, Huế – Đà Nẵng *(mới)*
-140. 30/4/1975 — Kết thúc chiến tranh
-141. 1976 — Cộng hòa Xã hội chủ nghĩa Việt Nam
-142. 1979 — CHND Campuchia; chiến tranh biên giới phía Bắc *(mới)*
-143. 1988 — Sự kiện Gạc Ma (Trường Sa) *(mới)*
-144. 1993 — Vương quốc Campuchia tái lập *(mới)*
-145. 1999 — Hiệp ước biên giới trên đất liền Việt – Trung *(mới)*
-146. 2025 — Ngày nay
+136. 11/1963 — Đảo chính 1/11/1963, kết thúc Đệ nhất Cộng hòa *(mới)*
+137. 1965 — Quân đội Mỹ trực tiếp tham chiến *(mới)*
+138. 1967 — Hiến pháp 1967, Đệ nhị Cộng hòa *(mới)*
+139. 1968 — Sự kiện Tết Mậu Thân *(mới)*
+140. 1969 — Chính phủ Cách mạng lâm thời CHMNVN
+141. 1970 — Cộng hòa Khmer thành lập; chiến sự lan sang Campuchia *(mới)*
+142. 1972 — Chiến sự Quảng Trị năm 1972 *(mới)*
+143. 1973 — Hiệp định Paris *(mới)*
+144. 1974 — Hoàng Sa bị chiếm
+145. 3/1975 — Chiến dịch Tây Nguyên, Huế – Đà Nẵng *(mới)*
+146. 30/4/1975 — Kết thúc chiến tranh
+147. 1976 — Cộng hòa Xã hội chủ nghĩa Việt Nam
+148. 1979 — CHND Campuchia; chiến tranh biên giới phía Bắc *(mới)*
+149. 1988 — Sự kiện Gạc Ma (Trường Sa) *(mới)*
+150. 1993 — Vương quốc Campuchia tái lập *(mới)*
+151. 1999 — Hiệp ước biên giới trên đất liền Việt – Trung *(mới)*
+152. 2025 — Ngày nay
 
 Mỗi mốc cũng cập nhật các chính thể láng giềng khi có thay đổi:
 - Hoa Nam: Tần, Hán, Ngô, Tấn, Nam triều, Tùy, Đường, Nam Hán, Tống, Nguyên, Minh, Thanh, Trung Hoa Dân quốc, CHND Trung Hoa
@@ -388,7 +394,7 @@ Agent nghiên cứu ưu tiên các nguồn dưới đây. Mỗi mốc vẫn cầ
 |---|---|---|
 | P1 | Pipeline địa lý, dựng cảnh 3D các ô, 3 mốc mẫu, thay trang Home, tắt Lenis | — |
 | P2 | Timeline, thẻ thông tin, tooltip, cờ vải, camera, đồng bộ URL, xử lý lỗi | sau P1 |
-| P3 | Toàn bộ `polities`, `groups`, 146 `snapshots`, cờ SVG, `history-review.md` | **song song với P1–P2** (chỉ phụ thuộc vào danh sách id ô của P1) |
+| P3 | Toàn bộ `polities`, `groups`, 152 `snapshots`, cờ SVG, `history-review.md` | **song song với P1–P2** (chỉ phụ thuộc vào danh sách id ô của P1) |
 | P4 | Mobile, hiệu năng, a11y, trang ghi công, code review, người dùng duyệt nội dung | cuối cùng |
 
 ## 9. Ngoài phạm vi
