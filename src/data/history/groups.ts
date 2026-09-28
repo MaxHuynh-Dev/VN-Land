@@ -158,5 +158,21 @@ export const GROUPS: CellGroup[] = [
     id: 'panduranga',
     name: 'Panduranga (xấp xỉ, tiểu quốc Chăm vùng Phan Rang, trước 1697)',
     selectors: ['VNM.ninh-thuan', 'VNM.binh-thuan']
+  },
+  {
+    id: 'bon-man',
+    name: 'Bồn Man (Mường Phuan, xấp xỉ, sau là phủ Trấn Ninh)',
+    selectors: ['LAO.xiangkhouang']
+  },
+  {
+    id: 'mac-cat-dat-1540',
+    name: 'Dải động biên giới nhà Mạc xin dâng nhà Minh (1540, xấp xỉ, vị trí gây tranh cãi)',
+    selectors: [
+      'VNM.quang-ninh.mong-cai',
+      'VNM.quang-ninh.hai-ha',
+      'VNM.quang-ninh.binh-lieu',
+      'VNM.lang-son.trang-dinh',
+      'VNM.lang-son.van-lang'
+    ]
   }
 ];

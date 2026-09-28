@@ -889,7 +889,7 @@ export const POLITIES: Polity[] = [
   {
     id: 'bon-man',
     name: 'Bồn Man',
-    altNames: ['Mường Phuan', 'Muang Phuan', 'Trấn Ninh (từ 1756)'],
+    altNames: ['Mường Phuan', 'Muang Phuan', 'Trấn Ninh (từ 1479)'],
     color: '#7d7a4f',
     flag: '/flags/bon-man.svg',
     flagKind: 'symbol',

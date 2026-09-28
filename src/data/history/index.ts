@@ -5,10 +5,11 @@ import { SAMPLE_SNAPSHOTS } from './snapshots/00-sample';
 import { TIEN_SU } from './snapshots/01-tien-su';
 import { CO_DAI } from './snapshots/02-co-dai';
 import { NGO_LY_TRAN } from './snapshots/03-ngo-ly-tran';
+import { HO_LE_MAC } from './snapshots/04-ho-le-mac';
 import type { Polity, PolityId, Snapshot } from './types';
 
 /** Các task C2–C5 thêm import file thời kỳ vào mảng này. */
-const REAL: Snapshot[] = [...TIEN_SU, ...CO_DAI, ...NGO_LY_TRAN];
+const REAL: Snapshot[] = [...TIEN_SU, ...CO_DAI, ...NGO_LY_TRAN, ...HO_LE_MAC];
 
 const realIds = new Set(REAL.map((s) => s.id));
 export const SNAPSHOTS: Snapshot[] = [
