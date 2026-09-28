@@ -99,5 +99,43 @@ export const GROUPS: CellGroup[] = [
       'VNM.ca-mau',
       'VNM.con-dao'
     ]
+  },
+  {
+    id: 'ba-chau-1069',
+    name: 'Ba châu Bố Chính, Địa Lý, Ma Linh (1069)',
+    selectors: [
+      'VNM.quang-binh',
+      'VNM.quang-tri.vinh-linh',
+      'VNM.quang-tri.gio-linh',
+      'VNM.quang-tri.cam-lo',
+      'VNM.quang-tri.dong-ha',
+      'VNM.quang-tri.con-co',
+      'VNM.quang-tri.huong-hoa',
+      'VNM.quang-tri.da-krong'
+    ]
+  },
+  {
+    id: 'chau-o',
+    name: 'Châu Ô (sau đổi Thuận Châu, 1306)',
+    selectors: [
+      'VNM.quang-tri.quang-tri',
+      'VNM.quang-tri.trieu-phong',
+      'VNM.quang-tri.hai-lang',
+      'VNM.thua-thien-hue.phong-dien',
+      'VNM.thua-thien-hue.quang-dien',
+      'VNM.thua-thien-hue.huong-tra'
+    ]
+  },
+  {
+    id: 'chau-ly',
+    name: 'Châu Lý (sau đổi Hóa Châu, 1306)',
+    selectors: [
+      'VNM.thua-thien-hue.hue',
+      'VNM.thua-thien-hue.huong-thuy',
+      'VNM.thua-thien-hue.phu-vang',
+      'VNM.thua-thien-hue.phu-loc',
+      'VNM.thua-thien-hue.nam-dong',
+      'VNM.thua-thien-hue.a-luoi'
+    ]
   }
 ];
