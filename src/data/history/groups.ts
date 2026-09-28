@@ -2,6 +2,45 @@ import type { CellGroup } from './types';
 
 export const GROUPS: CellGroup[] = [
   {
+    id: 'bac-bo-nui',
+    name: 'Miền núi và trung du Bắc Bộ (ngoài đồng bằng)',
+    selectors: [
+      'VNM.ha-giang',
+      'VNM.cao-bang',
+      'VNM.bac-kan',
+      'VNM.lang-son',
+      'VNM.tuyen-quang',
+      'VNM.thai-nguyen',
+      'VNM.yen-bai',
+      'VNM.lao-cai',
+      'VNM.lai-chau',
+      'VNM.dien-bien',
+      'VNM.son-la',
+      'VNM.hoa-binh',
+      'VNM.quang-ninh',
+      'VNM.bac-giang',
+      'VNM.hai-phong'
+    ]
+  },
+  {
+    id: 'linh-nam-trung-hoa',
+    name: 'Lĩnh Nam thuộc Trung Hoa (Quảng Đông – Quảng Tây thời Bắc thuộc)',
+    selectors: ['CHN.quang-dong', 'CHN.quang-tay', 'CHN.hong-kong', 'CHN.ma-cao']
+  },
+  {
+    id: 'quan-nhat-nam',
+    name: 'Quận Nhật Nam thời Hán (xấp xỉ)',
+    selectors: [
+      'VNM.quang-binh',
+      'VNM.quang-tri',
+      'VNM.thua-thien-hue',
+      'VNM.da-nang',
+      'VNM.quang-nam',
+      'VNM.quang-ngai',
+      'VNM.binh-dinh'
+    ]
+  },
+  {
     id: 'dong-bang-bac-bo',
     name: 'Đồng bằng Bắc Bộ và Bắc Trung Bộ',
     selectors: [
