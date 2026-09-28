@@ -226,7 +226,7 @@ export const NGO_LY_TRAN: Snapshot[] = [
     era: 'nha-ly',
     title: 'Chiến tranh Tống – Việt, phòng tuyến Như Nguyệt',
     summary:
-      'Trước nguy cơ nhà Tống chuẩn bị xâm lược, năm 1075 Lý Thường Kiệt đem quân đánh sang đất Tống, hạ các thành Ung Châu, Khâm Châu, Liêm Châu rồi rút về nước. Năm 1076–1077, quân Tống do Quách Quỳ chỉ huy tiến sang trả đũa, hành quân qua ngả Lạng Sơn (nơi thủ lĩnh địa phương Thân Cảnh Phúc, trung thành với Đại Việt, tổ chức đánh chặn) nhưng bị ngăn đứng tại phòng tuyến sông Như Nguyệt (sông Cầu), phải rút quân. Riêng vùng mỏ vàng bạc Quảng Nguyên và các châu lân cận ở Cao Bằng bị Tống giữ lại, chưa trả ngay cho Đại Việt.',
+      'Trước nguy cơ nhà Tống chuẩn bị xâm lược, năm 1075 Lý Thường Kiệt đem quân đánh sang đất Tống, hạ các thành Ung Châu, Khâm Châu, Liêm Châu rồi rút về nước. Năm 1076–1077, quân Tống do Quách Quỳ chỉ huy tiến sang trả đũa, hành quân qua ngả Lạng Sơn (nơi thủ lĩnh địa phương Thân Cảnh Phúc, trung thành với Đại Việt, tổ chức đánh chặn) nhưng bị ngăn đứng tại phòng tuyến sông Như Nguyệt (sông Cầu), phải rút quân. Riêng vùng mỏ vàng bạc Quảng Nguyên và các châu lân cận ở Cao Bằng bị Tống giữ lại, chưa trả ngay cho Đại Việt; sử liệu Trung Hoa còn kể thêm một số châu phía Lạng Sơn trong phần đất tranh chấp, vị trí các châu này chưa được xác định thống nhất.',
     assign: assignAll(BIEN_GIOI_1077, 'nha-tong'),
     lowConfidence: [...BIEN_GIOI_1077],
     focus: { lon: 106.5, lat: 22.68 },
