@@ -5,9 +5,10 @@ import type { Snapshot, Source } from '../types';
  * ngo-dinh-le → nha-tran.
  *
  * File này tự đứng một mình: mốc đầu (`939`) có `'*': null` và gán đầy đủ, tiếp nối đúng trạng
- * thái cuối của file 02-co-dai.ts (mốc `931`): Giao Châu cũ (Bắc Bộ + Thanh – Nghệ – Tĩnh) thuộc
- * Tĩnh Hải quân tự chủ, Lĩnh Nam (Quảng Đông, Quảng Tây, Hải Nam) thuộc Nam Hán, dải Quảng Bình –
- * Bình Định thuộc Chăm Pa, Nam Bộ + Campuchia thuộc Đế quốc Khmer.
+ * thái cuối của file 02-co-dai.ts (mốc `931`, sau fix round 1): Giao Châu cũ (Bắc Bộ + Thanh –
+ * Nghệ – Tĩnh) thuộc Tĩnh Hải quân tự chủ, Lĩnh Nam (Quảng Đông, Quảng Tây, Hải Nam) thuộc Nam
+ * Hán, dải bờ biển Quảng Bình → Bình Thuận (gồm cả Kauthara, Panduranga từ mốc `722`) thuộc Chăm
+ * Pa, Nam Bộ + Campuchia thuộc Đế quốc Khmer.
  *
  * Quy ước viết tắt vùng dùng nhiều lần (giữ nguyên từ 02-co-dai.ts):
  * - GIAO_CHAU: đồng bằng Bắc Bộ + Bắc Trung Bộ + miền núi Bắc Bộ.
@@ -20,6 +21,11 @@ import type { Snapshot, Source } from '../types';
  * - chau-o, chau-ly: châu Ô (sau đổi Thuận Châu) và châu Lý (sau đổi Hóa Châu) năm 1306, gộp lại
  *   vừa đúng phần còn lại của Quảng Trị (huyện Quảng Trị, Triệu Phong, Hải Lăng) và toàn bộ Thừa
  *   Thiên Huế; ranh giới cụ thể theo huyện hiện đại chỉ mang tính ước lệ.
+ * - bien-gioi-ly-tong-1077: dải châu động biên giới Cao Bằng mà Tống chiếm giữ 1076–1084 (Quảng
+ *   Nguyên ≈ huyện Quảng Uyên + Phục Hòa; Tư Lang ≈ Trùng Khánh + Hạ Lang; Môn châu ≈ Thạch An).
+ *   Xem "Fix round 1" trong báo cáo task để biết chi tiết đối chiếu nguồn cấp huyện.
+ * - kauthara, panduranga: dải nam Trung Bộ (Phú Yên–Khánh Hòa, Ninh Thuận–Bình Thuận) thuộc Chăm
+ *   Pa, dùng để gán từ mốc `939` (kế thừa quyết định bổ sung tại mốc `722` của 02-co-dai.ts).
  *
  * Năm sửa so với bảng gốc trong brief: không có mốc nào phải sửa year/yearLabel — toàn bộ 18 mốc
  * đối chiếu với Đại Việt sử ký toàn thư, Khâm định Việt sử thông giám cương mục và Lịch sử Việt
@@ -30,12 +36,15 @@ import type { Snapshot, Source } from '../types';
  * - Mốc `982` (Lê Hoàn đánh Chiêm Thành) chỉ là một cuộc tập kích phá kinh đô Indrapura, không
  *   sáp nhập lãnh thổ; ranh giới Đại Cồ Việt – Chăm Pa ở Quảng Bình không đổi cho tới 1069.
  * - Mốc `1077`–`1084`: theo Toàn thư và các khảo cứu về vấn đề biên giới thời Lý, sau khi rút
- *   quân khỏi cuộc phản công 1076–1077, nhà Tống vẫn giữ lại một dải châu động biên giới (Quảng
- *   Nguyên, Tư Lang, Tô Mậu…, đại thể vùng Cao Bằng – Lạng Sơn ngày nay) và chỉ trả lại phần lớn
- *   tại hội nghị Vĩnh Bình năm 1084; hai vùng nhỏ Vật Dương, Vật Ác bị Tống giữ hẳn dù Đại Việt
- *   nhiều lần đòi lại, nhưng vị trí quy về địa giới hành chính hiện đại của hai vùng này chưa có
- *   sự thống nhất trong giới nghiên cứu nên không được tách riêng trên bản đồ (đánh dấu
- *   lowConfidence cho toàn bộ Cao Bằng, Lạng Sơn ở cả hai mốc).
+ *   quân khỏi cuộc phản công 1076–1077, nhà Tống vẫn giữ lại một dải châu động vùng mỏ vàng bạc ở
+ *   Cao Bằng (nhóm `bien-gioi-ly-tong-1077`: Quảng Uyên, Phục Hòa, Trùng Khánh, Hạ Lang, Thạch
+ *   An) và chỉ trả lại phần lớn tại hội nghị Vĩnh Bình năm 1084; hai vùng nhỏ Vật Dương, Vật Ác
+ *   bị Tống giữ hẳn dù Đại Việt nhiều lần đòi lại, nhưng vị trí quy về địa giới hành chính hiện
+ *   đại của hai vùng này chưa có sự thống nhất trong giới nghiên cứu nên không tách riêng trên
+ *   bản đồ (đánh dấu lowConfidence cho cả nhóm ở cả hai mốc). Lạng Sơn (tuyến hành quân chính của
+ *   Tống, do thủ lĩnh địa phương Thân Cảnh Phúc — trung thành với Đại Việt — trấn giữ ở châu
+ *   Quang Lang/vùng Chi Lăng) không thuộc dải châu động bị giữ lại lâu dài nên không đổi chủ ở
+ *   hai mốc này (fix round 1, xem báo cáo task).
  * - Mốc `1371`: Chế Bồng Nga từng cử sứ đòi lại Hóa Châu nhưng bị nhà Trần từ chối, nên bản đồ
  *   không đổi chủ vùng này; tuy vậy quyền kiểm soát thực tế của nhà Trần ở đây suy yếu rõ rệt
  *   trong giai đoạn 1371–1390 nên đánh dấu lowConfidence cho châu Ô, châu Lý.
@@ -76,9 +85,11 @@ const MINH_SU: Source = { title: 'Minh sử' };
 const GIAO_CHAU = ['group:dong-bang-bac-bo', 'group:bac-bo-nui'];
 const LINH_NAM = ['group:linh-nam-trung-hoa', 'CHN.hai-nam'];
 const NHAT_NAM = ['group:quan-nhat-nam'];
+const KAUTHARA_PANDURANGA = ['group:kauthara', 'group:panduranga'];
 const CAMPUCHIA_NAM_BO = ['KHM', 'group:nam-bo'];
 const BA_CHAU = ['group:ba-chau-1069'];
 const CHAU_O_LY = ['group:chau-o', 'group:chau-ly'];
+const BIEN_GIOI_1077 = ['group:bien-gioi-ly-tong-1077'];
 
 const assignAll = (selectors: string[], polity: string) =>
   Object.fromEntries(selectors.map((s) => [s, polity]));
@@ -91,17 +102,18 @@ export const NGO_LY_TRAN: Snapshot[] = [
     era: 'ngo-dinh-le',
     title: 'Ngô Quyền xưng vương sau trận Bạch Đằng',
     summary:
-      'Năm 938, Ngô Quyền đánh tan quân Nam Hán trên sông Bạch Đằng, giết thái tử Hoằng Tháo. Năm 939, ông xưng vương, đóng đô ở Cổ Loa, chấm dứt hơn nghìn năm Bắc thuộc và mở đầu thời kỳ độc lập lâu dài của người Việt. Lãnh thổ kế thừa nguyên vẹn vùng Giao Châu cũ (đồng bằng và miền núi Bắc Bộ, Thanh – Nghệ – Tĩnh); phía bắc, Lĩnh Nam vẫn thuộc Nam Hán, còn dải Quảng Bình – Bình Định vẫn thuộc Chăm Pa.',
+      'Năm 938, Ngô Quyền đánh tan quân Nam Hán trên sông Bạch Đằng, giết thái tử Hoằng Tháo. Năm 939, ông xưng vương, đóng đô ở Cổ Loa, chấm dứt hơn nghìn năm Bắc thuộc và mở đầu thời kỳ độc lập lâu dài của người Việt. Lãnh thổ kế thừa nguyên vẹn vùng Giao Châu cũ (đồng bằng và miền núi Bắc Bộ, Thanh – Nghệ – Tĩnh); phía bắc, Lĩnh Nam vẫn thuộc Nam Hán, còn dải bờ biển Quảng Bình tới Bình Thuận vẫn thuộc Chăm Pa, gồm cả hai tiểu quốc phía nam Kauthara (Phú Yên, Khánh Hòa) và Panduranga (Ninh Thuận, Bình Thuận).',
     assign: {
       '*': null,
       ...assignAll(GIAO_CHAU, 'nha-ngo'),
       ...assignAll(LINH_NAM, 'nam-han'),
       ...assignAll(NHAT_NAM, 'champa'),
+      ...assignAll(KAUTHARA_PANDURANGA, 'champa'),
       ...assignAll(CAMPUCHIA_NAM_BO, 'khmer')
     },
-    lowConfidence: ['group:bac-bo-nui', 'group:quan-nhat-nam'],
+    lowConfidence: ['group:bac-bo-nui', 'group:quan-nhat-nam', ...KAUTHARA_PANDURANGA],
     focus: { lon: 105.87, lat: 21.13 },
-    sources: [TOAN_THU, LSVN2, CUONG_MUC]
+    sources: [TOAN_THU, LSVN2, CUONG_MUC, VICKERY_CHAMPA]
   },
   {
     id: '966',
@@ -214,10 +226,10 @@ export const NGO_LY_TRAN: Snapshot[] = [
     era: 'nha-ly',
     title: 'Chiến tranh Tống – Việt, phòng tuyến Như Nguyệt',
     summary:
-      'Trước nguy cơ nhà Tống chuẩn bị xâm lược, năm 1075 Lý Thường Kiệt đem quân đánh sang đất Tống, hạ các thành Ung Châu, Khâm Châu, Liêm Châu rồi rút về nước. Năm 1076–1077, quân Tống do Quách Quỳ chỉ huy tiến sang trả đũa nhưng bị chặn đứng tại phòng tuyến sông Như Nguyệt (sông Cầu), phải rút quân. Trong đợt này, phía Tống vẫn giữ lại một dải châu động biên giới phía bắc (Quảng Nguyên, Tư Lang, Tô Mậu…), đại thể vùng Cao Bằng, Lạng Sơn ngày nay, chưa trả ngay cho Đại Việt.',
-    assign: { 'VNM.cao-bang': 'nha-tong', 'VNM.lang-son': 'nha-tong' },
-    lowConfidence: ['VNM.cao-bang', 'VNM.lang-son'],
-    focus: { lon: 106.05, lat: 21.2 },
+      'Trước nguy cơ nhà Tống chuẩn bị xâm lược, năm 1075 Lý Thường Kiệt đem quân đánh sang đất Tống, hạ các thành Ung Châu, Khâm Châu, Liêm Châu rồi rút về nước. Năm 1076–1077, quân Tống do Quách Quỳ chỉ huy tiến sang trả đũa, hành quân qua ngả Lạng Sơn (nơi thủ lĩnh địa phương Thân Cảnh Phúc, trung thành với Đại Việt, tổ chức đánh chặn) nhưng bị ngăn đứng tại phòng tuyến sông Như Nguyệt (sông Cầu), phải rút quân. Riêng vùng mỏ vàng bạc Quảng Nguyên và các châu lân cận ở Cao Bằng bị Tống giữ lại, chưa trả ngay cho Đại Việt.',
+    assign: assignAll(BIEN_GIOI_1077, 'nha-tong'),
+    lowConfidence: [...BIEN_GIOI_1077],
+    focus: { lon: 106.5, lat: 22.68 },
     sources: [TOAN_THU, CUONG_MUC, LSVN2]
   },
   {
@@ -227,10 +239,10 @@ export const NGO_LY_TRAN: Snapshot[] = [
     era: 'nha-ly',
     title: 'Hội nghị biên giới: Tống trả các châu động',
     summary:
-      'Sau nhiều lần cử sứ bộ thương thuyết, năm 1084 Lý Thường Kiệt cử Binh bộ Thị lang Lê Văn Thịnh đến trại Vĩnh Bình hội đàm với sứ Tống là Thành Trạc; nhà Tống đồng ý trả lại phần lớn số châu động đã chiếm giữ ở biên giới phía bắc, trong đó có châu Quảng Nguyên giàu vàng bạc. Tuy vậy, hai vùng nhỏ Vật Dương, Vật Ác vẫn bị Tống giữ lại dù Đại Việt nhiều lần đòi lại trong hơn mười năm sau đó; vị trí quy về địa giới hành chính hiện đại của hai vùng này chưa có sự thống nhất trong giới nghiên cứu nên không được tách riêng trên bản đồ.',
-    assign: { 'VNM.cao-bang': 'nha-ly', 'VNM.lang-son': 'nha-ly' },
-    lowConfidence: ['VNM.cao-bang', 'VNM.lang-son'],
-    focus: { lon: 106.25, lat: 22.65 },
+      'Sau nhiều lần cử sứ bộ thương thuyết, năm 1084 Lý Thường Kiệt cử Binh bộ Thị lang Lê Văn Thịnh đến trại Vĩnh Bình hội đàm với sứ Tống là Thành Trạc; nhà Tống đồng ý trả lại phần lớn số châu động đã chiếm giữ ở vùng Quảng Nguyên (Cao Bằng), trong đó có mỏ vàng bạc. Tuy vậy, hai vùng nhỏ Vật Dương, Vật Ác vẫn bị Tống giữ lại dù Đại Việt nhiều lần đòi lại trong hơn mười năm sau đó; vị trí quy về địa giới hành chính hiện đại của hai vùng này chưa có sự thống nhất trong giới nghiên cứu nên không được tách riêng trên bản đồ, bản đồ coi cả dải châu động này đã về tay Đại Việt.',
+    assign: assignAll(BIEN_GIOI_1077, 'nha-ly'),
+    lowConfidence: [...BIEN_GIOI_1077],
+    focus: { lon: 106.5, lat: 22.68 },
     sources: [TOAN_THU, CUONG_MUC, LSVN2]
   },
   {

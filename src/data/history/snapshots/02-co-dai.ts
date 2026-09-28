@@ -12,6 +12,10 @@ import type { Snapshot, Source } from '../types';
  * - LINH_NAM: Quảng Đông + Quảng Tây (+ Hồng Kông, Ma Cao) thuộc Trung Hoa thời Bắc thuộc.
  * - NHAT_NAM: nhóm quan-nhat-nam (Quảng Bình → Bình Định), xấp xỉ quận Nhật Nam thời Hán, sau là
  *   lõi Lâm Ấp/Chăm Pa.
+ * - KAUTHARA_PANDURANGA: nhóm kauthara (Phú Yên, Khánh Hòa) + panduranga (Ninh Thuận, Bình
+ *   Thuận), hai tiểu quốc Chăm phía nam, gán cho Chăm Pa từ mốc `722` (fix round 1 của task C3 —
+ *   xem báo cáo task C3 để biết chi tiết nguồn; trước đó hai nhóm này không được gán ở bất cứ mốc
+ *   nào, để trống `null` là một lỗ hổng so với lịch sử).
  *
  * Năm sửa so với bảng gốc trong brief: không có mốc nào phải sửa year/yearLabel — bảng đã dùng
  * niên đại được giới sử học hiện nay chấp nhận rộng rãi hơn (ví dụ tcn204 thay vì 207 TCN theo
@@ -59,6 +63,7 @@ const CHANDLER: Source = { title: 'A History of Cambodia', author: 'David Chandl
 const GIAO_CHAU = ['group:dong-bang-bac-bo', 'group:bac-bo-nui'];
 const LINH_NAM = ['group:linh-nam-trung-hoa', 'CHN.hai-nam'];
 const NHAT_NAM = ['group:quan-nhat-nam'];
+const KAUTHARA_PANDURANGA = ['group:kauthara', 'group:panduranga'];
 const CAMPUCHIA_NAM_BO = ['KHM', 'group:nam-bo'];
 
 const assignAll = (selectors: string[], polity: string) =>
@@ -363,14 +368,15 @@ export const CO_DAI: Snapshot[] = [
     era: 'bac-thuoc-3',
     title: 'Khởi nghĩa Mai Thúc Loan',
     summary:
-      'Mai Thúc Loan dấy binh ở Hoan Châu (Nghệ An), xưng đế (Mai Hắc Đế), xây thành Vạn An. Sử cũ chép ông được nhiều châu hưởng ứng, nhưng phạm vi kiểm soát thực tế nhiều khả năng chủ yếu ở vùng Nghệ An – Hà Tĩnh; cuộc khởi nghĩa bị tướng Đường là Dương Tư Húc dẹp trong cùng năm. Thư tịch Trung Hoa bắt đầu gọi Lâm Ấp bằng tên khác — Hoàn Vương — cụ thể hơn vào khoảng năm 749–757; bản đồ đổi tên chính thể từ mốc 722 vì đây là mốc gần nhất trước thời điểm đó trên dòng thời gian, không phải năm đổi tên chính xác.',
+      'Mai Thúc Loan dấy binh ở Hoan Châu (Nghệ An), xưng đế (Mai Hắc Đế), xây thành Vạn An. Sử cũ chép ông được nhiều châu hưởng ứng, nhưng phạm vi kiểm soát thực tế nhiều khả năng chủ yếu ở vùng Nghệ An – Hà Tĩnh; cuộc khởi nghĩa bị tướng Đường là Dương Tư Húc dẹp trong cùng năm. Thư tịch Trung Hoa bắt đầu gọi Lâm Ấp bằng tên khác — Hoàn Vương — cụ thể hơn vào khoảng năm 749–757; bản đồ đổi tên chính thể từ mốc 722 vì đây là mốc gần nhất trước thời điểm đó trên dòng thời gian, không phải năm đổi tên chính xác. Cùng giai đoạn này, các bia ký Chăm ở Kauthara (Nha Trang, từ thế kỷ VIII) và Panduranga (Phan Rang) cho thấy hai tiểu quốc phía nam cũng thuộc về khối Chăm Pa; do niên đại hợp nhất chính trị với Lâm Ấp/Chăm Pa phía bắc còn chưa rõ, bản đồ gán hai vùng này từ mốc gần nhất có bằng chứng, đánh dấu độ tin cậy thấp.',
     assign: {
       ...assignAll(GIAO_CHAU, 'mai-thuc-loan'),
-      ...assignAll(NHAT_NAM, 'champa')
+      ...assignAll(NHAT_NAM, 'champa'),
+      ...assignAll(KAUTHARA_PANDURANGA, 'champa')
     },
-    lowConfidence: [...GIAO_CHAU],
+    lowConfidence: [...GIAO_CHAU, ...KAUTHARA_PANDURANGA],
     focus: { lon: 105.3, lat: 18.7 },
-    sources: [TOAN_THU, CUONG_MUC, TAYLOR]
+    sources: [TOAN_THU, CUONG_MUC, TAYLOR, VICKERY_CHAMPA]
   },
   {
     id: '791',

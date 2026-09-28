@@ -137,5 +137,26 @@ export const GROUPS: CellGroup[] = [
       'VNM.thua-thien-hue.nam-dong',
       'VNM.thua-thien-hue.a-luoi'
     ]
+  },
+  {
+    id: 'bien-gioi-ly-tong-1077',
+    name: 'Dải châu động biên giới bị Tống chiếm giữ 1076–1084 (Quảng Nguyên, Tư Lang, Môn châu)',
+    selectors: [
+      'VNM.cao-bang.quang-uyen',
+      'VNM.cao-bang.phuc-hoa',
+      'VNM.cao-bang.trung-khanh',
+      'VNM.cao-bang.ha-lang',
+      'VNM.cao-bang.thach-an'
+    ]
+  },
+  {
+    id: 'kauthara',
+    name: 'Kauthara (xấp xỉ, tiểu quốc Chăm vùng Nha Trang)',
+    selectors: ['VNM.phu-yen', 'VNM.khanh-hoa']
+  },
+  {
+    id: 'panduranga',
+    name: 'Panduranga (xấp xỉ, tiểu quốc Chăm vùng Phan Rang, trước 1697)',
+    selectors: ['VNM.ninh-thuan', 'VNM.binh-thuan']
   }
 ];
