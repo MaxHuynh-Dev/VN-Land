@@ -17,6 +17,18 @@ export function snapshotIndexFromParam(param: string | null, snapshots: Snapshot
   return found;
 }
 
+export function eraStartIndices(snapshots: Snapshot[]): Set<number> {
+  const out = new Set<number>();
+  snapshots.forEach((s, i) => {
+    if (i === 0 || snapshots[i - 1].era !== s.era) out.add(i);
+  });
+  return out;
+}
+
+export function labelFits(segmentPx: number, labelPx: number, paddingPx = 8): boolean {
+  return labelPx + paddingPx <= segmentPx;
+}
+
 export function eraSegments(
   snapshots: Snapshot[],
   eras: Era[]

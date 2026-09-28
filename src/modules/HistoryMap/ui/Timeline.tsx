@@ -4,9 +4,9 @@ import { useSignals } from '@preact/signals-react/runtime';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import type React from 'react';
 import { useLayoutEffect, useRef } from 'react';
-import { SNAPSHOTS } from '@/data/history';
+import { ERAS, SNAPSHOTS } from '@/data/history';
 import { COPY } from '../copy';
-import { clampIndex } from '../lib/timeline';
+import { clampIndex, eraStartIndices } from '../lib/timeline';
 import { playing, snapshotIndex } from '../state/store';
 import EraBand from './EraBand';
 
@@ -15,11 +15,15 @@ const go = (i: number): void => {
   snapshotIndex.value = clampIndex(i, SNAPSHOTS.length);
 };
 
+const ERA_STARTS = eraStartIndices(SNAPSHOTS);
+
 export default function Timeline(): React.ReactElement {
   useSignals();
   const i = snapshotIndex.value;
   const snap = SNAPSHOTS[i];
+  const era = ERAS.find((e) => e.id === snap.era);
   const last = SNAPSHOTS.length - 1;
+  const currentPct = last > 0 ? (i / last) * 100 : 0;
   const navRef = useRef<HTMLElement>(null);
 
   // Chiều cao thanh thời gian đổi theo nội dung/màn hình (padding responsive…) — đo thật bằng
@@ -48,12 +52,21 @@ export default function Timeline(): React.ReactElement {
       className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a1420] via-[#0a1420]/85 to-transparent px-4 pt-10 pb-4 md:px-10 md:pb-6"
     >
       <div className="mb-2 flex items-end gap-4">
-        <p
-          data-testid="timeline-current"
-          className="font-extrabold text-3xl tabular-nums md:text-5xl"
-        >
-          {snap.yearLabel}
-        </p>
+        <div className="flex flex-col">
+          <p
+            data-testid="timeline-era"
+            style={{ color: era?.color }}
+            className="font-semibold text-[10px] uppercase leading-tight tracking-wide"
+          >
+            {era?.label}
+          </p>
+          <p
+            data-testid="timeline-current"
+            className="font-extrabold text-3xl tabular-nums md:text-5xl"
+          >
+            {snap.yearLabel}
+          </p>
+        </div>
         <p className="mb-1 truncate text-sm opacity-80 md:text-base">{snap.title}</p>
         <div className="ml-auto flex gap-1">
           <button
@@ -101,14 +114,23 @@ export default function Timeline(): React.ReactElement {
         />
         <div
           data-testid="timeline-track"
-          className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-between rounded px-[7px] outline-offset-4 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[#f4e3c1]"
+          className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 rounded px-[7px] outline-offset-4 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[#f4e3c1]"
         >
-          {SNAPSHOTS.map((s, k) => (
+          <div className="relative flex items-center justify-between">
+            {SNAPSHOTS.map((s, k) => (
+              <span
+                key={s.id}
+                className={`w-px shrink-0 ${ERA_STARTS.has(k) ? 'h-3.5' : 'h-2'} ${
+                  k <= i ? 'bg-[#f4e3c1]' : 'bg-white/25'
+                }`}
+              />
+            ))}
             <span
-              key={s.id}
-              className={`h-2 w-2 rounded-full ${k <= i ? 'bg-[#f4e3c1]' : 'bg-white/25'}`}
+              aria-hidden
+              style={{ left: `${currentPct}%` }}
+              className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f4e3c1]"
             />
-          ))}
+          </div>
         </div>
       </div>
     </nav>

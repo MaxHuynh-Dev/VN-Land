@@ -64,6 +64,21 @@ test('focus bàn phím vào thanh trượt hiện viền focus rõ', async ({ pa
   expect(outlineStyle).not.toBe('none');
 });
 
+test('bấm một thời kỳ trên dải → nhảy tới mốc đầu của thời kỳ đó', async ({ page }) => {
+  await page.goto('/?y=tcn700');
+  await page.getByRole('button', { name: /Tới thời kỳ Lê sơ/ }).click();
+  await expect(page.getByTestId('timeline-current')).toHaveText('1471');
+  await expect(page.getByTestId('timeline-era')).toHaveText(/Lê sơ/i);
+});
+
+test('ray mốc không tràn ngang', async ({ page }) => {
+  await page.goto('/');
+  const overflow = await page
+    .getByTestId('timeline-track')
+    .evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
 test('thẻ thông tin đổi theo mốc; mở và đóng chi tiết chính thể', async ({ page, isMobile }) => {
   // Trên mobile, thẻ thông tin nằm trong bottom sheet thu gọn (`aside` bị ẩn); hành vi mobile
   // (mở/đóng sheet, không cuộn ngang) đã có test riêng ở dưới.

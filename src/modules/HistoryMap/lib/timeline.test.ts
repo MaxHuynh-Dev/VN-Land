@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { ERAS } from '@/data/history/eras';
+import type { Snapshot } from '@/data/history/types';
 import { SNAPSHOTS } from './testFixtures';
-import { clampIndex, eraSegments, snapshotIndexFromParam } from './timeline';
+import {
+  clampIndex,
+  eraSegments,
+  eraStartIndices,
+  labelFits,
+  snapshotIndexFromParam
+} from './timeline';
 
 describe('snapshotIndexFromParam', () => {
   it('khớp đúng id', () => {
@@ -35,12 +42,27 @@ describe('eraSegments', () => {
     const snaps = [
       { ...SNAPSHOTS[0], era: 'tien-su' as const },
       { ...SNAPSHOTS[1], era: 'tien-su' as const },
-      { ...SNAPSHOTS[2], era: 'doc-lap' as const }
+      { ...SNAPSHOTS[2], era: 'thong-nhat' as const }
     ];
     const seg = eraSegments(snaps, ERAS);
     expect(seg.map((s) => [s.era.id, s.start, s.count])).toEqual([
       ['tien-su', 0, 2],
-      ['doc-lap', 2, 1]
+      ['thong-nhat', 2, 1]
     ]);
+  });
+});
+
+describe('eraStartIndices', () => {
+  it('trả chỉ số mốc đầu của mỗi đoạn thời kỳ liên tiếp', () => {
+    const s = [{ era: 'a' }, { era: 'a' }, { era: 'b' }, { era: 'a' }] as unknown as Snapshot[];
+    expect([...eraStartIndices(s)]).toEqual([0, 2, 3]);
+  });
+});
+
+describe('labelFits', () => {
+  it('vừa khi đoạn đủ rộng cho chữ cộng lề', () => {
+    expect(labelFits(100, 80)).toBe(true);
+    expect(labelFits(100, 93)).toBe(false);
+    expect(labelFits(100, 93, 4)).toBe(true);
   });
 });

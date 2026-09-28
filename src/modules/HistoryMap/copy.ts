@@ -26,6 +26,8 @@ export const COPY = {
   prev: 'Mốc trước',
   next: 'Mốc sau',
   timelineLabel: 'Dòng thời gian',
+  eraBandLabel: 'Các thời kỳ',
+  jumpToEra: 'Tới thời kỳ',
   credits: 'Nguồn & ghi công',
   close: 'Đóng',
   back: 'Quay lại toàn cảnh',

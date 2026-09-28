@@ -17,7 +17,7 @@ export const SAMPLE_SNAPSHOTS: Snapshot[] = [
     id: '1471',
     year: 1471,
     yearLabel: '1471',
-    era: 'nam-tien',
+    era: 'le-so',
     title: 'Năm 1471 (mẫu)',
     summary: 'Dữ liệu mẫu để dựng giao diện.',
     sources: S,
