@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Thay trang Home của VN-Land bằng một bản đồ 3D khám phá: kéo dòng thời gian qua ~59 mốc từ thời đồ đá đến 2025, thấy lãnh thổ và cờ của từng chính thể trên Việt Nam, Lào, Campuchia và Hoa Nam.
+**Goal:** Thay trang Home của VN-Land bằng một bản đồ 3D khám phá: kéo dòng thời gian qua 146 mốc (bản mở rộng 2026-09-28) từ thời đồ đá đến 2025, thấy lãnh thổ và cờ của từng chính thể trên Việt Nam, Lào, Campuchia và Hoa Nam.
 
 **Architecture:** Một pipeline Node (chạy tay) biến ranh giới hành chính geoBoundaries thành ~1.300 "ô nguyên tử" trong `public/data/cells.topo.json`. Dữ liệu lịch sử viết tay bằng TypeScript (`src/data/history/`) gán ô → chính thể theo delta từng mốc. Client dùng React Three Fiber và dựng **một mesh gộp duy nhất** cho mọi ô. Màu và độ nổi của từng ô được đọc từ một `DataTexture` trong shader, nhờ đó đổi mốc chỉ phải cập nhật texture chứ không dựng lại hình học.
 
@@ -3607,7 +3607,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - **Chạy sau mỗi thay đổi:** `yarn validate:history && yarn test`. Cả hai phải PASS mới được commit.
 - **Kiểm tra bằng mắt:** mở `/?y=<id>` cho từng mốc vừa soạn, kiểm tra lãnh thổ có liền mạch không, có ô nào sai chủ trông lạc lõng không. Chụp 2–3 màn hình tiêu biểu.
 
-### Bảng id các mốc (bắt buộc dùng đúng `id`, `year`, `era`)
+### Bảng id các mốc (ĐÃ THAY THẾ — xem "Bảng id các mốc v2" ở cuối file)
 
 | # | id | year | yearLabel | era | File |
 |---|---|---|---|---|---|
@@ -3835,7 +3835,7 @@ git commit -m "feat(history): polity catalog with sourced flags and symbols
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
-### Task C2: Mốc 1–16 (tiền sử → 939)
+### Task C2: Mốc 1–16 (tiền sử → 939) (ĐÃ THAY THẾ — xem mục 2026-09-28 ở cuối file)
 
 **Files:**
 - Create: `src/data/history/snapshots/01-tien-su.ts` (export `TIEN_SU: Snapshot[]`), `src/data/history/snapshots/02-co-dai.ts` (export `CO_DAI: Snapshot[]`)
@@ -3871,7 +3871,7 @@ git commit -m "feat(history): snapshots from prehistory to 939
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
-### Task C3: Mốc 17–30 (968 → 1533)
+### Task C3: Mốc 17–30 (968 → 1533) (ĐÃ THAY THẾ — xem mục 2026-09-28 ở cuối file)
 
 **Files:**
 - Create: `src/data/history/snapshots/03-tu-chu.ts` (export `TU_CHU: Snapshot[]`)
@@ -3909,7 +3909,7 @@ git commit -m "feat(history): snapshots from 968 to 1533
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
-### Task C4: Mốc 31–46 (1558 → 1841)
+### Task C4: Mốc 31–46 (1558 → 1841) (ĐÃ THAY THẾ — xem mục 2026-09-28 ở cuối file)
 
 **Files:**
 - Create: `src/data/history/snapshots/04-nam-tien.ts` (export `NAM_TIEN: Snapshot[]`)
@@ -3952,7 +3952,7 @@ git commit -m "feat(history): snapshots from 1558 to 1841
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
-### Task C5: Mốc 47–59 (1862 → 2025)
+### Task C5: Mốc 47–59 (1862 → 2025) (ĐÃ THAY THẾ — xem mục 2026-09-28 ở cuối file)
 
 **Files:**
 - Create: `src/data/history/snapshots/05-can-hien-dai.ts` (export `CAN_HIEN_DAI: Snapshot[]`)
@@ -3994,7 +3994,7 @@ git commit -m "feat(history): snapshots from 1862 to 2025
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
 
-### Task C6: Bỏ dữ liệu mẫu và xuất bảng duyệt nội dung
+### Task C6: Bỏ dữ liệu mẫu và xuất bảng duyệt nội dung (ĐÃ THAY THẾ — xem mục 2026-09-28 ở cuối file)
 
 **Files:**
 - Delete: `src/data/history/snapshots/00-sample.ts`, `public/flags/_sample.svg`
@@ -4439,3 +4439,351 @@ git commit -m "feat(map): drape polity flags over territories via shader atlas; 
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
+
+## Thay đổi thiết kế giữa chừng (2026-09-28): mở rộng lên 146 mốc, 21 thời kỳ
+
+Người dùng thấy 59 mốc và 9 thời kỳ là quá ít, muốn dòng thời gian chi tiết hơn (nhà Nguyễn, Tây Sơn, Việt Nam Cộng hòa…) và nguồn chi tiết hơn. Spec mục 2, 4, 6, 6a đã cập nhật.
+
+**Phần này thay thế:** "Bảng id các mốc" (59 mốc) và Task C2–C6 ở Phase P3. Task C1 (đã xong) giữ nguyên. "Quy ước chung cho mọi task nội dung" vẫn áp dụng, với các sửa đổi ở mục "Quy ước bổ sung" dưới đây. Thứ tự chạy: **Task T → Task C1b → C2 → C3 → C4 → C5 → C6 → C7 → C8 → C9 → Task 11 → Task 12**.
+
+### Bảng 21 thời kỳ (bắt buộc dùng đúng `id`, `label`, `color`)
+
+| id | label | color |
+|---|---|---|
+| `tien-su` | Tiền sử | `#7a6a55` |
+| `hong-bang` | Hồng Bàng – Âu Lạc | `#b08a3e` |
+| `bac-thuoc-1` | Bắc thuộc lần I | `#8a4b3c` |
+| `hai-ba-trung` | Hai Bà Trưng | `#c0392b` |
+| `bac-thuoc-2` | Bắc thuộc lần II | `#7d4636` |
+| `van-xuan` | Vạn Xuân | `#b3261e` |
+| `bac-thuoc-3` | Bắc thuộc lần III | `#6f4030` |
+| `tu-chu` | Tự chủ (Khúc – Dương) | `#a8553a` |
+| `ngo-dinh-le` | Ngô – Đinh – Tiền Lê | `#c2402f` |
+| `nha-ly` | Nhà Lý | `#d9822b` |
+| `nha-tran` | Nhà Trần | `#c9362f` |
+| `ho-minh` | Nhà Hồ & Minh thuộc | `#8c5a3c` |
+| `le-so` | Lê sơ | `#d4a017` |
+| `mac` | Mạc & Nam – Bắc triều | `#b5452f` |
+| `trinh-nguyen` | Trịnh – Nguyễn phân tranh | `#d0762c` |
+| `tay-son` | Tây Sơn | `#c8331f` |
+| `nha-nguyen` | Nhà Nguyễn | `#d9b233` |
+| `phap-thuoc` | Pháp thuộc | `#4f6d8f` |
+| `khang-chien` | Chiến tranh Đông Dương | `#6b4f7a` |
+| `chia-cat` | Chia cắt hai miền | `#8f3c52` |
+| `thong-nhat` | Thống nhất | `#d6332a` |
+
+### Bảng id các mốc v2 (bắt buộc dùng đúng `id`, `year`, `yearLabel`, `era`, file)
+
+`Tiêu đề` là gợi ý; agent nghiên cứu được viết lại cho chính xác hơn. Mốc `1975` đổi `year` thành `1975.33` (trước là `1975`) để đứng sau `1975-03` (`1975.2`); `?y=1975` vẫn mở đúng mốc vì id được so khớp trước.
+
+| # | id | year | yearLabel | era | File | Tiêu đề |
+|---|---|---|---|---|---|---|
+| 1 | `tcn20000` | -20000 | ~20.000 TCN | tien-su | 01-tien-su | Văn hóa Sơn Vi |
+| 2 | `tcn10000` | -10000 | ~10.000 TCN | tien-su | 01-tien-su | Văn hóa Hòa Bình |
+| 3 | `tcn8000` | -8000 | ~8.000 TCN | tien-su | 01-tien-su | Văn hóa Bắc Sơn *(mới)* |
+| 4 | `tcn5000` | -5000 | ~5.000 TCN | tien-su | 01-tien-su | Quỳnh Văn, Đa Bút – cư dân ven biển |
+| 5 | `tcn2000` | -2000 | ~2.000 TCN | tien-su | 01-tien-su | Phùng Nguyên, Sa Huỳnh sớm, Đồng Nai |
+| 6 | `tcn700` | -700 | ~700 TCN | hong-bang | 02-co-dai | Văn Lang, văn hóa Đông Sơn |
+| 7 | `tcn257` | -257 | 257 TCN | hong-bang | 02-co-dai | Âu Lạc của An Dương Vương |
+| 8 | `tcn214` | -214 | 214 TCN | hong-bang | 02-co-dai | Nhà Tần lập Nam Hải, Quế Lâm, Tượng quận *(mới)* |
+| 9 | `tcn204` | -204 | ~204 TCN | hong-bang | 02-co-dai | Triệu Đà lập nước Nam Việt *(mới)* |
+| 10 | `tcn179` | -179 | 179 TCN | bac-thuoc-1 | 02-co-dai | Nam Việt thôn tính Âu Lạc |
+| 11 | `tcn111` | -111 | 111 TCN | bac-thuoc-1 | 02-co-dai | Nhà Hán lập Giao Chỉ, Cửu Chân, Nhật Nam |
+| 12 | `40` | 40 | 40 | hai-ba-trung | 02-co-dai | Khởi nghĩa Hai Bà Trưng |
+| 13 | `43` | 43 | 43 | bac-thuoc-2 | 02-co-dai | Mã Viện, Đông Hán trở lại |
+| 14 | `192` | 192 | 192 | bac-thuoc-2 | 02-co-dai | Khu Liên lập Lâm Ấp; Phù Nam ở phía Nam |
+| 15 | `203` | 203 | 203 | bac-thuoc-2 | 02-co-dai | Giao Chỉ bộ đổi thành Giao Châu (thời Sĩ Nhiếp) *(mới)* |
+| 16 | `226` | 226 | 226 | bac-thuoc-2 | 02-co-dai | Đông Ngô tách Quảng Châu khỏi Giao Châu *(mới)* |
+| 17 | `248` | 248 | 248 | bac-thuoc-2 | 02-co-dai | Khởi nghĩa Bà Triệu ở Cửu Chân *(mới)* |
+| 18 | `280` | 280 | 280 | bac-thuoc-2 | 02-co-dai | Nhà Tấn thống nhất, Giao Châu thuộc Tấn *(mới)* |
+| 19 | `420` | 420 | 420 | bac-thuoc-2 | 02-co-dai | Nam triều (Lưu Tống) cai quản Giao Châu *(mới)* |
+| 20 | `544` | 544 | 544 | van-xuan | 02-co-dai | Lý Bí lập nước Vạn Xuân |
+| 21 | `550` | 550 | 550 | van-xuan | 02-co-dai | Triệu Việt Vương; Chân Lạp lấn Phù Nam *(mới)* |
+| 22 | `571` | 571 | 571 | van-xuan | 02-co-dai | Hậu Lý Nam Đế (Lý Phật Tử) *(mới)* |
+| 23 | `602` | 602 | 602 | bac-thuoc-3 | 02-co-dai | Nhà Tùy chiếm Vạn Xuân |
+| 24 | `622` | 622 | 622 | bac-thuoc-3 | 02-co-dai | Nhà Đường lập Giao Châu tổng quản phủ *(mới)* |
+| 25 | `679` | 679 | 679 | bac-thuoc-3 | 02-co-dai | An Nam đô hộ phủ; Chân Lạp thay Phù Nam |
+| 26 | `722` | 722 | 722 | bac-thuoc-3 | 02-co-dai | Khởi nghĩa Mai Thúc Loan *(mới)* |
+| 27 | `791` | 791 | 791 | bac-thuoc-3 | 02-co-dai | Khởi nghĩa Phùng Hưng *(mới)* |
+| 28 | `802` | 802 | 802 | bac-thuoc-3 | 02-co-dai | Đế quốc Khmer (Angkor) |
+| 29 | `863` | 863 | 863 | bac-thuoc-3 | 02-co-dai | Nam Chiếu chiếm Giao Chỉ *(mới)* |
+| 30 | `866` | 866 | 866 | bac-thuoc-3 | 02-co-dai | Cao Biền lập Tĩnh Hải quân *(mới)* |
+| 31 | `905` | 905 | 905 | tu-chu | 02-co-dai | Khúc Thừa Dụ giành quyền tự chủ *(mới)* |
+| 32 | `917` | 917 | 917 | tu-chu | 02-co-dai | Nhà Nam Hán ở Lĩnh Nam *(mới)* |
+| 33 | `930` | 930 | 930 | tu-chu | 02-co-dai | Nam Hán chiếm Giao Châu *(mới)* |
+| 34 | `931` | 931 | 931 | tu-chu | 02-co-dai | Dương Đình Nghệ giành lại Giao Châu *(mới)* |
+| 35 | `939` | 939 | 939 | ngo-dinh-le | 03-ngo-ly-tran | Ngô Quyền xưng vương sau trận Bạch Đằng |
+| 36 | `966` | 966 | 965–967 | ngo-dinh-le | 03-ngo-ly-tran | Loạn 12 sứ quân *(mới)* |
+| 37 | `968` | 968 | 968 | ngo-dinh-le | 03-ngo-ly-tran | Đinh Bộ Lĩnh lập Đại Cồ Việt |
+| 38 | `980` | 980 | 980 | ngo-dinh-le | 03-ngo-ly-tran | Nhà Tiền Lê |
+| 39 | `982` | 982 | 982 | ngo-dinh-le | 03-ngo-ly-tran | Lê Hoàn đánh Chiêm Thành *(mới)* |
+| 40 | `1009` | 1009 | 1009 | nha-ly | 03-ngo-ly-tran | Nhà Lý |
+| 41 | `1010` | 1010 | 1010 | nha-ly | 03-ngo-ly-tran | Dời đô về Thăng Long *(mới)* |
+| 42 | `1054` | 1054 | 1054 | nha-ly | 03-ngo-ly-tran | Quốc hiệu Đại Việt |
+| 43 | `1069` | 1069 | 1069 | nha-ly | 03-ngo-ly-tran | Nhận ba châu Bố Chính, Địa Lý, Ma Linh |
+| 44 | `1077` | 1077 | 1075–1077 | nha-ly | 03-ngo-ly-tran | Chiến tranh Tống – Việt, phòng tuyến Như Nguyệt *(mới)* |
+| 45 | `1084` | 1084 | 1084 | nha-ly | 03-ngo-ly-tran | Hội nghị biên giới: Tống trả các châu động *(mới)* |
+| 46 | `1225` | 1225 | 1225 | nha-tran | 03-ngo-ly-tran | Nhà Trần |
+| 47 | `1279` | 1279 | 1279 | nha-tran | 03-ngo-ly-tran | Nhà Nguyên diệt Nam Tống, chiếm Hoa Nam *(mới)* |
+| 48 | `1288` | 1288 | 1258–1288 | nha-tran | 03-ngo-ly-tran | Ba lần kháng chiến chống Mông – Nguyên *(mới)* |
+| 49 | `1306` | 1306 | 1306 | nha-tran | 03-ngo-ly-tran | Châu Ô, châu Lý (sính lễ Huyền Trân) |
+| 50 | `1353` | 1353 | 1353 | nha-tran | 03-ngo-ly-tran | Pha Ngừm lập Lan Xang |
+| 51 | `1368` | 1368 | 1368 | nha-tran | 03-ngo-ly-tran | Nhà Minh thay nhà Nguyên *(mới)* |
+| 52 | `1371` | 1371 | 1371–1390 | nha-tran | 03-ngo-ly-tran | Chế Bồng Nga đánh ra Bắc *(mới)* |
+| 53 | `1400` | 1400 | 1400 | ho-minh | 04-ho-le-mac | Nhà Hồ, quốc hiệu Đại Ngu |
+| 54 | `1402` | 1402 | 1402 | ho-minh | 04-ho-le-mac | Chiêm Thành dâng Chiêm Động, Cổ Lũy (Thăng Hoa) *(mới)* |
+| 55 | `1407` | 1407 | 1407 | ho-minh | 04-ho-le-mac | Minh thuộc |
+| 56 | `1409` | 1409 | 1409–1413 | ho-minh | 04-ho-le-mac | Nhà Hậu Trần kháng Minh *(mới)* |
+| 57 | `1418` | 1418 | 1418 | ho-minh | 04-ho-le-mac | Khởi nghĩa Lam Sơn *(mới)* |
+| 58 | `1425` | 1425 | 1425–1426 | ho-minh | 04-ho-le-mac | Lam Sơn làm chủ Nghệ An đến Thuận Hóa *(mới)* |
+| 59 | `1428` | 1428 | 1428 | le-so | 04-ho-le-mac | Lê Lợi lập nhà Hậu Lê |
+| 60 | `1471` | 1471 | 1471 | le-so | 04-ho-le-mac | Chinh phạt Vijaya; lập thừa tuyên Quảng Nam |
+| 61 | `1479` | 1479 | 1479 | le-so | 04-ho-le-mac | Đánh Bồn Man, lập phủ Trấn Ninh *(mới)* |
+| 62 | `1527` | 1527 | 1527 | mac | 04-ho-le-mac | Mạc Đăng Dung lập nhà Mạc |
+| 63 | `1533` | 1533 | 1533 | mac | 04-ho-le-mac | Nam – Bắc triều |
+| 64 | `1540` | 1540 | 1540 | mac | 04-ho-le-mac | Nhà Mạc cắt đất vùng biên cho nhà Minh *(mới)* |
+| 65 | `1558` | 1558 | 1558 | mac | 04-ho-le-mac | Nguyễn Hoàng trấn thủ Thuận Hóa |
+| 66 | `1570` | 1570 | 1570 | mac | 04-ho-le-mac | Nguyễn Hoàng kiêm trấn Quảng Nam *(mới)* |
+| 67 | `1592` | 1592 | 1592 | mac | 04-ho-le-mac | Nhà Mạc rút lên Cao Bằng |
+| 68 | `1600` | 1600 | 1600 | trinh-nguyen | 05-trinh-nguyen | Nguyễn Hoàng về hẳn Thuận Quảng *(mới)* |
+| 69 | `1611` | 1611 | 1611 | trinh-nguyen | 05-trinh-nguyen | Lập phủ Phú Yên |
+| 70 | `1623` | 1623 | 1623 | trinh-nguyen | 05-trinh-nguyen | Đặt trạm thu thuế ở Prey Nokor (Sài Gòn) *(mới)* |
+| 71 | `1627` | 1627 | 1627 | trinh-nguyen | 05-trinh-nguyen | Trịnh – Nguyễn phân tranh bắt đầu |
+| 72 | `1653` | 1653 | 1653 | trinh-nguyen | 05-trinh-nguyen | Lập dinh Thái Khang (Khánh Hòa) |
+| 73 | `1655` | 1655 | 1655–1660 | trinh-nguyen | 05-trinh-nguyen | Quân Nguyễn vượt sông Gianh, chiếm nam Nghệ An *(mới)* |
+| 74 | `1658` | 1658 | 1658 | trinh-nguyen | 05-trinh-nguyen | Chân Lạp thần phục chúa Nguyễn (Mô Xoài) *(mới)* |
+| 75 | `1672` | 1672 | 1672 | trinh-nguyen | 05-trinh-nguyen | Hưu chiến, sông Gianh làm ranh giới *(mới)* |
+| 76 | `1674` | 1674 | 1674 | trinh-nguyen | 05-trinh-nguyen | Chân Lạp chia hai vua, phó vương ở Prey Nokor *(mới)* |
+| 77 | `1677` | 1677 | 1677 | trinh-nguyen | 05-trinh-nguyen | Họ Trịnh dứt nhà Mạc ở Cao Bằng *(mới)* |
+| 78 | `1679` | 1679 | 1679 | trinh-nguyen | 05-trinh-nguyen | Di thần nhà Minh vào Biên Hòa, Mỹ Tho *(mới)* |
+| 79 | `1692` | 1692 | 1692 | trinh-nguyen | 05-trinh-nguyen | Chúa Nguyễn đánh Chiêm Thành (Bà Tranh) *(mới)* |
+| 80 | `1697` | 1697 | 1697 | trinh-nguyen | 05-trinh-nguyen | Lập phủ Bình Thuận, trấn Thuận Thành |
+| 81 | `1698` | 1698 | 1698 | trinh-nguyen | 05-trinh-nguyen | Nguyễn Hữu Cảnh lập phủ Gia Định |
+| 82 | `1708` | 1708 | 1708 | trinh-nguyen | 05-trinh-nguyen | Mạc Cửu dâng đất Hà Tiên |
+| 83 | `1732` | 1732 | 1732 | trinh-nguyen | 05-trinh-nguyen | Lập dinh Long Hồ |
+| 84 | `1739` | 1739 | 1739 | trinh-nguyen | 05-trinh-nguyen | Hà Tiên mở các đạo Long Xuyên, Kiên Giang *(mới)* |
+| 85 | `1756` | 1756 | 1756 | trinh-nguyen | 05-trinh-nguyen | Chân Lạp dâng Tầm Bôn, Lôi Lạp *(mới)* |
+| 86 | `1757` | 1757 | 1757 | trinh-nguyen | 05-trinh-nguyen | Nhận Tầm Phong Long, hoàn tất vùng Tây Nam Bộ |
+| 87 | `1771` | 1771 | 1771 | tay-son | 06-tay-son-nguyen | Khởi nghĩa Tây Sơn; Xiêm đánh Hà Tiên *(mới)* |
+| 88 | `1773` | 1773 | 1773 | tay-son | 06-tay-son-nguyen | Tây Sơn chiếm thành Quy Nhơn *(mới)* |
+| 89 | `1775` | 1775 | 1775 | tay-son | 06-tay-son-nguyen | Quân Trịnh chiếm Phú Xuân *(mới)* |
+| 90 | `1777` | 1777 | 1777 | tay-son | 06-tay-son-nguyen | Tây Sơn chiếm Gia Định, chúa Nguyễn mất *(mới)* |
+| 91 | `1778` | 1778 | 1778 | tay-son | 06-tay-son-nguyen | Nguyễn Nhạc xưng đế (Thái Đức) |
+| 92 | `1783` | 1783 | 1783 | tay-son | 06-tay-son-nguyen | Nguyễn Ánh chạy sang Xiêm *(mới)* |
+| 93 | `1785` | 1785 | 1785 | tay-son | 06-tay-son-nguyen | Trận Rạch Gầm – Xoài Mút *(mới)* |
+| 94 | `1786` | 1786 | 1786 | tay-son | 06-tay-son-nguyen | Tây Sơn diệt họ Trịnh; ba anh em chia đất *(mới)* |
+| 95 | `1788` | 1788 | 1788 | tay-son | 06-tay-son-nguyen | Quang Trung lên ngôi; Nguyễn Ánh lấy lại Gia Định |
+| 96 | `1789` | 1789 | 1789 | tay-son | 06-tay-son-nguyen | Trận Ngọc Hồi – Đống Đa, nhà Lê chấm dứt *(mới)* |
+| 97 | `1793` | 1793 | 1793 | tay-son | 06-tay-son-nguyen | Nguyễn Ánh giữ Diên Khánh; Nguyễn Nhạc mất *(mới)* |
+| 98 | `1799` | 1799 | 1799 | tay-son | 06-tay-son-nguyen | Nguyễn Ánh lấy thành Quy Nhơn *(mới)* |
+| 99 | `1801` | 1801 | 1801 | tay-son | 06-tay-son-nguyen | Nguyễn Ánh lấy Phú Xuân *(mới)* |
+| 100 | `1802` | 1802 | 1802 | nha-nguyen | 06-tay-son-nguyen | Nhà Nguyễn thống nhất đất nước |
+| 101 | `1804` | 1804 | 1804 | nha-nguyen | 06-tay-son-nguyen | Quốc hiệu Việt Nam *(mới)* |
+| 102 | `1813` | 1813 | 1813 | nha-nguyen | 06-tay-son-nguyen | Bảo hộ Chân Lạp, đưa Nặc Ông Chân về nước *(mới)* |
+| 103 | `1816` | 1816 | 1816 | nha-nguyen | 06-tay-son-nguyen | Gia Long cho cắm mốc ở Hoàng Sa |
+| 104 | `1828` | 1828 | 1828 | nha-nguyen | 06-tay-son-nguyen | Sáp nhập Trấn Ninh, Cam Lộ sau chiến tranh với Vạn Tượng *(mới)* |
+| 105 | `1832` | 1832 | 1832 | nha-nguyen | 06-tay-son-nguyen | Minh Mạng lập các tỉnh, bỏ Gia Định thành, Bắc thành *(mới)* |
+| 106 | `1834` | 1834 | 1834 | nha-nguyen | 06-tay-son-nguyen | Lập Trấn Tây thành ở Chân Lạp |
+| 107 | `1838` | 1838 | 1838 | nha-nguyen | 06-tay-son-nguyen | Quốc hiệu Đại Nam *(mới)* |
+| 108 | `1841` | 1841 | 1841 | nha-nguyen | 06-tay-son-nguyen | Rút khỏi Trấn Tây thành |
+| 109 | `1847` | 1847 | 1847 | nha-nguyen | 06-tay-son-nguyen | Hòa ước Xiêm – Việt, Chân Lạp thần phục cả hai *(mới)* |
+| 110 | `1858` | 1858 | 1858 | phap-thuoc | 07-phap-thuoc | Liên quân Pháp – Tây Ban Nha đánh Đà Nẵng *(mới)* |
+| 111 | `1859` | 1859 | 1859 | phap-thuoc | 07-phap-thuoc | Pháp chiếm thành Gia Định *(mới)* |
+| 112 | `1862` | 1862 | 1862 | phap-thuoc | 07-phap-thuoc | Hòa ước Nhâm Tuất: mất ba tỉnh miền Đông |
+| 113 | `1863` | 1863 | 1863 | phap-thuoc | 07-phap-thuoc | Pháp bảo hộ Campuchia *(mới)* |
+| 114 | `1867` | 1867 | 1867 | phap-thuoc | 07-phap-thuoc | Pháp chiếm ba tỉnh miền Tây Nam Kỳ |
+| 115 | `1874` | 1874 | 1874 | phap-thuoc | 07-phap-thuoc | Hòa ước Giáp Tuất *(mới)* |
+| 116 | `1884` | 1884 | 1884 | phap-thuoc | 07-phap-thuoc | Hòa ước Giáp Thân: Pháp bảo hộ Bắc Kỳ, Trung Kỳ *(mới)* |
+| 117 | `1885` | 1885 | 1885 | phap-thuoc | 07-phap-thuoc | Hòa ước Thiên Tân; phong trào Cần Vương *(mới)* |
+| 118 | `1887` | 1887 | 1887 | phap-thuoc | 07-phap-thuoc | Liên bang Đông Dương; Công ước Pháp – Thanh |
+| 119 | `1893` | 1893 | 1893 | phap-thuoc | 07-phap-thuoc | Xiêm nhượng tả ngạn Mê Kông, Lào vào Đông Dương *(mới)* |
+| 120 | `1895` | 1895 | 1895 | phap-thuoc | 07-phap-thuoc | Công ước bổ sung về biên giới Pháp – Thanh *(mới)* |
+| 121 | `1899` | 1899 | 1899 | phap-thuoc | 07-phap-thuoc | Pháp thuê Quảng Châu Loan *(mới)* |
+| 122 | `1907` | 1907 | 1907 | phap-thuoc | 07-phap-thuoc | Xiêm trả Battambang, Siem Reap cho Campuchia *(mới)* |
+| 123 | `1933` | 1933 | 1933 | phap-thuoc | 07-phap-thuoc | Pháp sáp nhập Trường Sa vào tỉnh Bà Rịa *(mới)* |
+| 124 | `1941` | 1941 | 1940–1941 | phap-thuoc | 07-phap-thuoc | Nhật vào Đông Dương; Thái Lan chiếm đất Lào, Campuchia *(mới)* |
+| 125 | `1945-03` | 1945.2 | 3/1945 | phap-thuoc | 07-phap-thuoc | Nhật đảo chính Pháp; Đế quốc Việt Nam |
+| 126 | `1945-09` | 1945.7 | 9/1945 | khang-chien | 08-hien-dai | Việt Nam Dân chủ Cộng hòa |
+| 127 | `1946` | 1946 | 1946 | khang-chien | 08-hien-dai | Cộng hòa tự trị Nam Kỳ; Thái Lan trả đất *(mới)* |
+| 128 | `1948` | 1948 | 1948 | khang-chien | 08-hien-dai | Xứ Thái tự trị *(mới)* |
+| 129 | `1949` | 1949 | 1949 | khang-chien | 08-hien-dai | Quốc gia Việt Nam |
+| 130 | `1950` | 1950 | 1950 | khang-chien | 08-hien-dai | Hoàng triều Cương thổ *(mới)* |
+| 131 | `1953` | 1953 | 1953 | khang-chien | 08-hien-dai | Campuchia và Lào độc lập hoàn toàn *(mới)* |
+| 132 | `1954` | 1954 | 1954 | chia-cat | 08-hien-dai | Hiệp định Genève, vĩ tuyến 17 |
+| 133 | `1955` | 1955 | 1955 | chia-cat | 08-hien-dai | Việt Nam Cộng hòa |
+| 134 | `1956` | 1956 | 1956 | chia-cat | 08-hien-dai | Trung Quốc chiếm nhóm An Vĩnh (Hoàng Sa) *(mới)* |
+| 135 | `1960` | 1960 | 1960 | chia-cat | 08-hien-dai | Mặt trận Dân tộc Giải phóng miền Nam *(mới)* |
+| 136 | `1969` | 1969 | 1969 | chia-cat | 08-hien-dai | Chính phủ Cách mạng lâm thời CHMNVN |
+| 137 | `1973` | 1973 | 1973 | chia-cat | 08-hien-dai | Hiệp định Paris *(mới)* |
+| 138 | `1974` | 1974 | 1974 | chia-cat | 08-hien-dai | Hoàng Sa bị chiếm |
+| 139 | `1975-03` | 1975.2 | 3/1975 | chia-cat | 08-hien-dai | Chiến dịch Tây Nguyên, Huế – Đà Nẵng *(mới)* |
+| 140 | `1975` | 1975.33 | 30/4/1975 | thong-nhat | 08-hien-dai | Kết thúc chiến tranh |
+| 141 | `1976` | 1976 | 1976 | thong-nhat | 08-hien-dai | Cộng hòa Xã hội chủ nghĩa Việt Nam |
+| 142 | `1979` | 1979 | 1979 | thong-nhat | 08-hien-dai | CHND Campuchia; chiến tranh biên giới phía Bắc *(mới)* |
+| 143 | `1988` | 1988 | 1988 | thong-nhat | 08-hien-dai | Sự kiện Gạc Ma (Trường Sa) *(mới)* |
+| 144 | `1993` | 1993 | 1993 | thong-nhat | 08-hien-dai | Vương quốc Campuchia tái lập *(mới)* |
+| 145 | `1999` | 1999 | 1999 | thong-nhat | 08-hien-dai | Hiệp ước biên giới trên đất liền Việt – Trung *(mới)* |
+| 146 | `2025` | 2025 | 2025 | thong-nhat | 08-hien-dai | Ngày nay |
+
+### Quy ước bổ sung cho các task nội dung v2
+
+- **Năm sai trong bảng:** không dừng lại. Giữ nguyên `id`, sửa `year`/`yearLabel` theo chính sử (vẫn phải tăng dần), ghi lý do vào báo cáo task.
+- **Mốc chỉ có sự kiện, không đổi lãnh thổ** (ví dụ `1010`, `1288`, `248`): `assign` có thể là `{}`. `summary` vẫn 2–4 câu, vẫn ≥2 nguồn.
+- **Chính thể mới:** ưu tiên id đã có trong `polities.ts` (sau C1 và C1b). Chỉ thêm chính thể khi thật cần, theo đúng quy tắc cờ và giấy phép của Task C1 (PD, CC0, CC BY, CC BY-SA; cờ tự vẽ thì `flagKind: 'symbol'`), và liệt kê trong báo cáo.
+- **Tên hiển thị đổi theo mốc** (ví dụ `nha-nguyen` → "Đại Nam" từ 1838, `dang-trong` → "Nguyễn Ánh ở Gia Định"): dùng `polityOverrides` chỉ để đổi `name`/`capital`, không đổi `flag` (ruling C1).
+- **Nguồn:** dùng bảng nguồn ở spec mục 6a.
+- **Chạy sau mỗi thay đổi:** `yarn validate:history && yarn test`.
+- **Kiểm tra bằng mắt:** dev server chỉ ở cổng 3100 (`yarn dev --port 3100`); không đụng tiến trình ở cổng khác.
+
+### Task T: Dòng thời gian cho 146 mốc và 21 thời kỳ
+
+**Files:**
+- Modify: `src/data/history/types.ts` (`EraId` = đúng 21 id ở bảng thời kỳ), `src/data/history/eras.ts` (21 thời kỳ, đúng label và color), `src/data/history/snapshots/00-sample.ts` (`1471` → `era: 'le-so'`; `tcn700` giữ `hong-bang`; `2025` giữ `thong-nhat`)
+- Modify: `src/modules/HistoryMap/lib/timeline.ts`, `src/modules/HistoryMap/lib/timeline.test.ts`
+- Modify: `src/modules/HistoryMap/ui/EraBand.tsx`, `src/modules/HistoryMap/ui/Timeline.tsx`, `src/modules/HistoryMap/copy.ts`
+- Modify: `e2e/history-map.spec.ts`
+
+**Interfaces:**
+- Consumes: `eraSegments(snapshots, eras)`, `clampIndex`, signals `snapshotIndex`, `playing` (Task 6).
+- Produces: `eraStartIndices(snapshots): Set<number>` (chỉ số mốc đầu mỗi đoạn thời kỳ); `labelFits(segmentPx: number, labelPx: number, paddingPx = 8): boolean`; `data-testid="timeline-era"` hiện nhãn thời kỳ của mốc hiện tại; mỗi đoạn trong dải thời kỳ là `<button>` có `aria-label` = `${COPY.jumpToEra} ${era.label}`.
+
+- [ ] **Step 1: Test đơn vị (thất bại trước)**
+
+Thêm vào `timeline.test.ts`:
+```ts
+import { eraStartIndices, labelFits } from './timeline';
+
+describe('eraStartIndices', () => {
+  it('trả chỉ số mốc đầu của mỗi đoạn thời kỳ liên tiếp', () => {
+    const s = [{ era: 'a' }, { era: 'a' }, { era: 'b' }, { era: 'a' }] as unknown as Snapshot[];
+    expect([...eraStartIndices(s)]).toEqual([0, 2, 3]);
+  });
+});
+
+describe('labelFits', () => {
+  it('vừa khi đoạn đủ rộng cho chữ cộng lề', () => {
+    expect(labelFits(100, 80)).toBe(true);
+    expect(labelFits(100, 93)).toBe(false);
+    expect(labelFits(100, 93, 4)).toBe(true);
+  });
+});
+```
+Run: `yarn test src/modules/HistoryMap/lib/timeline` → FAIL (chưa có hàm).
+
+- [ ] **Step 2: Cài đặt helper**
+
+```ts
+export function eraStartIndices(snapshots: Snapshot[]): Set<number> {
+  const out = new Set<number>();
+  snapshots.forEach((s, i) => {
+    if (i === 0 || snapshots[i - 1].era !== s.era) out.add(i);
+  });
+  return out;
+}
+
+export function labelFits(segmentPx: number, labelPx: number, paddingPx = 8): boolean {
+  return labelPx + paddingPx <= segmentPx;
+}
+```
+Run lại → PASS.
+
+- [ ] **Step 3: Thời kỳ mới**
+
+Cập nhật `EraId` và `ERAS` đúng bảng 21 thời kỳ; sửa era của mốc mẫu `1471` thành `le-so`. Run: `yarn validate:history && yarn test` → PASS.
+
+- [ ] **Step 4: EraBand có thể bấm, nhãn chỉ hiện khi vừa**
+
+- Mỗi đoạn là `<button type="button">` (bỏ `aria-hidden` ở vùng chứa; vùng chứa có `role="group"` và `aria-label={COPY.eraBandLabel}`), `flexGrow = count`, `min-w-0`, có `title={era.label}`, `onClick` → `playing.value = false; snapshotIndex.value = seg.start`.
+- Nhãn chữ trong đoạn chỉ hiện khi `labelFits(rộng đoạn, rộng chữ)`; đo bằng `useLayoutEffect` + `ResizeObserver` trên dải (đo rộng chữ bằng một `span` ẩn hoặc `scrollWidth`). Không dùng `truncate`/"…". Khi không vừa, đoạn chỉ là dải màu (vẫn bấm được, vẫn có `title`).
+- Vòng focus hiện rõ (`focus-visible:outline`), giống thanh kéo.
+
+- [ ] **Step 5: Nhãn thời kỳ hiện tại và vạch mốc mảnh**
+
+- Trong hàng tiêu đề của `Timeline`, phía trên năm, thêm `<p data-testid="timeline-era">` hiện `label` thời kỳ của mốc hiện tại (chữ nhỏ, in hoa, màu của thời kỳ).
+- Vạch mốc: thay chấm 8px bằng vạch rộng 1px (`w-px`), cao 8px; vạch ở `eraStartIndices` cao 14px. Mốc đã qua sáng, mốc chưa tới mờ. Thêm một chấm tròn 10px đánh dấu mốc hiện tại, `left = i / (N − 1) * 100%` trong vùng ray (trừ lề 7px như cũ). Ray không được tràn ngang ở 375px.
+- Chuỗi mới trong `copy.ts`: `eraBandLabel: 'Các thời kỳ'`, `jumpToEra: 'Tới thời kỳ'`.
+
+- [ ] **Step 6: E2E**
+
+Thêm vào `e2e/history-map.spec.ts`:
+```ts
+test('bấm một thời kỳ trên dải → nhảy tới mốc đầu của thời kỳ đó', async ({ page }) => {
+  await page.goto('/?y=tcn700');
+  await page.getByRole('button', { name: /Tới thời kỳ Lê sơ/ }).click();
+  await expect(page.getByTestId('timeline-current')).toHaveText('1471');
+  await expect(page.getByTestId('timeline-era')).toHaveText(/Lê sơ/i);
+});
+
+test('ray mốc không tràn ngang', async ({ page }) => {
+  await page.goto('/');
+  const overflow = await page
+    .getByTestId('timeline-track')
+    .evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+```
+Run: `yarn e2e` (cả desktop và Pixel 7) → PASS. Chụp ảnh thanh thời gian ở 375px và 1440px vào workspace SDD.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add -A
+git commit -m "feat(timeline): 21 eras, clickable era band, thin ticks for 146 milestones
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+```
+
+### Task C1b: Bổ sung chính thể cho các mốc mới
+
+**Files:**
+- Modify: `src/data/history/polities.ts`, `public/flags/*`
+- Test: `yarn validate:history && yarn test`
+
+Theo đúng quy tắc của Task C1 (nguồn, giọng văn, giấy phép cờ, `yarn flags:fix` cho SVG thiếu kích thước). Thêm các id sau (tên, `period`, `color`, `flagKind`, `flagNote`, `flagCredit`, ≥2 nguồn):
+
+| id | Chính thể | Ghi chú cờ |
+|---|---|---|
+| `van-hoa-da-but` | Văn hóa Đa Bút | symbol tự vẽ |
+| `nha-tan-qin` | Nhà Tần (221–206 TCN) | symbol, chữ 秦 |
+| `mai-thuc-loan` | Chính quyền Mai Thúc Loan (722) | symbol |
+| `phung-hung` | Chính quyền Phùng Hưng (khoảng 766/791–791) | symbol |
+| `nam-chieu` | Nam Chiếu (738–902) | symbol |
+| `tinh-hai-quan` | Tĩnh Hải quân tự chủ (họ Khúc, Dương Đình Nghệ, Kiều Công Tiễn; 905–938) | symbol |
+| `thap-nhi-su-quan` | Mười hai sứ quân (965–968) | symbol |
+| `hau-tran` | Nhà Hậu Trần (1407–1414) | reconstructed nếu có cờ được cấp phép, nếu không thì symbol |
+| `lam-son` | Nghĩa quân Lam Sơn (1418–1427) | symbol |
+| `bon-man` | Bồn Man (Mường Phuan) | symbol |
+| `tay-son-phu-xuan` | Tây Sơn ở Phú Xuân (Bắc Bình Vương 1786, Quang Trung 1788, Cảnh Thịnh 1792–1802) | dùng chung `tay-son.svg`; sửa `tay-son` thành triều Thái Đức ở Quy Nhơn (1778–1793) và phần lãnh thổ chung trước 1786 |
+| `nhat-ban` | Đế quốc Nhật Bản (chiếm đóng 1940–1945) | national, PD |
+| `thai-lan` | Thái Lan (quốc kỳ ba màu từ 1917) | national, PD; giữ `xiem` cho trước 1917 |
+| `anh` | Vương quốc Anh (giải giáp quân Nhật phía nam vĩ tuyến 16, 1945–1946) | national, PD |
+| `nam-ky-tu-tri` | Cộng hòa tự trị Nam Kỳ (1946–1949) | national, PD |
+| `xu-thai` | Xứ Thái tự trị (1948–1955) | cờ có giấy phép hợp lệ, nếu không thì symbol |
+| `pathet-lao` | Pathet Lào (vùng kiểm soát 1950–1975) | banner |
+| `nha-nuoc-campuchia` | Nhà nước Campuchia (1989–1993) | national, PD |
+
+`hoang-trieu-cuong-tho` chỉ thêm nếu tìm được cờ có giấy phép hợp lệ; nếu không, C8 dùng `quoc-gia-viet-nam` và ghi trong `summary`.
+
+- [ ] Viết, `yarn flags:fix`, `yarn validate:history && yarn test` → PASS, commit `feat(history): polities for expanded milestones`.
+
+### Task C2–C8: Nội dung theo file thời kỳ
+
+Mỗi task soạn **một** file `src/data/history/snapshots/0N-*.ts` gồm đúng các mốc của file đó trong bảng v2, thêm nhóm vào `groups.ts` nếu cần, thêm file vào `REAL` trong `index.ts`, rồi `yarn validate:history && yarn test`, xem bằng mắt 3–4 mốc tiêu biểu, commit `feat(history): snapshots <khoảng năm>`. Mốc đầu của mỗi file có `'*': null` và gán đầy đủ.
+
+| Task | File, export | Mốc | Điểm nghiên cứu then chốt |
+|---|---|---|---|
+| C2 | `01-tien-su.ts` `TIEN_SU`; `02-co-dai.ts` `CO_DAI` | `tcn20000` → `931` (34 mốc) | Phạm vi các văn hóa khảo cổ (Sơn Vi, Hòa Bình, Bắc Sơn, Quỳnh Văn, Đa Bút, Phùng Nguyên, Sa Huỳnh, Đồng Nai, Đông Sơn); Văn Lang, Âu Lạc; ba quận Tần (214 TCN) và Nam Việt (khoảng 204 TCN, Toàn thư chép 207); chín quận Hán; Giao Châu 203, tách Quảng Châu 226; Lâm Ấp tách Nhật Nam (192); Phù Nam và Chân Lạp; Vạn Xuân 544–602 (Triệu Việt Vương, Hậu Lý Nam Đế); vùng kiểm soát của Mai Thúc Loan và Phùng Hưng (`lowConfidence`); Nam Chiếu 863; Tĩnh Hải quân 866; họ Khúc 905, Nam Hán 917 và 930, Dương Đình Nghệ 931 |
+| C3 | `03-ngo-ly-tran.ts` `NGO_LY_TRAN` | `939` → `1371` (18 mốc) | Bạch Đằng 938; 12 sứ quân (`thap-nhi-su-quan`, `lowConfidence`); Đinh, Tiền Lê; 982 Lê Hoàn đánh Indrapura; ba châu 1069; chiến tranh Tống – Việt và hội nghị biên giới 1084 (Quảng Nguyên, Vật Dương, Vật Ác); Nguyên chiếm Hoa Nam 1279; 1306 Ô – Lý; Lan Xang 1353; Minh 1368; Chế Bồng Nga (vùng Hóa châu có thể đổi chủ, `lowConfidence`) |
+| C4 | `04-ho-le-mac.ts` `HO_LE_MAC` | `1400` → `1592` (15 mốc) | Đại Ngu; Chiêm Động, Cổ Lũy 1402; Minh thuộc; Hậu Trần 1409–1413 (Nghệ An – Thuận Hóa); Lam Sơn 1418 và 1425–1426; Hậu Lê 1428; Vijaya 1471 (ranh giới đèo Cù Mông / núi Đá Bia); Bồn Man 1479; Mạc 1527; Nam – Bắc triều 1533; cắt đất 1540 (các động vùng biên Quảng Ninh, Lạng Sơn ngày nay; `lowConfidence` nếu không xác định được huyện); Nguyễn Hoàng 1558, 1570; Mạc lên Cao Bằng 1592 (`mac-cao-bang`) |
+| C5 | `05-trinh-nguyen.ts` `TRINH_NGUYEN` | `1600` → `1757` (19 mốc) | Thuận Quảng tách khỏi Đàng Ngoài 1600; Phú Yên 1611; Prey Nokor 1623 (trạm thu thuế, chưa phải lãnh thổ: chỉ nêu trong `summary`); sông Gianh 1627–1672 và 1655–1660; Thái Khang 1653; Mô Xoài 1658; Chân Lạp hai vua 1674; hết Mạc Cao Bằng 1677; Biên Hòa, Mỹ Tho 1679; 1692–1697 Chiêm Thành thành trấn Thuận Thành rồi phủ Bình Thuận (`panduranga` còn tự trị một phần); Gia Định 1698; Hà Tiên 1708 và 1739 (`ha-tien`); Long Hồ 1732; Tầm Bôn, Lôi Lạp 1756; Tầm Phong Long 1757; đội Hoàng Sa: gán `VNM.hoang-sa`, `VNM.truong-sa` cho `dang-trong` từ mốc có nguồn ghi nhận; Lan Xang phân liệt 1707 |
+| C6 | `06-tay-son-nguyen.ts` `TAY_SON_NGUYEN` | `1771` → `1847` (23 mốc) | Tây Sơn: Quy Nhơn 1773, Trịnh chiếm Phú Xuân 1775 (`le-trung-hung`), Gia Định 1777, xưng đế 1778, Gia Định đổi chủ nhiều lần 1777–1788 (Nguyễn Ánh dùng `dang-trong` với override tên), Rạch Gầm 1785, chia đất 1786 (`tay-son` = Nguyễn Nhạc, `tay-son-phu-xuan` = Nguyễn Huệ, Gia Định của Nguyễn Lữ gán `tay-son` với ghi chú), 1788–1789 (Bắc Hà về `tay-son-phu-xuan`), Diên Khánh 1793, Quy Nhơn 1799, Phú Xuân 1801; nhà Nguyễn 1802, quốc hiệu 1804 và 1838 (override tên), bảo hộ Chân Lạp 1813, Hoàng Sa 1816, Trấn Ninh và Cam Lộ 1828, cải cách 1832, Trấn Tây 1834–1841, hòa ước 1847 |
+| C7 | `07-phap-thuoc.ts` `PHAP_THUOC` | `1858` → `1945-03` (16 mốc) | Đà Nẵng 1858 (vùng chiếm đóng nhỏ, `lowConfidence`), Gia Định 1859; Nam Kỳ 1862, 1867, 1874; bảo hộ Campuchia 1863; 1884: Nam Kỳ là thuộc địa (`phap`), Trung Kỳ vẫn do triều Nguyễn cai quản dưới bảo hộ (`nha-nguyen` với override tên "Trung Kỳ (Nam triều, dưới bảo hộ Pháp)"), Bắc Kỳ bảo hộ (`phap`); Thiên Tân 1885; Liên bang Đông Dương và Công ước Pháp – Thanh 1887; Lào 1893; công ước bổ sung 1895 (Phong Thổ, Mường Tè nếu ô cho phép); Quảng Châu Loan 1899 (ô Quảng Đông tương ứng, `lowConfidence`); Battambang, Siem Reap 1907; Trường Sa 1933; Nhật và Thái Lan 1940–1941 (`thai-lan` chiếm Battambang, Siem Reap, Champasak hữu ngạn, Sayaboury); đảo chính 3/1945 |
+| C8 | `08-hien-dai.ts` `HIEN_DAI` | `1945-09` → `2025` (21 mốc) | 9/1945: VNDCCH; quân Trung Hoa Dân quốc phía bắc vĩ tuyến 16 và quân Anh phía nam chỉ nêu trong `summary` trừ khi có nguồn bản đồ rõ; 1946 Nam Kỳ tự trị và Thái Lan trả đất (Hiệp ước Washington 11/1946); Xứ Thái 1948; Quốc gia Việt Nam 1949; Hoàng triều Cương thổ 1950; Lào, Campuchia độc lập 1953; Genève 1954 (sông Bến Hải, id huyện Quảng Trị); VNCH 1955; An Vĩnh 1956 (vẫn gán cho chính thể Việt, `summary` ghi bị chiếm); Mặt trận 1960 và CPCMLT 1969, Paris 1973: **không** tô vùng kiểm soát nếu không có bản đồ học thuật đáng tin, chỉ nêu trong `summary`, và báo lại lựa chọn này trong báo cáo; Hoàng Sa 1974; 3/1975 và 30/4/1975: vùng VNCH mất kiểm soát gán `cpcmlt` (chính quyền miền Nam 1975–1976); CHXHCNVN 1976; 1979 CHND Campuchia và chiến tranh biên giới phía Bắc (lãnh thổ không đổi); Gạc Ma 1988 (vẫn gán Trường Sa cho Việt Nam, `summary` ghi bị chiếm một phần); 1993 Vương quốc Campuchia; 1999 Hiệp ước biên giới; 2025 hiện nay. Trung Hoa Dân quốc 1912 → CHND Trung Hoa 1949 cập nhật ở mốc gần nhất sau năm đó |
+
+### Task C9: Bỏ dữ liệu mẫu và xuất bảng duyệt nội dung
+
+Giống Task C6 cũ, với các thay đổi:
+- Test cuối: `expect(REAL_SNAPSHOTS).toHaveLength(146)`, và mọi `id` trong bảng v2 đều có mặt theo đúng thứ tự.
+- `index.ts`: `export const SNAPSHOTS: Snapshot[] = [...TIEN_SU, ...CO_DAI, ...NGO_LY_TRAN, ...HO_LE_MAC, ...TRINH_NGUYEN, ...TAY_SON_NGUYEN, ...PHAP_THUOC, ...HIEN_DAI];`
+- `yarn history:review` → file có 146 mục, gom tiêu đề cấp 1 theo thời kỳ.
+- Commit `chore(history): drop sample data and generate content review sheet`.
