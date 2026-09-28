@@ -22,6 +22,7 @@ import {
 import { useTimelineControls } from './state/useTimelineControls';
 import CellTooltip from './ui/CellTooltip';
 import CreditsDialog from './ui/CreditsDialog';
+import EraTitleCard from './ui/EraTitleCard';
 import LoadError from './ui/LoadError';
 import Masthead from './ui/Masthead';
 import MusicToggle from './ui/MusicToggle';
@@ -101,6 +102,7 @@ function ReadyView({ data }: { data: MapData }): React.ReactElement {
       <p className="pointer-events-none absolute bottom-36 left-1/2 hidden -translate-x-1/2 text-xs opacity-50 md:block">
         {COPY.hint}
       </p>
+      <EraTitleCard />
       <Timeline />
     </>
   );

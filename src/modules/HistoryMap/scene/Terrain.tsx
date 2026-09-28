@@ -14,6 +14,7 @@ import {
   spreadDelays
 } from '../lib/cellState';
 import { polityAnchors } from '../lib/centroid';
+import { DISSOLVE_GLSL, GLOW_COLOR, GLOW_CORE_COLOR } from '../lib/dissolve';
 import { loadFlagAtlas } from '../lib/flagAtlas';
 import { polityParamsData } from '../lib/flagCover';
 import type { MapData } from '../lib/loadMapData';
@@ -42,6 +43,12 @@ interface TerrainUniforms {
   uFlagAtlas: { value: THREE.Texture };
   uAtlasReady: { value: number };
   uNullColor: { value: THREE.Color };
+  /** Giây trôi qua — chỉ dùng cho độ lấp lánh của vệt sáng mặt trận. */
+  uTime: { value: number };
+  /** Màu quầng hổ phách của mặt trận (linear). */
+  uGlowColor: { value: THREE.Color };
+  /** Màu lõi trắng-vàng của mặt trận (linear). */
+  uGlowCoreColor: { value: THREE.Color };
 }
 
 function floatTexture(data: Float32Array, w: number, h: number): THREE.DataTexture {
@@ -77,7 +84,7 @@ uniform float uPolityCount;
 varying vec3 vCellColor;
 varying float vSide;
 varying float vLift;
-varying vec4 vOwner;   // fromSlot, toSlot, blend
+varying vec4 vOwner;   // fromSlot, toSlot, blend (ease), progress (tuyến tính, cho mặt trận)
 varying vec2 vWorldXZ;
 varying float vTop;
 // Tham số cờ của chủ cũ/mới (hằng trên cả tam giác mặt trên): rect atlas và khung phủ.
@@ -141,6 +148,9 @@ vTop = (aWallRole < 0.5 && normal.y > 0.5) ? 1.0 : 0.0;`
 uniform sampler2D uFlagAtlas;
 uniform float uAtlasReady;
 uniform vec3 uNullColor;
+uniform float uTime;
+uniform vec3 uGlowColor;
+uniform vec3 uGlowCoreColor;
 varying vec3 vCellColor;
 varying float vSide;
 varying float vLift;
@@ -167,7 +177,8 @@ vec3 flagColor(float slot, vec4 rect, vec4 cov, vec2 dxz, vec2 dyz) {
   vec2 gy = vec2(dyz.x / size.x, -dyz.y / size.y) * span;
   vec3 c = textureGrad(uFlagAtlas, mix(rect.xy, rect.zw, fuv), gx, gy).rgb;
   return slot < -0.5 ? uNullColor : c;
-}`
+}
+${DISSOLVE_GLSL}`
       )
       .replace(
         'vec4 diffuseColor = vec4( diffuse, opacity );',
@@ -175,13 +186,44 @@ vec3 flagColor(float slot, vec4 rect, vec4 cov, vec2 dxz, vec2 dyz) {
 vec2 dyz = dFdy(vWorldXZ);
 vec3 wallCol = vCellColor * mix(1.0, 0.55, vSide);
 vec3 base = wallCol;
+vec3 frontGlow = vec3(0.0);
 if (vTop > 0.5 && uAtlasReady > 0.5) {
   vec3 toCol = flagColor(vOwner.y, vToRect, vToCov, dxz, dyz);
-  base = vOwner.z < 0.999
-    ? mix(flagColor(vOwner.x, vFromRect, vFromCov, dxz, dyz), toCol, vOwner.z)
-    : toCol;
+  base = toCol;
+  // Mặt trận loang (lib/dissolve.ts — hàm GLSL và bản JS phải giữ đồng bộ). Chỉ ô đang đổi
+  // chủ mới trả giá noise; ô xong/không đổi (progress = 1) đi thẳng nhánh rẻ. Noise theo toạ
+  // độ thế giới nên liên tục qua mọi ô.
+  if (vOwner.w < 0.999 && abs(vOwner.x - vOwner.y) > 0.5) {
+    float n = fbmNoise(vWorldXZ);
+    float m = dissolveMask(vOwner.w, n);
+    // Độ rộng tối thiểu theo màn hình: kích thước pixel trên mặt đất (dxz/dyz tính ngoài nhánh
+    // nên đạo hàm hợp lệ) × độ dốc noise trung bình — thay cho fwidth(n) trong nhánh.
+    float px = glowMinWidth(max(length(dxz), length(dyz)));
+    float core = glowAmount(vOwner.w, n, px);
+    float halo = haloAmount(vOwner.w, n, px);
+    base = mix(flagColor(vOwner.x, vFromRect, vFromCov, dxz, dyz), toCol, 1.0 - m);
+    base *= 1.0 - DS_GLOW_CHAR * halo;
+    float shimmer = 0.85 + 0.15 * sin(uTime * 9.0 + n * 40.0);
+    frontGlow = (uGlowCoreColor * (DS_CORE_GAIN * core) + uGlowColor * (DS_HALO_GAIN * halo))
+      * shimmer;
+  }
 }
 vec4 diffuseColor = vec4( base * (1.0 + vLift * 0.3), opacity );`
+      )
+      .replace(
+        '#include <emissivemap_fragment>',
+        `#include <emissivemap_fragment>
+// Vệt sáng cộng vào bức xạ tự phát: không bị bóng/ánh sáng làm tối, vẫn qua tone mapping.
+totalEmissiveRadiance += frontGlow;`
+      )
+      .replace(
+        '#include <fog_fragment>',
+        `#include <fog_fragment>
+// Lửa xuyên sương: camera toàn cảnh trên màn dọc (mobile) ở xa nên sương mù nuốt ~60% màu —
+// trả lại cho vệt sáng đúng phần sương đã lấy đi (xấp xỉ, sau tone mapping), cảnh vẫn mờ sương.
+#ifdef USE_FOG
+gl_FragColor.rgb += fogFactor * min(frontGlow, vec3(1.0));
+#endif`
       );
   };
   return mat;
@@ -216,7 +258,10 @@ export default function Terrain({
       uPolityCount: { value: POLITIES.length },
       uFlagAtlas: { value: blankTex },
       uAtlasReady: { value: 0 },
-      uNullColor: { value: new THREE.Color(NULL_COLOR) }
+      uNullColor: { value: new THREE.Color(NULL_COLOR) },
+      uTime: { value: 0 },
+      uGlowColor: { value: new THREE.Color(GLOW_COLOR) },
+      uGlowCoreColor: { value: new THREE.Color(GLOW_CORE_COLOR) }
     }),
     [cellTex, ownerTex, polityTex, blankTex, store]
   );
@@ -310,7 +355,8 @@ export default function Terrain({
     prevIndex.current = i;
   });
 
-  useFrame((_, dt) => {
+  useFrame((state, dt) => {
+    uniforms.uTime.value = state.clock.elapsedTime;
     if (store.tick(Math.min(dt, 0.1))) {
       cellTex.needsUpdate = true;
       ownerTex.needsUpdate = true;

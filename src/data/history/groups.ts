@@ -174,5 +174,92 @@ export const GROUPS: CellGroup[] = [
       'VNM.lang-son.trang-dinh',
       'VNM.lang-son.van-lang'
     ]
+  },
+  {
+    id: 'thai-khang-1653',
+    name: 'Dinh Thái Khang – Diên Ninh (1653, xấp xỉ Khánh Hòa và bắc Ninh Thuận)',
+    selectors: [
+      'VNM.khanh-hoa',
+      'VNM.ninh-thuan.nha-trang',
+      'VNM.ninh-thuan.cam-ranh',
+      'VNM.ninh-thuan.bac-ai'
+    ]
+  },
+  {
+    id: 'panduranga-1697',
+    name: 'Trấn Thuận Thành sau khi tách phủ Bình Thuận (1697, phần Ninh Thuận còn lại)',
+    selectors: [
+      'VNM.ninh-thuan.ninh-hai',
+      'VNM.ninh-thuan.ninh-phuoc',
+      'VNM.ninh-thuan.ninh-son',
+      'VNM.ninh-thuan.phan-rang-thap-cham',
+      'VNM.ninh-thuan.thuan-bac',
+      'VNM.ninh-thuan.thuan-nam'
+    ]
+  },
+  {
+    id: 'gia-dinh-1698',
+    name: 'Phủ Gia Định (1698, dinh Trấn Biên và Phiên Trấn, gồm cả Mỹ Tho)',
+    selectors: [
+      'VNM.dong-nai',
+      'VNM.ba-ria-vung-tau',
+      'VNM.tp-ho-chi-minh',
+      'VNM.tien-giang.cai-be',
+      'VNM.tien-giang.chau-thanh',
+      'VNM.tien-giang.huyen-cai-lay',
+      'VNM.tien-giang.my-tho',
+      'VNM.tien-giang.tan-phuoc',
+      'VNM.tien-giang.thi-xa-cai-lay'
+    ]
+  },
+  {
+    id: 'ha-tien-1708',
+    name: 'Trấn Hà Tiên buổi đầu (1708, vùng Mang Khảm)',
+    selectors: [
+      'VNM.kien-giang.ha-tien',
+      'VNM.kien-giang.kien-luong',
+      'VNM.kien-giang.giang-thanh',
+      'VNM.kien-giang.phu-quoc'
+    ]
+  },
+  {
+    id: 'ha-tien-1739',
+    name: 'Bốn đạo Hà Tiên mở thêm năm 1739 (Long Xuyên, Kiên Giang, Trấn Giang, Trấn Di)',
+    selectors: [
+      'VNM.ca-mau',
+      'VNM.kien-giang.rach-gia',
+      'VNM.kien-giang.an-bien',
+      'VNM.kien-giang.an-minh',
+      'VNM.kien-giang.chau-thanh',
+      'VNM.kien-giang.go-quao',
+      'VNM.kien-giang.hon-dat',
+      'VNM.kien-giang.kien-hai',
+      'VNM.kien-giang.tan-hiep',
+      'VNM.kien-giang.u-minh-thuong',
+      'VNM.kien-giang.vinh-thuan',
+      'VNM.can-tho',
+      'VNM.hau-giang',
+      'VNM.bac-lieu'
+    ]
+  },
+  {
+    id: 'long-ho-1732',
+    name: 'Dinh Long Hồ / châu Định Viễn (1732, xấp xỉ Vĩnh Long, Bến Tre, Trà Vinh)',
+    selectors: ['VNM.vinh-long', 'VNM.ben-tre', 'VNM.tra-vinh']
+  },
+  {
+    id: 'tam-bon-loi-lap-1756',
+    name: 'Tầm Bôn – Lôi Lạp (1756, xấp xỉ Long An và Gò Công)',
+    selectors: [
+      'VNM.long-an',
+      'VNM.tien-giang.go-cong',
+      'VNM.tien-giang.go-cong-dong',
+      'VNM.tien-giang.go-cong-tay'
+    ]
+  },
+  {
+    id: 'tam-phong-long-1757',
+    name: 'Tầm Phong Long (1757, xấp xỉ An Giang và Đồng Tháp)',
+    selectors: ['VNM.an-giang', 'VNM.dong-thap']
   }
 ];

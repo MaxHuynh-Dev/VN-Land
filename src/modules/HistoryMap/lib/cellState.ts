@@ -1,11 +1,17 @@
 import * as THREE from 'three';
 import type { CellMeta } from './cells';
 
-export const TRANSITION_S = 0.8;
+/**
+ * Thời lượng chuyển chủ khi đổi mốc (màu vách + mặt trận loang cờ trên mặt trên + nhịp nổi).
+ * Hover không dùng hằng này (độ nổi hover bám mục tiêu theo hệ số tắt dần trong `tick`).
+ */
+export const OWNER_TRANSITION_S = 1.4;
 export const LIFT_MAX = 0.8;
 export const NULL_COLOR = '#6b6358';
 const HOVER_LIFT = 0.5; // tỉ lệ của LIFT_MAX
 const PULSE_LIFT = 0.6;
+/** Thời gian để phần nổi "gối" (khi đổi mốc giữa lúc đang nổi) hạ hết từ PULSE_LIFT về 0. */
+const PULSE_CARRY_S = OWNER_TRANSITION_S / 2;
 
 const ease = (t: number): number => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
@@ -15,8 +21,10 @@ export class CellStateStore {
   readonly height: number;
   readonly data: Float32Array;
   /**
-   * RGBA mỗi ô: `fromSlot, toSlot, blend 0..1, 0`. Slot = chỉ số chính thể trong `POLITIES`
-   * (-1 = không có chủ). Shader phủ cờ (Terrain.tsx) trộn cờ của `fromSlot` sang `toSlot`.
+   * RGBA mỗi ô: `fromSlot, toSlot, blend 0..1 (đã ease), progress 0..1 (tuyến tính)`. Slot = chỉ
+   * số chính thể trong `POLITIES` (-1 = không có chủ). Shader phủ cờ (Terrain.tsx) dựng mặt
+   * trận loang (dissolve.ts) từ cờ `fromSlot` sang `toSlot` theo `progress`; ô không chuyển
+   * có progress = 1 (không có vệt sáng).
    */
   readonly ownerData: Float32Array;
   private from: Float32Array;
@@ -30,6 +38,8 @@ export class CellStateStore {
   private slotTo: Float32Array;
   private slotElapsed: Float32Array;
   private slotDelay: Float32Array;
+  /** Phần nổi còn lại khi nhịp nổi bị cắt ngang bởi lần đổi mốc mới; hạ tuyến tính về 0. */
+  private pulseCarry: Float32Array;
   private animating = false;
   private dirty = true;
 
@@ -50,15 +60,32 @@ export class CellStateStore {
     this.slotTo = new Float32Array(count).fill(-1);
     this.slotElapsed = new Float32Array(count).fill(Number.POSITIVE_INFINITY);
     this.slotDelay = new Float32Array(count);
+    this.pulseCarry = new Float32Array(count);
   }
 
   private currentColor(i: number, k: number): number {
-    const t = ease(Math.min(1, Math.max(0, (this.elapsed[i] - this.delay[i]) / TRANSITION_S)));
+    const t = ease(
+      Math.min(1, Math.max(0, (this.elapsed[i] - this.delay[i]) / OWNER_TRANSITION_S))
+    );
     return this.from[i * 3 + k] + (this.to[i * 3 + k] - this.from[i * 3 + k]) * t;
+  }
+
+  /** Nhịp nổi `sin(πp)` của lần chuyển màu hiện tại (0 nếu ô không chuyển). */
+  private pulseWave(i: number): number {
+    if (!this.changed[i] || this.elapsed[i] === Number.POSITIVE_INFINITY) return 0;
+    const p = Math.min(1, Math.max(0, (this.elapsed[i] - this.delay[i]) / OWNER_TRANSITION_S));
+    return Math.sin(Math.PI * p) * PULSE_LIFT;
+  }
+
+  private pulse(i: number): number {
+    return Math.max(this.pulseWave(i), this.pulseCarry[i]);
   }
 
   setColors(rgb: Float32Array, opts: { animate?: boolean; delays?: Float32Array } = {}): void {
     for (let i = 0; i < this.count; i++) {
+      // Đang nổi dở mà bị đổi mốc: giữ độ nổi hiện tại làm "gối" rồi hạ dần (pulse = max(sóng
+      // mới, gối)) — sóng mới bắt đầu từ 0 nên nếu không có gối ô sẽ rơi phựt xuống.
+      this.pulseCarry[i] = opts.animate ? this.pulse(i) : 0;
       const cur = [0, 1, 2].map((k) => this.currentColor(i, k));
       const same = cur.every((v, k) => Math.abs(v - rgb[i * 3 + k]) < 1e-4);
       for (let k = 0; k < 3; k++) {
@@ -75,7 +102,7 @@ export class CellStateStore {
 
   /**
    * Gán chủ (slot chính thể) cho từng ô. `animate`: ô đổi chủ trộn dần từ cờ cũ sang cờ mới
-   * (cùng `ease`, `TRANSITION_S` và `delays` với màu); ô giữ nguyên chủ không chạy blend.
+   * (cùng `ease`, `OWNER_TRANSITION_S` và `delays` với màu); ô giữ nguyên chủ không chạy blend.
    */
   setOwnerSlots(
     slots: Float32Array,
@@ -98,9 +125,14 @@ export class CellStateStore {
     this.dirty = true;
   }
 
-  private slotBlend(i: number): number {
+  /** Tiến độ tuyến tính 0..1 của lần đổi chủ (1 = đã xong hoặc không đổi). */
+  private slotProgress(i: number): number {
     if (this.slotElapsed[i] === Number.POSITIVE_INFINITY) return 1;
-    return ease(Math.min(1, Math.max(0, (this.slotElapsed[i] - this.slotDelay[i]) / TRANSITION_S)));
+    return Math.min(1, Math.max(0, (this.slotElapsed[i] - this.slotDelay[i]) / OWNER_TRANSITION_S));
+  }
+
+  private slotBlend(i: number): number {
+    return ease(this.slotProgress(i));
   }
 
   setLiftMask(mask: Uint8Array | null): void {
@@ -119,16 +151,20 @@ export class CellStateStore {
     for (let i = 0; i < this.count; i++) {
       if (this.elapsed[i] !== Number.POSITIVE_INFINITY) {
         this.elapsed[i] += dt;
-        if (this.elapsed[i] - this.delay[i] >= TRANSITION_S)
+        if (this.elapsed[i] - this.delay[i] >= OWNER_TRANSITION_S)
           this.elapsed[i] = Number.POSITIVE_INFINITY;
         else active = true;
       }
       if (this.slotElapsed[i] !== Number.POSITIVE_INFINITY) {
         this.slotElapsed[i] += dt;
-        if (this.slotElapsed[i] - this.slotDelay[i] >= TRANSITION_S) {
+        if (this.slotElapsed[i] - this.slotDelay[i] >= OWNER_TRANSITION_S) {
           this.slotElapsed[i] = Number.POSITIVE_INFINITY;
           this.slotFrom[i] = this.slotTo[i];
         } else active = true;
+      }
+      if (this.pulseCarry[i] > 0) {
+        this.pulseCarry[i] = Math.max(0, this.pulseCarry[i] - (dt * PULSE_LIFT) / PULSE_CARRY_S);
+        if (this.pulseCarry[i] > 0) active = true;
       }
       const d = this.liftTarget[i] - this.lift[i];
       if (Math.abs(d) > 1e-4) {
@@ -139,15 +175,11 @@ export class CellStateStore {
     if (!active && !liftMoving && !this.dirty && !this.animating) return false;
     for (let i = 0; i < this.count; i++) {
       for (let c = 0; c < 3; c++) this.data[i * 4 + c] = this.currentColor(i, c);
-      let pulse = 0;
-      if (this.changed[i] && this.elapsed[i] !== Number.POSITIVE_INFINITY) {
-        const p = Math.min(1, Math.max(0, (this.elapsed[i] - this.delay[i]) / TRANSITION_S));
-        pulse = Math.sin(Math.PI * p) * PULSE_LIFT;
-      }
-      this.data[i * 4 + 3] = Math.min(1, pulse + this.lift[i]);
+      this.data[i * 4 + 3] = Math.min(1, this.pulse(i) + this.lift[i]);
       this.ownerData[i * 4] = this.slotFrom[i];
       this.ownerData[i * 4 + 1] = this.slotTo[i];
       this.ownerData[i * 4 + 2] = this.slotBlend(i);
+      this.ownerData[i * 4 + 3] = this.slotProgress(i);
     }
     this.animating = active;
     this.dirty = false;

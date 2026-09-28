@@ -6,6 +6,7 @@ import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { POLITY_BY_ID, SNAPSHOTS } from '@/data/history';
+import { OWNER_TRANSITION_S } from '../lib/cellState';
 import { polityAnchors } from '../lib/centroid';
 import { dropFlag, type FlagEntry, reconcileFlags } from '../lib/flagsReconcile';
 import { type LabelRect, resolveLabelOverlaps } from '../lib/labelOverlap';
@@ -17,6 +18,13 @@ import { reducedMotion, snapshotIndex } from '../state/store';
 
 /** Chiều cao đặt nhãn: ngay trên mặt trên lãnh thổ (y = DEPTH lúc nghỉ). */
 const LABEL_Y = DEPTH + 0.05;
+
+/**
+ * Hệ số tắt dần cho độ mờ nhãn (Task E2): kéo dài nhịp mờ vào/ra cho khớp với thời lượng
+ * chuyển chủ của ô (`OWNER_TRANSITION_S`, Task E1) — hệ số tắt dần đạt ~95% mục tiêu sau ~3
+ * hằng số thời gian, nên đặt hằng số thời gian = OWNER_TRANSITION_S / 3.
+ */
+const LABEL_FADE_RATE = 3 / OWNER_TRANSITION_S;
 
 // Nhãn tên chính thể vẽ bằng canvas 2D thành texture cho <sprite>, KHÔNG dùng <Html> của
 // drei: <Html> tự tạo một ReactDOM root con và unmount đồng bộ trong cleanup — dưới React 19
@@ -142,7 +150,7 @@ function Label({ entry, name, onGone, registerLabel }: LabelProps): React.ReactE
     s.position.x += (tx - s.position.x) * k;
     s.position.z += (tz - s.position.z) * k;
     const target = entry.state === 'exit' ? 0 : 1;
-    opacity.current += (target - opacity.current) * (still ? 1 : Math.min(1, dt * 5));
+    opacity.current += (target - opacity.current) * (still ? 1 : Math.min(1, dt * LABEL_FADE_RATE));
     m.opacity = opacity.current;
     if (entry.state === 'exit' && opacity.current < 0.02 && !gone.current) {
       gone.current = true;

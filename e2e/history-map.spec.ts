@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { SNAPSHOTS } from '../src/data/history';
+import { ERAS, SNAPSHOTS } from '../src/data/history';
+
+const SCREEN_DIR = '.superpowers/sdd/2026-09-27-vn-history-map';
 
 const ready = async (page: import('@playwright/test').Page, q = ''): Promise<void> => {
   await page.goto(`/${q}`);
@@ -67,7 +69,8 @@ test('focus bàn phím vào thanh trượt hiện viền focus rõ', async ({ pa
 test('bấm một thời kỳ trên dải → nhảy tới mốc đầu của thời kỳ đó', async ({ page }) => {
   await page.goto('/?y=tcn700');
   await page.getByRole('button', { name: /Tới thời kỳ Lê sơ/ }).click();
-  await expect(page.getByTestId('timeline-current')).toHaveText('1471');
+  const firstLeSo = SNAPSHOTS.find((s) => s.era === 'le-so');
+  await expect(page.getByTestId('timeline-current')).toHaveText(firstLeSo?.yearLabel ?? '');
   await expect(page.getByTestId('timeline-era')).toHaveText(/Lê sơ/i);
 });
 
@@ -186,4 +189,97 @@ test('nhạc nền: tự bật ở thao tác đầu tiên, nút loa tắt và nh
   });
   await page.getByTestId('timeline-current').click();
   await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+});
+
+// Task E2: màn mở đầu thời kỳ + năm chạy số. Mốc kiểm thử tính từ SNAPSHOTS thật tại thời điểm
+// chạy (không hardcode id/năm) vì dữ liệu còn đang được bổ sung — xem global-constraints.md.
+const ERA_CHANGE_IDX = SNAPSHOTS.findIndex((s, i) => i > 0 && s.era !== SNAPSHOTS[i - 1].era);
+const SAME_ERA_IDX = SNAPSHOTS.findIndex((s, i) => i > 0 && s.era === SNAPSHOTS[i - 1].era);
+
+test('đổi mốc sang thời kỳ khác: hiện màn mở đầu thời kỳ đúng tên, rồi tự biến mất', async ({
+  page
+}) => {
+  expect(ERA_CHANGE_IDX).toBeGreaterThan(0);
+  const targetEra = ERAS.find((e) => e.id === SNAPSHOTS[ERA_CHANGE_IDX].era);
+  expect(targetEra).toBeDefined();
+  await ready(page, `?y=${SNAPSHOTS[ERA_CHANGE_IDX - 1].id}`);
+  await page.keyboard.press('ArrowRight');
+  // Bắt đầu chờ màn ngay sau khi nhấn phím (không xen một assertion nào khác trước) — máy
+  // CI/di động (WebGL software rendering) đôi khi phản hồi rất chậm, nên bất kỳ assertion nào
+  // chờ TRƯỚC bước này cũng ăn bớt vào đúng khung thời gian ~2,2 s mà màn còn hiển thị.
+  const card = page.getByTestId('era-title-card');
+  // Chống nhấp nháy: màn chỉ hiện sau khi dừng ≥ 300 ms ở thời kỳ mới — chờ đủ để xuất hiện,
+  // dư nhiều so với 300 ms vì timer JS có thể bị trễ đáng kể trên máy chậm.
+  await expect(card).toBeVisible({ timeout: 6000 });
+  await expect(card).toContainText(targetEra?.label ?? '');
+  await expect(page.getByTestId('timeline-current')).toHaveText(SNAPSHOTS[ERA_CHANGE_IDX].yearLabel);
+  // Tổng thời lượng ~2,2 s kể từ lúc hiện — chờ dư để chắc chắn đã tự biến mất.
+  await expect(card).toBeHidden({ timeout: 8000 });
+});
+
+test('đổi mốc trong cùng thời kỳ: không hiện màn mở đầu thời kỳ', async ({ page }) => {
+  expect(SAME_ERA_IDX).toBeGreaterThan(0);
+  await ready(page, `?y=${SNAPSHOTS[SAME_ERA_IDX - 1].id}`);
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByTestId('timeline-current')).toHaveText(SNAPSHOTS[SAME_ERA_IDX].yearLabel);
+  await page.waitForTimeout(1500); // dư nhiều so với ngưỡng chống nhấp nháy 300 ms
+  await expect(page.getByTestId('era-title-card')).toHaveCount(0);
+});
+
+test('prefers-reduced-motion: đổi thời kỳ không hiện màn mở đầu thời kỳ', async ({ page }) => {
+  expect(ERA_CHANGE_IDX).toBeGreaterThan(0);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await ready(page, `?y=${SNAPSHOTS[ERA_CHANGE_IDX - 1].id}`);
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByTestId('timeline-current')).toHaveText(SNAPSHOTS[ERA_CHANGE_IDX].yearLabel);
+  await page.waitForTimeout(1500);
+  await expect(page.getByTestId('era-title-card')).toHaveCount(0);
+});
+
+test('375px: tiêu đề dòng thời gian hiện năm trên một dòng', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'chỉ cần kiểm một lần, tự đặt viewport 375px');
+  await page.setViewportSize({ width: 375, height: 812 });
+  // Mốc "~700 TCN" (thời kỳ Hồng Bàng) là ví dụ đã ghi nhận lỗi xuống dòng — dùng mốc đầu tiên
+  // có yearLabel dạng TCN thật trong SNAPSHOTS thay vì hardcode id.
+  const bcSnap = SNAPSHOTS.find((s) => s.year < 0) ?? SNAPSHOTS[0];
+  await ready(page, `?y=${bcSnap.id}`);
+  const box = await page.getByTestId('timeline-current').boundingBox();
+  expect(box).not.toBeNull();
+  // Một dòng: chiều cao hộp phải nhỏ hơn hẳn hai lần chiều cao dòng (co giãn theo clamp/responsive).
+  if (box) expect(box.height).toBeLessThan(50);
+});
+
+test('chụp ảnh: màn mở đầu thời kỳ giữa lúc chạy và số năm chạy giữa chừng — desktop', async ({
+  page
+}, info) => {
+  test.skip(info.project.name !== 'desktop', 'chỉ cần chụp một lần ở kích thước desktop');
+  expect(ERA_CHANGE_IDX).toBeGreaterThan(0);
+  await ready(page, `?y=${SNAPSHOTS[ERA_CHANGE_IDX - 1].id}`);
+  await page.keyboard.press('ArrowRight');
+  // 300 ms chống nhấp nháy + giữa đoạn giữ (giữa 0,4–1,6 s kể từ lúc hiện) ⇒ ~1,3 s kể từ phím.
+  await page.waitForTimeout(1300);
+  await expect(page.getByTestId('era-title-card')).toBeVisible();
+  await page.screenshot({ path: `${SCREEN_DIR}/task-E2-era-card-desktop.png` });
+  await expect(page.getByTestId('era-title-card')).toBeHidden({ timeout: 5000 });
+
+  // Số năm chạy giữa chừng: mốc kế tiếp, chụp giữa khoảng chạy ~0,9 s.
+  await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: `${SCREEN_DIR}/task-E2-year-counter-running.png` });
+});
+
+test('chụp ảnh: màn mở đầu thời kỳ giữa lúc chạy — 375px', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'chỉ cần chụp một lần, tự đặt viewport 375px');
+  expect(ERA_CHANGE_IDX).toBeGreaterThan(0);
+  await page.setViewportSize({ width: 375, height: 812 });
+  await ready(page, `?y=${SNAPSHOTS[ERA_CHANGE_IDX - 1].id}`);
+  await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(1300);
+  await expect(page.getByTestId('era-title-card')).toBeVisible();
+  await page.screenshot({ path: `${SCREEN_DIR}/task-E2-era-card-375.png` });
+
+  // Sau khi màn mở đầu thời kỳ tự biến mất: chụp riêng tiêu đề dòng thời gian ở 375px để thấy rõ
+  // năm nằm trên một dòng (không bị màn mở đầu che), khớp yêu cầu sửa lỗi xuống dòng đã ghi.
+  await expect(page.getByTestId('era-title-card')).toBeHidden({ timeout: 8000 });
+  await page.screenshot({ path: `${SCREEN_DIR}/task-E2-timeline-header-375.png` });
 });

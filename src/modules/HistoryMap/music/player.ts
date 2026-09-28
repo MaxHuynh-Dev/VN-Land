@@ -35,8 +35,10 @@ export class MusicPlayer {
     const from = a.volume;
     const t0 = performance.now();
     const step = (t: number): void => {
-      const k = Math.min(1, (t - t0) / ms);
-      a.volume = from + (target - from) * k;
+      // Timestamp của rAF có thể sớm hơn `t0` (performance.now()) một chút → kẹp k và volume
+      // vào [0, 1], nếu không trình duyệt ném IndexSizeError.
+      const k = Math.min(1, Math.max(0, (t - t0) / ms));
+      a.volume = Math.min(1, Math.max(0, from + (target - from) * k));
       if (k < 1) this.fadeRaf = requestAnimationFrame(step);
       else done?.();
     };

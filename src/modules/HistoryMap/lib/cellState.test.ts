@@ -4,9 +4,9 @@ import {
   internalWallColorIsA,
   internalWallLift,
   LIFT_MAX,
+  OWNER_TRANSITION_S,
   ownerColors,
-  spreadDelays,
-  TRANSITION_S
+  spreadDelays
 } from './cellState';
 import { CELLS } from './testFixtures';
 
@@ -30,11 +30,11 @@ describe('CellStateStore', () => {
     s.setColors(rgb(0, 0, 0));
     s.tick(0);
     s.setColors(rgb(1, 1, 1), { animate: true });
-    s.tick(TRANSITION_S / 2);
+    s.tick(OWNER_TRANSITION_S / 2);
     expect(s.data[0]).toBeGreaterThan(0);
     expect(s.data[0]).toBeLessThan(1);
     expect(s.data[3]).toBeGreaterThan(0);
-    s.tick(TRANSITION_S);
+    s.tick(OWNER_TRANSITION_S);
     expect(s.data[0]).toBeCloseTo(1);
     expect(s.data[3]).toBeCloseTo(0);
     expect(s.isAnimating()).toBe(false);
@@ -44,7 +44,7 @@ describe('CellStateStore', () => {
     s.setColors(rgb(1, 0, 0));
     s.tick(0);
     s.setColors(rgb(1, 0, 0), { animate: true });
-    s.tick(TRANSITION_S / 2);
+    s.tick(OWNER_TRANSITION_S / 2);
     expect(s.data[3]).toBe(0);
   });
   it('delay giữ màu cũ cho tới khi hết trễ', () => {
@@ -130,11 +130,11 @@ describe('internalWallColorIsA', () => {
 });
 
 describe('CellStateStore owner slots', () => {
-  it('không animate: from = to = slot mới, blend = 1', () => {
+  it('không animate: from = to = slot mới, blend = 1, tiến độ = 1', () => {
     const s = new CellStateStore(2);
     s.setOwnerSlots(new Float32Array([3, -1]));
     s.tick(0);
-    expect([...s.ownerData.slice(0, 8)]).toEqual([3, 3, 1, 0, -1, -1, 1, 0]);
+    expect([...s.ownerData.slice(0, 8)]).toEqual([3, 3, 1, 1, -1, -1, 1, 1]);
   });
   it('animate: from = slot cũ, to = slot mới, blend đi từ 0 → 1 (tôn trọng delay)', () => {
     const s = new CellStateStore(1);
@@ -145,10 +145,10 @@ describe('CellStateStore owner slots', () => {
     expect(s.ownerData[0]).toBe(2);
     expect(s.ownerData[1]).toBe(5);
     expect(s.ownerData[2]).toBe(0);
-    s.tick(TRANSITION_S / 2 + 0.1);
+    s.tick(OWNER_TRANSITION_S / 2 + 0.1);
     expect(s.ownerData[2]).toBeGreaterThan(0);
     expect(s.ownerData[2]).toBeLessThan(1);
-    s.tick(TRANSITION_S);
+    s.tick(OWNER_TRANSITION_S);
     expect(s.ownerData[2]).toBe(1);
   });
   it('đổi đích giữa lúc trộn: blend < 0.5 thì giữ from cũ, ≥ 0.5 thì from = đích cũ; blend chạy lại từ 0', () => {
@@ -156,7 +156,7 @@ describe('CellStateStore owner slots', () => {
     early.setOwnerSlots(new Float32Array([2]));
     early.tick(0);
     early.setOwnerSlots(new Float32Array([5]), { animate: true });
-    early.tick(TRANSITION_S * 0.2); // blend ≈ ease(0.2) < 0.5
+    early.tick(OWNER_TRANSITION_S * 0.2); // blend ≈ ease(0.2) < 0.5
     expect(early.ownerData[2]).toBeLessThan(0.5);
     early.setOwnerSlots(new Float32Array([7]), { animate: true });
     early.tick(0);
@@ -166,7 +166,7 @@ describe('CellStateStore owner slots', () => {
     late.setOwnerSlots(new Float32Array([2]));
     late.tick(0);
     late.setOwnerSlots(new Float32Array([5]), { animate: true });
-    late.tick(TRANSITION_S * 0.7); // blend > 0.5
+    late.tick(OWNER_TRANSITION_S * 0.7); // blend > 0.5
     expect(late.ownerData[2]).toBeGreaterThan(0.5);
     late.setOwnerSlots(new Float32Array([7]), { animate: true });
     late.tick(0);
@@ -179,5 +179,89 @@ describe('CellStateStore owner slots', () => {
     s.setOwnerSlots(new Float32Array([4]), { animate: true });
     s.tick(0.1);
     expect(s.ownerData[2]).toBe(1);
+  });
+});
+
+describe('CellStateStore tiến độ tuyến tính (ownerData kênh 4) và nhịp nổi', () => {
+  it('thời lượng chuyển chủ khi đổi mốc là 1,4 s', () => {
+    expect(OWNER_TRANSITION_S).toBe(1.4);
+  });
+  it('tiến độ tăng tuyến tính 0 → 1 theo delay / OWNER_TRANSITION_S; kênh 3 vẫn là blend đã ease', () => {
+    const s = new CellStateStore(1);
+    s.setOwnerSlots(new Float32Array([2]));
+    s.tick(0);
+    s.setOwnerSlots(new Float32Array([5]), { animate: true, delays: new Float32Array([0.2]) });
+    s.tick(0.1);
+    expect(s.ownerData[3]).toBe(0);
+    s.tick(0.1 + OWNER_TRANSITION_S * 0.25); // elapsed − delay = 0.25 · T
+    expect(s.ownerData[3]).toBeCloseTo(0.25, 5);
+    expect(s.ownerData[2]).toBeLessThan(0.1); // ease(0.25) = 0.0625 — khác tiến độ tuyến tính
+    s.tick(OWNER_TRANSITION_S * 0.5); // 0.75 · T
+    expect(s.ownerData[3]).toBeCloseTo(0.75, 5);
+    s.tick(OWNER_TRANSITION_S);
+    expect(s.ownerData[3]).toBe(1);
+    expect(s.ownerData[2]).toBe(1);
+  });
+  it('ô không đổi chủ giữ tiến độ = 1 trong khi ô khác đang chuyển', () => {
+    const s = new CellStateStore(2);
+    s.setOwnerSlots(new Float32Array([1, 1]));
+    s.tick(0);
+    s.setOwnerSlots(new Float32Array([1, 4]), { animate: true });
+    s.tick(OWNER_TRANSITION_S / 2);
+    expect(s.ownerData[3]).toBe(1);
+    expect(s.ownerData[7]).toBeCloseTo(0.5, 5);
+  });
+  it('đổi đích giữa chừng: tiến độ luôn trong [0,1] và chạy lại từ 0 tới 1', () => {
+    const s = new CellStateStore(1);
+    s.setOwnerSlots(new Float32Array([2]));
+    s.tick(0);
+    s.setOwnerSlots(new Float32Array([5]), { animate: true });
+    s.tick(OWNER_TRANSITION_S * 0.6);
+    s.setOwnerSlots(new Float32Array([7]), { animate: true });
+    s.tick(0);
+    expect(s.ownerData[3]).toBe(0);
+    for (let k = 0; k < 40; k++) {
+      s.tick(OWNER_TRANSITION_S / 30);
+      expect(s.ownerData[3]).toBeGreaterThanOrEqual(0);
+      expect(s.ownerData[3]).toBeLessThanOrEqual(1);
+    }
+    expect(s.ownerData[3]).toBe(1);
+    expect([...s.ownerData.slice(0, 2)]).toEqual([7, 7]);
+  });
+  it('nhịp nổi = 0 ở đầu và cuối, > 0 giữa chừng (cao nhất quanh nửa thời lượng)', () => {
+    const s = new CellStateStore(1);
+    s.setColors(rgb(0, 0, 0));
+    s.tick(0);
+    s.setColors(rgb(1, 1, 1), { animate: true });
+    s.tick(0);
+    expect(s.data[3]).toBe(0);
+    s.tick(OWNER_TRANSITION_S / 2);
+    expect(s.data[3]).toBeGreaterThan(0.5);
+    s.tick(OWNER_TRANSITION_S / 2 - 1e-3);
+    expect(s.data[3]).toBeGreaterThan(0);
+    expect(s.data[3]).toBeLessThan(0.05);
+    s.tick(0.01);
+    expect(s.data[3]).toBe(0);
+  });
+  it('đổi mốc giữa lúc đang nổi: độ nổi không rơi phựt về 0 mà hạ dần về 0', () => {
+    const s = new CellStateStore(1);
+    s.setColors(rgb(0, 0, 0));
+    s.tick(0);
+    s.setColors(rgb(1, 1, 1), { animate: true });
+    s.tick(OWNER_TRANSITION_S / 2);
+    const before = s.data[3];
+    expect(before).toBeGreaterThan(0.5);
+    s.setColors(rgb(0, 0, 1), { animate: true, delays: new Float32Array([0.8]) });
+    s.tick(0);
+    expect(s.data[3]).toBeCloseTo(before, 5);
+    let prev = s.data[3];
+    for (let k = 0; k < 20; k++) {
+      s.tick(1 / 60);
+      expect(prev - s.data[3]).toBeLessThan(0.1); // không giật: mỗi khung hạ ít
+      prev = s.data[3];
+    }
+    s.tick(5);
+    expect(s.data[3]).toBe(0);
+    expect(s.isAnimating()).toBe(false);
   });
 });

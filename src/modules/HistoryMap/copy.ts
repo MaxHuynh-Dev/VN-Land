@@ -28,6 +28,8 @@ export const COPY = {
   timelineLabel: 'Dòng thời gian',
   eraBandLabel: 'Các thời kỳ',
   jumpToEra: 'Tới thời kỳ',
+  eraCardAnnouncementPrefix: 'Thời kỳ',
+  eraRangeOngoing: 'nay',
   credits: 'Nguồn & ghi công',
   close: 'Đóng',
   back: 'Quay lại toàn cảnh',
