@@ -143,7 +143,6 @@ export const CO_DAI: Snapshot[] = [
     assign: {
       ...assignAll(GIAO_CHAU, 'han'),
       ...assignAll(LINH_NAM, 'han'),
-      'CHN.hai-nam': 'han',
       ...assignAll(NHAT_NAM, 'han')
     },
     lowConfidence: ['group:bac-bo-nui', 'group:quan-nhat-nam'],
@@ -207,7 +206,7 @@ export const CO_DAI: Snapshot[] = [
     era: 'bac-thuoc-2',
     title: 'Giao Chỉ bộ đổi thành Giao Châu (thời Sĩ Nhiếp)',
     summary:
-      'Theo đề nghị của Sĩ Nhiếp — Thái thú Giao Chỉ nắm quyền cai trị thực tế toàn bộ vùng từ khoảng năm 187 — nhà Hán đổi Giao Chỉ bộ (một đơn vị giám sát) thành Giao Châu, một châu thực thụ ngang hàng các châu khác của Trung Hoa. Đây thuần túy là thay đổi tên gọi hành chính, lãnh thổ và chủ quyền (vẫn thuộc Hán, do Sĩ Nhiếp quản lý) không đổi.',
+      'Theo đề nghị chung của Thứ sử bộ Giao Chỉ Trương Tân (giữ chức từ khoảng năm 201) và Thái thú Giao Chỉ Sĩ Nhiếp — người đã nắm thực quyền ở quận Giao Chỉ từ khoảng năm 187 nhưng khi đó chưa đứng đầu toàn vùng — nhà Hán đổi Giao Chỉ bộ (một đơn vị giám sát) thành Giao Châu, một châu thực thụ ngang hàng các châu khác của Trung Hoa. Đây thuần túy là thay đổi tên gọi hành chính; lãnh thổ và chủ quyền (vẫn thuộc Hán) không đổi.',
     assign: {},
     focus: { lon: 105.87, lat: 21.0 },
     sources: [TOAN_THU, TAM_QUOC_CHI('Sĩ Nhiếp truyện'), LSVN1]
@@ -219,11 +218,10 @@ export const CO_DAI: Snapshot[] = [
     era: 'bac-thuoc-2',
     title: 'Đông Ngô tách Quảng Châu khỏi Giao Châu',
     summary:
-      'Sau khi con Sĩ Nhiếp là Sĩ Huy chống lại, bị Đông Ngô của Tôn Quyền dẹp và thu phục toàn bộ Giao Châu (226), Tôn Quyền tách phần đất phía bắc (Nam Hải, Thương Ngô, Uất Lâm, Hợp Phố) thành Quảng Châu riêng, phần còn lại (Giao Chỉ, Cửu Chân, Nhật Nam) vẫn gọi là Giao Châu — dù việc tách nhập còn thay đổi vài lần trong thập niên sau đó. Toàn bộ vùng vẫn thuộc quyền cai trị của Đông Ngô.',
+      'Sĩ Nhiếp — người cai quản thực chất đất Giao Châu suốt gần bốn thập niên — mất năm 226. Tôn Quyền nhân đó tách phần đất phía bắc (Nam Hải, Thương Ngô, Uất Lâm, Hợp Phố) thành Quảng Châu riêng, phần còn lại (Giao Chỉ, Cửu Chân, Nhật Nam) vẫn gọi là Giao Châu, đồng thời điều con Sĩ Nhiếp là Sĩ Huy sang làm thái thú Cửu Chân để tách quyền khỏi đất cũ của cha; Sĩ Huy không phục, nổi dậy chống lại nhưng bị tướng Ngô là Lữ Đại dẹp ngay năm sau (227). Việc tách nhập Quảng Châu – Giao Châu còn thay đổi thêm vài lần trong thập niên sau đó, song toàn vùng vẫn thuộc quyền cai trị của Đông Ngô.',
     assign: {
       ...assignAll(GIAO_CHAU, 'dong-ngo'),
-      ...assignAll(LINH_NAM, 'dong-ngo'),
-      'CHN.hai-nam': 'dong-ngo'
+      ...assignAll(LINH_NAM, 'dong-ngo')
     },
     lowConfidence: ['group:bac-bo-nui'],
     focus: { lon: 112.5, lat: 23.5 },
@@ -251,8 +249,7 @@ export const CO_DAI: Snapshot[] = [
       'Tây Tấn diệt Đông Ngô năm 280, thống nhất Trung Hoa sau thời Tam Quốc. Giao Châu (cùng Quảng Châu, Nhật Nam) chuyển sang thuộc quyền cai trị của nhà Tấn mà không có biến động lãnh thổ đáng kể.',
     assign: {
       ...assignAll(GIAO_CHAU, 'nha-tan-jin'),
-      ...assignAll(LINH_NAM, 'nha-tan-jin'),
-      'CHN.hai-nam': 'nha-tan-jin'
+      ...assignAll(LINH_NAM, 'nha-tan-jin')
     },
     lowConfidence: ['group:bac-bo-nui'],
     focus: { lon: 105.87, lat: 21.0 },
@@ -268,8 +265,7 @@ export const CO_DAI: Snapshot[] = [
       'Lưu Dụ phế Tấn, lập nhà Lưu Tống (420), mở đầu thời Nam Bắc triều ở Trung Hoa. Giao Châu tiếp tục là một châu thuộc Nam triều (lần lượt Tống, Tề, Lương, Trần) cho tới cuối thế kỷ VI, không thay đổi ranh giới so với thời Tấn.',
     assign: {
       ...assignAll(GIAO_CHAU, 'nam-trieu'),
-      ...assignAll(LINH_NAM, 'nam-trieu'),
-      'CHN.hai-nam': 'nam-trieu'
+      ...assignAll(LINH_NAM, 'nam-trieu')
     },
     lowConfidence: ['group:bac-bo-nui'],
     focus: { lon: 105.87, lat: 21.0 },
@@ -325,8 +321,7 @@ export const CO_DAI: Snapshot[] = [
       'Nhà Tùy đã thống nhất Trung Hoa từ năm 589; đến năm 602, Tùy Văn Đế sai Lưu Phương đem quân sang đánh Vạn Xuân, Lý Phật Tử ra hàng. Vạn Xuân chấm dứt, cả vùng Giao Châu cũ và Lĩnh Nam đều thuộc quyền cai trị thống nhất của nhà Tùy.',
     assign: {
       ...assignAll(GIAO_CHAU, 'nha-tuy'),
-      ...assignAll(LINH_NAM, 'nha-tuy'),
-      'CHN.hai-nam': 'nha-tuy'
+      ...assignAll(LINH_NAM, 'nha-tuy')
     },
     lowConfidence: ['group:bac-bo-nui'],
     focus: { lon: 105.85, lat: 21.05 },
@@ -342,8 +337,7 @@ export const CO_DAI: Snapshot[] = [
       'Nhà Đường thay nhà Tùy từ năm 618, nhưng ở Giao Châu, Khâu Hòa (quan lại cũ của Tùy) vẫn cát cứ thêm vài năm trước khi quy phục. Năm 622, Đường Cao Tổ đặt Giao Châu tổng quản phủ, chính thức xác lập quyền cai trị của nhà Đường trên toàn vùng.',
     assign: {
       ...assignAll(GIAO_CHAU, 'nha-duong'),
-      ...assignAll(LINH_NAM, 'nha-duong'),
-      'CHN.hai-nam': 'nha-duong'
+      ...assignAll(LINH_NAM, 'nha-duong')
     },
     lowConfidence: ['group:bac-bo-nui'],
     focus: { lon: 105.85, lat: 21.05 },
@@ -369,7 +363,7 @@ export const CO_DAI: Snapshot[] = [
     era: 'bac-thuoc-3',
     title: 'Khởi nghĩa Mai Thúc Loan',
     summary:
-      'Mai Thúc Loan dấy binh ở Hoan Châu (Nghệ An), xưng đế (Mai Hắc Đế), xây thành Vạn An. Sử cũ chép ông được nhiều châu hưởng ứng, nhưng phạm vi kiểm soát thực tế nhiều khả năng chủ yếu ở vùng Nghệ An – Hà Tĩnh; cuộc khởi nghĩa bị tướng Đường là Dương Tư Húc dẹp trong cùng năm. Cũng khoảng thế kỷ VIII này, thư tịch Trung Hoa bắt đầu gọi Lâm Ấp bằng tên khác — Hoàn Vương.',
+      'Mai Thúc Loan dấy binh ở Hoan Châu (Nghệ An), xưng đế (Mai Hắc Đế), xây thành Vạn An. Sử cũ chép ông được nhiều châu hưởng ứng, nhưng phạm vi kiểm soát thực tế nhiều khả năng chủ yếu ở vùng Nghệ An – Hà Tĩnh; cuộc khởi nghĩa bị tướng Đường là Dương Tư Húc dẹp trong cùng năm. Thư tịch Trung Hoa bắt đầu gọi Lâm Ấp bằng tên khác — Hoàn Vương — cụ thể hơn vào khoảng năm 749–757; bản đồ đổi tên chính thể ngay tại mốc 722 chỉ vì đây là điểm gần đúng nhất có sẵn trong dãy mốc của task này, không phải năm đổi tên chính xác.',
     assign: {
       ...assignAll(GIAO_CHAU, 'mai-thuc-loan'),
       ...assignAll(NHAT_NAM, 'champa')
@@ -454,10 +448,7 @@ export const CO_DAI: Snapshot[] = [
     title: 'Nhà Nam Hán ở Lĩnh Nam',
     summary:
       'Lưu Nham (Lưu Cung), tiết độ sứ Thanh Hải cát cứ vùng Lưỡng Quảng sau khi nhà Đường sụp đổ, xưng đế năm 917, lập nước Nam Hán, đóng đô ở Quảng Châu. Giao Châu của họ Khúc khi đó vẫn giữ quyền tự chủ, chưa thuộc Nam Hán.',
-    assign: {
-      ...assignAll(LINH_NAM, 'nam-han'),
-      'CHN.hai-nam': 'nam-han'
-    },
+    assign: assignAll(LINH_NAM, 'nam-han'),
     focus: { lon: 113.25, lat: 23.13 },
     sources: [{ title: 'Tân Ngũ Đại sử — Nam Hán thế gia', author: 'Âu Dương Tu' }, TOAN_THU, LSVN1]
   },
