@@ -30,15 +30,14 @@ import type { Snapshot, Source } from '../types';
  *   Thuận), vẫn thuộc Chăm Pa trong suốt thời kỳ này.
  * - CAO_BANG: chọn riêng để có thể tách khỏi BAC_BO_NUI khi cần (mốc `1592`).
  * - BON_MAN: nhóm bon-man mới (xấp xỉ Xiengkhouang, Lào).
- * - MAC_BIEN_GIOI_1540: nhóm mac-cat-dat-1540 mới (dải động biên giới nhà Mạc xin dâng nhà Minh).
  * - LINH_NAM: nhóm linh-nam-trung-hoa + CHN.hai-nam (Quảng Đông, Quảng Tây, Hải Nam).
  * - CAMPUCHIA_NAM_BO: KHM + nhóm nam-bo.
  *
  * Nhóm mới khai báo trong groups.ts cho task này:
  * - bon-man: LAO.xiangkhouang, xấp xỉ xứ Bồn Man/phủ Trấn Ninh.
- * - mac-cat-dat-1540: 5 huyện biên giới Quảng Ninh (Móng Cái, Hải Hà, Bình Liêu) và Lạng Sơn
- *   (Tràng Định, Văn Lãng), xấp xỉ khu vực "hai đô, bốn động" nhà Mạc xin dâng nhà Minh năm 1540;
- *   vị trí chính xác gây tranh cãi trong giới nghiên cứu (xem ghi chú mốc `1540`).
+ * - Không có nhóm cho dải "hai đô, bốn động" nhà Mạc xin dâng năm 1540: các động này nằm ở phía
+ *   Quảng Tây của đường biên giới ngày nay (vùng Phòng Thành), ngoài các huyện Quảng Ninh, Lạng Sơn
+ *   hiện đại, nên bản đồ không tô lại (xem ghi chú mốc `1540`).
  *
  * Sửa altName trong polities.ts (theo yêu cầu review C1b): id `bon-man` có altName
  * "Trấn Ninh (từ 1756)" không rõ nguồn; sửa thành "Trấn Ninh (từ 1479)" theo Đại Việt sử ký toàn
@@ -70,17 +69,13 @@ import type { Snapshot, Source } from '../types';
  *   phạm vi các ô bản đồ Việt Nam, nên đây là mốc chỉ có sự kiện, `assign: {}`.
  * - Mốc `1540`: nhiều nhà nghiên cứu hiện đại (đối chiếu sử liệu Minh với Đại Việt sử ký toàn thư)
  *   nghi ngờ việc "cắt đất" phần lớn chỉ là thủ đoạn ngoại giao, không có chuyển giao lãnh thổ thực
- *   chất; nhóm `mac-cat-dat-1540` chỉ mang tính minh họa, đánh dấu lowConfidence toàn bộ.
+ *   chất; các động lại nằm ngoài biên giới hiện đại, nên mốc này là mốc chỉ có sự kiện, `assign: {}`.
  * - Mốc `1558`: gộp cả việc Nam triều (Trịnh Kiểm) thu hồi Thanh Hóa – Nghệ An – Hà Tĩnh từ năm
  *   1543 (không có mốc riêng) và phủ Trấn Ninh theo về Nam triều cùng giai đoạn, đều lowConfidence
  *   vì không có niên đại chính xác.
  * - Mốc `1570`: việc gộp thừa tuyên Quảng Nam vào quyền trấn thủ của Nguyễn Hoàng chỉ là một thay
  *   đổi nhân sự trong nội bộ Nam triều; thời điểm Quảng Nam thực sự thoát khỏi tay nhà Mạc để về
  *   Nam triều không rõ ràng nên bản đồ đánh dấu đổi chủ đúng vào năm 1570, kèm lowConfidence.
- * - Nhóm `mac-cat-dat-1540` không được trả lại nhà Minh — hay đúng hơn không được xác nhận trả lại
- *   Đại Việt — trong phạm vi 15 mốc của file này nên vẫn giữ nguyên `nha-minh` tới hết mốc `1592`
- *   (ghi đè lên các tỉnh Quảng Ninh, Lạng Sơn trong BAC_BO_NUI ở mốc đó, đúng theo độ cụ thể của
- *   selector 'group:').
  * - Fix trong lúc kiểm tra bằng mắt: bản nháp đầu của mốc `1592` dùng selector `'group:bac-bo-nui'`
  *   cho phần lớn Bắc Bộ rồi ghi đè riêng Cao Bằng bằng `'VNM.cao-bang'` — nhưng vì engine luôn coi
  *   mọi selector `'group:'` có độ cụ thể cao hơn selector ADM1 (xem `selectorSpecificity` trong
@@ -168,7 +163,6 @@ const QUANG_NAM_THUA_TUYEN = [...QUANG_NAM_QUANG_NGAI_DA_NANG, ...BINH_DINH];
 const KAUTHARA_PANDURANGA = ['group:kauthara', 'group:panduranga'];
 const CAO_BANG = ['VNM.cao-bang'];
 const BON_MAN = ['group:bon-man'];
-const MAC_BIEN_GIOI_1540 = ['group:mac-cat-dat-1540'];
 const LINH_NAM = ['group:linh-nam-trung-hoa', 'CHN.hai-nam'];
 const CAMPUCHIA_NAM_BO = ['KHM', 'group:nam-bo'];
 
@@ -237,7 +231,7 @@ export const HO_LE_MAC: Snapshot[] = [
     era: 'ho-minh',
     title: 'Nhà Hậu Trần kháng Minh',
     summary:
-      'Tháng 10/1407, Trần Ngỗi (con vua Trần Nghệ Tông) xưng đế ở Yên Mô (Ninh Bình), hiệu Giản Định Đế, mở đầu nhà Hậu Trần kháng Minh. Năm 1409, sau khi Giản Định Đế nghe lời gièm pha giết oan hai tướng Đặng Tất và Nguyễn Cảnh Chân, con của họ là Đặng Dung và Nguyễn Cảnh Dị đem quân về Nghệ An, lập Trần Quý Khoáng lên ngôi, hiệu Trùng Quang Đế. Từ căn cứ Nghệ An, Trùng Quang Đế kiểm soát dải đất kéo xuống Thuận Hóa (Quảng Bình, Quảng Trị, Thừa Thiên Huế ngày nay) trong các năm 1409–1413, trong khi quân Minh vẫn làm chủ Đông Đô (Thăng Long), Bắc Bộ và Thanh Hóa. Cuối năm 1413 – đầu 1414, Trương Phụ đem đại quân vào nam đánh bại hoàn toàn lực lượng kháng chiến, bắt được Trùng Quang Đế, nhà Hậu Trần diệt vong.',
+      'Tháng 10/1407, Trần Ngỗi (con vua Trần Nghệ Tông) xưng đế ở Yên Mô (Ninh Bình), hiệu Giản Định Đế, mở đầu nhà Hậu Trần kháng Minh. Năm 1409, sau khi Giản Định Đế nghe lời gièm pha giết oan hai tướng Đặng Tất và Nguyễn Cảnh Chân, con của họ là Đặng Dung và Nguyễn Cảnh Dị đem quân về Nghệ An, lập Trần Quý Khoáng lên ngôi, hiệu Trùng Quang Đế. Từ căn cứ Nghệ An, Trùng Quang Đế kiểm soát — với phạm vi thay đổi theo từng năm và chỉ ước lượng được — dải đất kéo xuống Thuận Hóa (Quảng Bình, Quảng Trị, Thừa Thiên Huế ngày nay) trong các năm 1409–1413, trong khi quân Minh vẫn làm chủ Đông Đô (Thăng Long), Bắc Bộ và Thanh Hóa. Cuối năm 1413 – đầu 1414, Trương Phụ đem đại quân vào nam đánh bại hoàn toàn lực lượng kháng chiến, bắt được Trùng Quang Đế, nhà Hậu Trần diệt vong.',
     assign: assignAll([...NGHE_HA, ...THUAN_HOA], 'hau-tran'),
     lowConfidence: [...THUAN_HOA],
     focus: { lon: 105.75, lat: 18.7 },
@@ -250,7 +244,7 @@ export const HO_LE_MAC: Snapshot[] = [
     era: 'ho-minh',
     title: 'Khởi nghĩa Lam Sơn',
     summary:
-      'Sau khi tiêu diệt hoàn toàn nhà Hậu Trần cuối 1413 – đầu 1414, quân Minh khôi phục quyền kiểm soát trên toàn bộ Giao Chỉ. Đầu năm 1418 (Tết Mậu Tuất), Lê Lợi — một hào trưởng ở Lam Sơn (Thọ Xuân, Thanh Hóa) — dựng cờ khởi nghĩa, xưng Bình Định Vương, mở đầu cuộc kháng chiến kéo dài 10 năm. Trong giai đoạn đầu (1418–1423), nghĩa quân Lam Sơn chủ yếu hoạt động du kích trong vùng rừng núi phía tây Thanh Hóa, nhiều lần bị vây khốn (ba lần phải rút lên núi Chí Linh) và chưa làm chủ ổn định một vùng đất nào, nên trên bản đồ hành chính khu vực Nghệ An, Hà Tĩnh và Thuận Hóa vẫn thuộc quyền nhà Minh như trước khởi nghĩa.',
+      'Sau khi tiêu diệt hoàn toàn nhà Hậu Trần cuối 1413 – đầu 1414, quân Minh khôi phục quyền kiểm soát trên toàn bộ Giao Chỉ. Đầu năm 1418 (Tết Mậu Tuất), Lê Lợi — một hào trưởng ở Lam Sơn (Thọ Xuân, Thanh Hóa) — dựng cờ khởi nghĩa, xưng Bình Định Vương, mở đầu cuộc kháng chiến kéo dài 10 năm. Trong giai đoạn đầu (1418–1423), nghĩa quân Lam Sơn chủ yếu hoạt động du kích trong vùng rừng núi phía tây Thanh Hóa, nhiều lần bị vây khốn (ba lần phải rút lên núi Chí Linh) và chưa làm chủ ổn định một vùng đất nào, nên trên bản đồ khu vực Nghệ An, Hà Tĩnh và Thuận Hóa vẫn thuộc quyền nhà Minh như trước khởi nghĩa; vùng hoạt động của nghĩa quân chỉ ước lượng được.',
     assign: assignAll([...NGHE_HA, ...THUAN_HOA], 'nha-minh'),
     lowConfidence: [...NGHE_HA, ...THUAN_HOA],
     focus: { lon: 105.5, lat: 19.95 },
@@ -335,7 +329,7 @@ export const HO_LE_MAC: Snapshot[] = [
     era: 'mac',
     title: 'Nam – Bắc triều',
     summary:
-      'Năm 1529, cựu tướng nhà Lê là Nguyễn Kim không thần phục nhà Mạc, chạy sang vùng biên giới Ai Lao chiêu tập lực lượng chống đối. Năm 1533, ông tìm được Lê Duy Ninh — con vua Lê Chiêu Tông — lập làm vua tại đất Sầm Châu (vùng Sầm Nưa, nay thuộc Lào), tức Lê Trang Tông, mở đầu thời kỳ Nam – Bắc triều: nhà Mạc ở Thăng Long xưng "Bắc triều", còn triều đình Lê trung hưng lưu vong bên ngoài lãnh thổ xưng "Nam triều". Ở giai đoạn này Nam triều chưa kiểm soát được phần đất nào của Đại Việt, nên trên bản đồ toàn bộ lãnh thổ vẫn do nhà Mạc quản lý như trước.',
+      'Năm 1529, cựu tướng nhà Lê là Nguyễn Kim không thần phục nhà Mạc, chạy sang vùng biên giới Ai Lao chiêu tập lực lượng chống đối. Năm 1533, ông tìm được Lê Duy Ninh — theo chính sử là con vua Lê Chiêu Tông — lập làm vua tại đất Sầm Châu (vùng Sầm Nưa, nay thuộc Lào), tức Lê Trang Tông, mở đầu thời kỳ Nam – Bắc triều: nhà Mạc ở Thăng Long xưng "Bắc triều", còn triều đình Lê trung hưng lưu vong bên ngoài lãnh thổ xưng "Nam triều". Ở giai đoạn này Nam triều chưa kiểm soát được phần đất nào của Đại Việt, nên trên bản đồ toàn bộ lãnh thổ vẫn do nhà Mạc quản lý như trước.',
     assign: {},
     focus: { lon: 104.85, lat: 20.05 },
     sources: [TOAN_THU, CUONG_MUC, LSVN3]
@@ -347,9 +341,8 @@ export const HO_LE_MAC: Snapshot[] = [
     era: 'mac',
     title: 'Nhà Mạc cắt đất vùng biên cho nhà Minh',
     summary:
-      'Trước áp lực quân sự và ngoại giao của nhà Minh (lấy cớ họ Mạc cướp ngôi nhà Lê để đem quân áp sát biên giới), năm 1540 Mạc Đăng Dung cùng cháu và tùy tùng tự trói mình, ra ải Nam Quan dâng biểu xin hàng, xin dâng đất hai đô Như Tích, Chiêm Lãng và bốn động Tư Lẫm, Kim Lặc, Cổ Sâm, Liễu Cát ở vùng biên giới Lạng Sơn – Quảng Ninh ngày nay để được nhà Minh phong làm An Nam đô thống sứ. Đối chiếu sử liệu hai bên cho thấy nhiều điểm mâu thuẫn về việc các động này vốn đã thuộc nhà Minh hay của Đại Việt từ trước, nên không ít nhà nghiên cứu hiện nay cho rằng đây phần lớn là một thủ đoạn ngoại giao mang tính hình thức, thực chất mất đất rất ít hoặc không đáng kể; vị trí chính xác của các động này quy về địa giới hành chính hiện đại vẫn còn nhiều tranh cãi.',
-    assign: assignAll(MAC_BIEN_GIOI_1540, 'nha-minh'),
-    lowConfidence: [...MAC_BIEN_GIOI_1540],
+      'Trước áp lực quân sự và ngoại giao của nhà Minh (lấy cớ họ Mạc cướp ngôi nhà Lê để đem quân áp sát biên giới), năm 1540 Mạc Đăng Dung cùng cháu và tùy tùng tự trói mình, ra ải Nam Quan dâng biểu xin hàng, xin dâng đất hai đô Như Tích, Chiêm Lãng và bốn động Tư Lẫm, Kim Lặc, Cổ Sâm, Liễu Cát ở vùng biên giới phía bắc để được nhà Minh phong làm An Nam đô thống sứ. Đối chiếu sử liệu hai bên cho thấy nhiều điểm mâu thuẫn về việc các động này vốn đã thuộc nhà Minh hay của Đại Việt từ trước, nên không ít nhà nghiên cứu hiện nay cho rằng đây phần lớn là một thủ đoạn ngoại giao mang tính hình thức, thực chất mất đất rất ít hoặc không đáng kể; vị trí chính xác của các động này vẫn còn tranh cãi, nhưng theo các nghiên cứu gần đây chúng nằm phía Trung Quốc của đường biên giới ngày nay (vùng Phòng Thành, Quảng Tây), ngoài lãnh thổ hiện đại của Việt Nam, nên bản đồ không tô phần đất nào đổi chủ.',
+    assign: {},
     focus: { lon: 107.6, lat: 21.55 },
     sources: [TOAN_THU, CUONG_MUC, LSVN3]
   },
@@ -386,14 +379,13 @@ export const HO_LE_MAC: Snapshot[] = [
     era: 'mac',
     title: 'Nhà Mạc rút lên Cao Bằng',
     summary:
-      'Từ năm 1591, Tiết chế Trịnh Tùng (con Trịnh Kiểm) đem đại quân Nam triều ra Bắc, liên tiếp đánh bại quân Mạc; đầu năm 1592 hạ được thành Thăng Long, vua Mạc Mậu Hợp bị bắt và xử tử, nhà Mạc mất quyền cai trị trên phần lớn đất nước sau 65 năm. Con cháu họ Mạc do Mạc Kính Cung, Mạc Toàn cầm đầu chạy lên Cao Bằng, dựa vào thế hiểm trở và sự dung túng ngầm của nhà Minh, tiếp tục xưng vương cát cứ ở đây thêm nhiều thập kỷ nữa. Phần còn lại của Bắc Bộ trở về dưới quyền triều đình Lê trung hưng do họ Trịnh phò tá, hợp nhất với vùng Thanh Hóa – Thuận Quảng đã kiểm soát từ trước; riêng dải đất biên giới Mạc từng xin dâng năm 1540 không có ghi chép về việc được trả lại trong giai đoạn này.',
+      'Từ năm 1591, Tiết chế Trịnh Tùng (con Trịnh Kiểm) đem đại quân Nam triều ra Bắc, liên tiếp đánh bại quân Mạc; đầu năm 1592 hạ được thành Thăng Long, vua Mạc Mậu Hợp bị bắt và xử tử, nhà Mạc mất quyền cai trị trên phần lớn đất nước sau 65 năm. Con cháu họ Mạc do Mạc Kính Cung, Mạc Toàn cầm đầu chạy lên Cao Bằng, dựa vào thế hiểm trở và sự dung túng ngầm của nhà Minh, tiếp tục xưng vương cát cứ ở đây thêm nhiều thập kỷ nữa. Phần còn lại của Bắc Bộ trở về dưới quyền triều đình Lê trung hưng do họ Trịnh phò tá, hợp nhất với vùng Thanh Hóa – Thuận Quảng đã kiểm soát từ trước.',
     assign: {
       ...assignAll(BAC_BO_DONG_BANG, 'le-trung-hung'),
       ...assignAll(BAC_BO_NUI, 'le-trung-hung'),
-      ...assignAll(CAO_BANG, 'mac-cao-bang'),
-      ...assignAll(MAC_BIEN_GIOI_1540, 'nha-minh')
+      ...assignAll(CAO_BANG, 'mac-cao-bang')
     },
     focus: { lon: 105.85, lat: 21.03 },
-    sources: [TOAN_THU, CUONG_MUC, LSVN4]
+    sources: [TOAN_THU, CUONG_MUC, LSVN3, LSVN4]
   }
 ];

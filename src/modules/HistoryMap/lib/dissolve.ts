@@ -3,7 +3,7 @@
  *
  * Mỗi ô có tiến độ tuyến tính `progress` 0..1 (ownerData kênh 4, xem cellState.ts). Fragment
  * shader mặt trên (Terrain.tsx) lấy noise `n = fbmNoise(worldXZ)` trong [0,1] và so với ngưỡng
- * `edge = progress·(1 + 2w) − w`: pixel có noise thấp đổi cờ trước, tạo đường ranh răng cưa tự
+ * `edge = progress·(1 + 2w) − w`: pixel có noise thấp đổi màu chủ trước, tạo đường ranh răng cưa tự
  * nhiên. Quanh ngưỡng có vệt sáng hai lớp: lõi trắng-vàng mảnh + quầng hổ phách rộng (ửng
  * trước, âm ỉ sau), đều có độ rộng tối thiểu theo pixel màn hình để vẫn rõ khi nhìn toàn cảnh.
  *
@@ -54,8 +54,8 @@ export const GLOW_COLOR = '#ffb347';
 /** Hệ số cộng của quầng — thấp hơn lõi. */
 export const GLOW_HALO_GAIN = 0.75;
 /**
- * Độ "cháy sém" (CHỈ dùng trong shader, không có hàm JS tương ứng): màu cờ dưới quầng nhân
- * `1 − GLOW_CHAR · halo`, để sắc hổ phách/lõi sáng nổi trên cả cờ sáng (vàng #f0b90b, trắng).
+ * Độ "cháy sém" (CHỈ dùng trong shader, không có hàm JS tương ứng): màu chủ dưới quầng nhân
+ * `1 − GLOW_CHAR · halo`, để sắc hổ phách/lõi sáng nổi trên cả màu chủ sáng (vàng #f0b90b, trắng).
  */
 export const GLOW_CHAR = 0.45;
 
@@ -111,7 +111,7 @@ export function dissolveEdge(progress: number, w = DISSOLVE_WIDTH): number {
   return progress * (1 + 2 * w) - w;
 }
 
-/** m = 1: pixel còn cờ cũ; m = 0: đã sang cờ mới. Màu = mix(from, to, 1 − m). */
+/** m = 1: pixel còn màu chủ cũ; m = 0: đã sang màu chủ mới. Màu = mix(from, to, 1 − m). */
 export function dissolveMask(progress: number, n: number, w = DISSOLVE_WIDTH): number {
   const e = dissolveEdge(progress, w);
   return smoothstep(e - w, e + w, n);

@@ -4,21 +4,14 @@
  * `colorDistance.test.ts` quét mọi mốc thật và mọi cặp giáp nhau (kể cả ô không có chủ).
  */
 
+import { parseHex, srgbToLinear } from './color';
+
 /** Ngưỡng ΔE2000 tối thiểu giữa hai vùng giáp nhau (≈ khác biệt thấy rõ ngay, chừa biên cho bóng đổ và sương mù làm màu nhạt đi). */
 export const MIN_ADJACENT_DELTA_E = 15;
 
-function parseHex(hex: string): [number, number, number] {
-  const n = Number.parseInt(hex.replace('#', ''), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
 /** sRGB hex → CIE L*a*b* (D65). */
 export function hexToLab(hex: string): [number, number, number] {
-  const lin = (c: number): number => {
-    const v = c / 255;
-    return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
-  };
-  const [r, g, b] = parseHex(hex).map(lin);
+  const [r, g, b] = parseHex(hex).map(srgbToLinear);
   const x = (0.4124564 * r + 0.3575761 * g + 0.1804375 * b) / 0.95047;
   const y = 0.2126729 * r + 0.7151522 * g + 0.072175 * b;
   const z = (0.0193339 * r + 0.119192 * g + 0.9503041 * b) / 1.08883;
@@ -87,8 +80,9 @@ export function deltaE2000Lab(
 }
 
 /**
- * Các cặp chủ (id chính thể hoặc `null`) có ô giáp nhau trong một mốc. Mỗi cặp trả một lần,
- * sắp theo thứ tự chuỗi để ổn định (`null` ghi là `''`).
+ * Các cặp chủ (id chính thể hoặc `null`) có ô giáp nhau trong một mốc. Mỗi cặp trả một lần; hai id
+ * trong cặp xếp theo thứ tự chuỗi (`null` ghi là `''`) và danh sách cặp sắp theo khóa `x|y` nên
+ * kết quả ổn định, không phụ thuộc thứ tự duyệt ô.
  */
 export function adjacentOwnerPairs(
   owners: (string | null)[],
@@ -103,5 +97,7 @@ export function adjacentOwnerPairs(
       seen.set(`${x ?? ''}|${y ?? ''}`, [x, y]);
     }
   });
-  return [...seen.values()];
+  return [...seen.entries()]
+    .sort(([ka], [kb]) => (ka < kb ? -1 : ka > kb ? 1 : 0))
+    .map(([, v]) => v);
 }

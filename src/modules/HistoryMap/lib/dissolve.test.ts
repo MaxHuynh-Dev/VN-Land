@@ -37,10 +37,10 @@ describe('dissolveEdge', () => {
 });
 
 describe('dissolveMask', () => {
-  it('progress 0: mọi pixel (n trong [0,1]) còn cờ cũ (m = 1)', () => {
+  it('progress 0: mọi pixel (n trong [0,1]) còn màu chủ cũ (m = 1)', () => {
     for (const n of NS) expect(dissolveMask(0, n)).toBe(1);
   });
-  it('progress 1: mọi pixel đã sang cờ mới (m = 0)', () => {
+  it('progress 1: mọi pixel đã sang màu chủ mới (m = 0)', () => {
     // 1 + w − w lệch 1 ulp khỏi 1 trong số thực — chỉ cần ≈ 0.
     for (const n of NS) expect(dissolveMask(1, n)).toBeLessThan(1e-9);
   });
@@ -49,7 +49,7 @@ describe('dissolveMask', () => {
     expect(dissolveMask(0.5, 0.9)).toBe(1);
     expect(dissolveMask(0.5, 0.2)).toBeLessThan(dissolveMask(0.5, 0.8));
   });
-  it('không tăng theo progress (không có pixel nào quay về cờ cũ)', () => {
+  it('không tăng theo progress (không có pixel nào quay về màu chủ cũ)', () => {
     for (const n of NS) {
       let prev = 1;
       for (let p = 0; p <= 1.0001; p += 0.02) {

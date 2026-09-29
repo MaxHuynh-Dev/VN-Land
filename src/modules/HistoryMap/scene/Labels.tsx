@@ -65,25 +65,58 @@ function useFontsReady(): boolean {
   return ready;
 }
 
+// Bộ nhớ đệm ảnh cờ cấp module: mỗi URL chỉ tải/giải mã một lần cho cả phiên, các nhãn mount
+// lại (đổi mốc, bay camera) đọc lại đồng bộ ở lần render đầu — không nháy khung "chưa có cờ"
+// (tỉ lệ nhãn 1.5 rồi co lại theo tỉ lệ thật) và không giải mã lại các SVG nặng 100–250 KB.
+const flagPromises = new Map<string, Promise<HTMLImageElement>>();
+const flagLoaded = new Map<string, HTMLImageElement>();
+
+function loadFlagImage(url: string): Promise<HTMLImageElement> {
+  let promise = flagPromises.get(url);
+  if (!promise) {
+    promise = new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = () => {
+        flagLoaded.set(url, img);
+        resolve(img);
+      };
+      img.onerror = () => {
+        // Không nhớ lỗi: lần mount sau được thử tải lại (lỗi mạng thoáng qua).
+        flagPromises.delete(url);
+        reject(new Error(`Không tải được cờ ${url}`));
+      };
+      img.src = url;
+    });
+    flagPromises.set(url, promise);
+  }
+  return promise;
+}
+
 /**
- * Tải ảnh cờ để vẽ vào nhãn. Trả `null` khi đang tải hoặc ảnh lỗi — nhãn khi đó vẽ ô màu trơn
- * của chính thể ở chỗ cờ (giống `FlagThumb`).
+ * Ảnh cờ để vẽ vào nhãn. Trả ngay (đồng bộ) khi ảnh đã tải xong ở nhãn khác; ngược lại `null`
+ * trong lúc tải hoặc khi ảnh lỗi — nhãn khi đó vẽ ô màu trơn của chính thể ở chỗ cờ (giống
+ * `FlagThumb`).
  */
 function useFlagImage(url: string): HTMLImageElement | null {
   const [loaded, setLoaded] = useState<{ url: string; img: HTMLImageElement } | null>(null);
   useEffect(() => {
+    // Không thoát sớm khi cache đã có: ảnh có thể vừa tải xong ở nhãn khác sau lần render này —
+    // promise đã resolve thì then chạy ngay ở microtask, chỉ tốn một lần setState.
     let alive = true;
-    const img = new Image();
-    img.decoding = 'async';
-    img.onload = () => {
-      if (alive) setLoaded({ url, img });
-    };
-    img.src = url;
+    loadFlagImage(url).then(
+      (img) => {
+        if (alive) setLoaded({ url, img });
+      },
+      () => {
+        // Lỗi: giữ `null` → nhãn dùng ô màu trơn.
+      }
+    );
     return () => {
       alive = false;
     };
   }, [url]);
-  return loaded?.url === url ? loaded.img : null;
+  return flagLoaded.get(url) ?? (loaded?.url === url ? loaded.img : null);
 }
 
 /** Tỉ lệ w/h của cờ trong nhãn, kẹp để cờ quá dài/vuông không làm lệch nhãn. */

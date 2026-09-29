@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import type { CellMeta } from './cells';
 
 /**
- * Thời lượng chuyển chủ khi đổi mốc (màu vách + mặt trận loang cờ trên mặt trên + nhịp nổi).
+ * Thời lượng chuyển chủ khi đổi mốc (màu vách + mặt trận loang màu chủ trên mặt trên + nhịp nổi).
  * Hover không dùng hằng này (độ nổi hover bám mục tiêu theo hệ số tắt dần trong `tick`).
  */
 export const OWNER_TRANSITION_S = 1.4;
@@ -101,7 +101,7 @@ export class CellStateStore {
   }
 
   /**
-   * Gán chủ (slot chính thể) cho từng ô. `animate`: ô đổi chủ trộn dần từ cờ cũ sang cờ mới
+   * Gán chủ (slot chính thể) cho từng ô. `animate`: ô đổi chủ trộn dần từ màu chủ cũ sang màu chủ mới
    * (cùng `ease`, `OWNER_TRANSITION_S` và `delays` với màu); ô giữ nguyên chủ không chạy blend.
    */
   setOwnerSlots(
@@ -111,8 +111,8 @@ export class CellStateStore {
     for (let i = 0; i < this.count; i++) {
       const next = slots[i];
       if (opts.animate && next !== this.slotTo[i]) {
-        // Đổi đích giữa lúc đang trộn: nếu cờ cũ (from) vẫn đang trội (blend < 0.5) thì giữ
-        // from, chỉ đổi đích — tránh cờ nhảy phựt sang đích dở dang rồi mới mờ đi.
+        // Đổi đích giữa lúc đang trộn: nếu màu chủ cũ (from) vẫn đang trội (blend < 0.5) thì giữ
+        // from, chỉ đổi đích — tránh màu nhảy phựt sang đích dở dang rồi mới mờ đi.
         if (this.slotBlend(i) >= 0.5) this.slotFrom[i] = this.slotTo[i];
         this.slotElapsed[i] = 0;
         this.slotDelay[i] = opts.delays?.[i] ?? 0;

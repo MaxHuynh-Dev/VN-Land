@@ -17,6 +17,7 @@
     "geo:build": "tsx scripts/geo/build-cells.ts",
     "flags:fix": "tsx scripts/flags/fix-svg-size.ts",
     "validate:history": "tsx scripts/validate-history.ts",
+    "history:review": "tsx scripts/history-review.ts",
     "prebuild": "yarn validate:history"
   },
   "dependencies": {

@@ -60,21 +60,6 @@ export const GROUPS: CellGroup[] = [
     ]
   },
   {
-    id: 'champa-sau-1471',
-    name: 'Chăm Pa sau năm 1471 (xấp xỉ)',
-    selectors: [
-      'VNM.phu-yen',
-      'VNM.khanh-hoa',
-      'VNM.ninh-thuan',
-      'VNM.binh-thuan',
-      'VNM.lam-dong',
-      'VNM.dak-lak',
-      'VNM.dak-nong',
-      'VNM.gia-lai',
-      'VNM.kon-tum'
-    ]
-  },
-  {
     id: 'nam-bo',
     name: 'Nam Bộ',
     selectors: [
@@ -165,45 +150,36 @@ export const GROUPS: CellGroup[] = [
     selectors: ['LAO.xiangkhouang']
   },
   {
-    id: 'mac-cat-dat-1540',
-    name: 'Dải động biên giới nhà Mạc xin dâng nhà Minh (1540, xấp xỉ, vị trí gây tranh cãi)',
-    selectors: [
-      'VNM.quang-ninh.mong-cai',
-      'VNM.quang-ninh.hai-ha',
-      'VNM.quang-ninh.binh-lieu',
-      'VNM.lang-son.trang-dinh',
-      'VNM.lang-son.van-lang'
-    ]
-  },
-  {
     id: 'thai-khang-1653',
-    name: 'Dinh Thái Khang – Diên Ninh (1653, xấp xỉ Khánh Hòa và bắc Ninh Thuận)',
+    name: 'Phủ Thái Khang – Diên Ninh (1653, xấp xỉ Khánh Hòa và phần Ninh Thuận phía bắc sông Phan Rang)',
     selectors: [
       'VNM.khanh-hoa',
+      'VNM.phu-yen.van-ninh',
       'VNM.ninh-thuan.nha-trang',
       'VNM.ninh-thuan.cam-ranh',
-      'VNM.ninh-thuan.bac-ai'
+      'VNM.ninh-thuan.bac-ai',
+      'VNM.ninh-thuan.ninh-hai',
+      'VNM.ninh-thuan.thuan-bac',
+      'VNM.ninh-thuan.ninh-son'
     ]
   },
   {
     id: 'panduranga-1697',
-    name: 'Trấn Thuận Thành sau khi tách phủ Bình Thuận (1697, phần Ninh Thuận còn lại)',
+    name: 'Trấn Thuận Thành sau khi tách phủ Bình Thuận (1697, xấp xỉ phần Ninh Thuận nam sông Phan Rang)',
     selectors: [
-      'VNM.ninh-thuan.ninh-hai',
       'VNM.ninh-thuan.ninh-phuoc',
-      'VNM.ninh-thuan.ninh-son',
       'VNM.ninh-thuan.phan-rang-thap-cham',
-      'VNM.ninh-thuan.thuan-bac',
       'VNM.ninh-thuan.thuan-nam'
     ]
   },
   {
     id: 'gia-dinh-1698',
-    name: 'Phủ Gia Định (1698, dinh Trấn Biên và Phiên Trấn, gồm cả Mỹ Tho)',
+    name: 'Phủ Gia Định (1698, dinh Trấn Biên và Phiên Trấn, gồm Bình Dương và Mỹ Tho)',
     selectors: [
       'VNM.dong-nai',
       'VNM.ba-ria-vung-tau',
       'VNM.tp-ho-chi-minh',
+      'VNM.binh-duong',
       'VNM.tien-giang.cai-be',
       'VNM.tien-giang.chau-thanh',
       'VNM.tien-giang.huyen-cai-lay',
@@ -244,8 +220,23 @@ export const GROUPS: CellGroup[] = [
   },
   {
     id: 'long-ho-1732',
-    name: 'Dinh Long Hồ / châu Định Viễn (1732, xấp xỉ Vĩnh Long, Bến Tre, Trà Vinh)',
-    selectors: ['VNM.vinh-long', 'VNM.ben-tre', 'VNM.tra-vinh']
+    name: 'Dinh Long Hồ / châu Định Viễn (1732, xấp xỉ Vĩnh Long)',
+    selectors: ['VNM.vinh-long']
+  },
+  {
+    id: 'tra-vang-ba-thac-1757',
+    name: 'Trà Vang và Ba Thắc (khoảng 1757, xấp xỉ Bến Tre, Trà Vinh, Sóc Trăng)',
+    selectors: ['VNM.ben-tre', 'VNM.tra-vinh', 'VNM.soc-trang']
+  },
+  {
+    id: 'bac-bo-chinh',
+    name: 'Bắc Bố Chính (bắc sông Gianh, xấp xỉ theo huyện Quảng Bình ngày nay)',
+    selectors: [
+      'VNM.quang-binh.quang-trach',
+      'VNM.quang-binh.ba-don',
+      'VNM.quang-binh.tuyen-hoa',
+      'VNM.quang-binh.minh-hoa'
+    ]
   },
   {
     id: 'tam-bon-loi-lap-1756',
@@ -261,5 +252,110 @@ export const GROUPS: CellGroup[] = [
     id: 'tam-phong-long-1757',
     name: 'Tầm Phong Long (1757, xấp xỉ An Giang và Đồng Tháp)',
     selectors: ['VNM.an-giang', 'VNM.dong-thap']
+  },
+  // 1771 – 1847 (Tây Sơn – đầu triều Nguyễn)
+  {
+    id: 'tay-son-can-cu-1771',
+    name: 'Căn cứ khởi nghĩa Tây Sơn (ấp Tây Sơn và vùng thượng đạo An Khê, 1771, xấp xỉ)',
+    selectors: ['VNM.gia-lai.an-khe', 'VNM.binh-dinh.tay-son']
+  },
+  {
+    id: 'campuchia-xiem-1794',
+    name: 'Vùng Campuchia do Xiêm cai quản trực tiếp (Battambang, Siem Reap từ 1794, cùng Koh Kong, Preah Vihear; xấp xỉ)',
+    selectors: [
+      'KHM.battambang',
+      'KHM.pailin',
+      'KHM.bantey-meanchey',
+      'KHM.siem-reap',
+      'KHM.oddar-meanchey',
+      'KHM.koh-kong',
+      'KHM.preah-vihear'
+    ]
+  },
+  {
+    id: 'lac-bien-1828',
+    name: 'Chín châu Lạc Biên (các mường phía tây Cam Lộ, 1828, xấp xỉ vùng Sepon – Vang)',
+    selectors: [
+      'LAO.savannakhet.sepone',
+      'LAO.savannakhet.phine',
+      'LAO.savannakhet.nong',
+      'LAO.savannakhet.vilabuly'
+    ]
+  },
+  {
+    id: 'tran-dinh-1828',
+    name: 'Phủ Trấn Định (Cam Cát, Cam Môn, Cam Linh, 1828, xấp xỉ đông Khammouane)',
+    selectors: [
+      'LAO.khammouane.nakay',
+      'LAO.khammouane.bualapha',
+      'LAO.khammouane.mahaxay',
+      'LAO.khammouane.nhommalath',
+      'LAO.khammouane.hinboon'
+    ]
+  },
+  {
+    id: 'tran-tay-1834',
+    name: 'Trấn Tây thành (Campuchia dưới quyền Đại Nam, 1834–1841, trừ vùng Xiêm giữ và Stung Treng)',
+    selectors: [
+      'KHM.kampong-cham',
+      'KHM.tbong-khmum',
+      'KHM.kampong-chhnang',
+      'KHM.kampong-speu',
+      'KHM.kampong-thom',
+      'KHM.kampot',
+      'KHM.kep',
+      'KHM.kandal',
+      'KHM.preah-sihanouk',
+      'KHM.kratie',
+      'KHM.mondulkiri',
+      'KHM.phnom-penh',
+      'KHM.prey-veng',
+      'KHM.pursat',
+      'KHM.ratanakiri',
+      'KHM.svay-rieng',
+      'KHM.takeo'
+    ]
+  },
+  // 1858 – 1945 (Pháp thuộc)
+  {
+    id: 'dong-nam-ky-1862',
+    name: 'Ba tỉnh miền Đông Nam Kỳ và Côn Lôn theo hòa ước 1862 (xấp xỉ)',
+    selectors: [
+      'VNM.tp-ho-chi-minh',
+      'VNM.dong-nai',
+      'VNM.ba-ria-vung-tau',
+      'VNM.binh-duong',
+      'VNM.binh-phuoc',
+      'VNM.tay-ninh',
+      'VNM.long-an',
+      'VNM.tien-giang',
+      'VNM.con-dao'
+    ]
+  },
+  // 1945 – 2025 (hiện đại)
+  {
+    id: 'hd-thai-chiem-1941',
+    name: 'Vùng Campuchia và Lào Thái Lan chiếm 1941–1946 (xấp xỉ theo tỉnh và huyện hiện nay; thiếu Koh Kong và một phần Stung Treng)',
+    selectors: [
+      'KHM.battambang',
+      'KHM.pailin',
+      'KHM.bantey-meanchey',
+      'KHM.oddar-meanchey',
+      'KHM.siem-reap',
+      'KHM.preah-vihear',
+      'LAO.xaignabouli',
+      'LAO.champasak.champasack',
+      'LAO.champasak.sanasomboon'
+    ]
+  },
+  {
+    id: 'hd-tay-nguyen',
+    name: 'Tây Nguyên (Xứ Thượng Nam Đông Dương 1946, Hoàng triều Cương thổ 1950, xấp xỉ)',
+    selectors: ['VNM.kon-tum', 'VNM.gia-lai', 'VNM.dak-lak', 'VNM.dak-nong', 'VNM.lam-dong']
+  },
+  {
+    id: 'hd-xu-thai-1948',
+    name: 'Xứ Thái tự trị 1948 (Lai Châu, Sơn La, Phong Thổ, xấp xỉ theo Lai Châu, Điện Biên, Sơn La)',
+    selectors: ['VNM.lai-chau', 'VNM.dien-bien', 'VNM.son-la']
   }
 ];

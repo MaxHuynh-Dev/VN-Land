@@ -10,7 +10,7 @@ export default function FlagThumb({
   className?: string;
 }): React.ReactElement {
   // Theo dõi chính URL đã lỗi (thay vì một cờ boolean) để khi `polity.flag` đổi sang một URL
-  // khác — ví dụ chính thể đổi cờ giữa các mốc qua polityOverrides — component vẫn thử tải lại
+  // khác — ví dụ cùng một chỗ chuyển sang hiện chính thể khác — component vẫn thử tải lại
   // thay vì tiếp tục hiện màu trơn của lần lỗi trước.
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const broken = failedUrl === polity.flag;

@@ -54,7 +54,7 @@ describe('effectivePolity', () => {
     expect(effectivePolity(map, SNAPSHOTS, 1, 'dai-viet').name).toBe('Đại Việt (Lý)');
     const p3 = effectivePolity(map, SNAPSHOTS, 2, 'dai-viet');
     expect(p3.name).toBe('Đại Việt (Lý)');
-    expect(p3.flag).toBe('/flags/tran.svg');
+    expect(p3.period).toBe('Lý–Trần');
   });
 });
 

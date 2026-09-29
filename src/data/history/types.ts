@@ -69,7 +69,10 @@ export interface Snapshot {
   title: string;
   summary: string;
   assign: Record<Selector, PolityId | null>;
-  polityOverrides?: Record<PolityId, Partial<Omit<Polity, 'id' | 'sources'>>>;
+  polityOverrides?: Record<
+    PolityId,
+    Partial<Pick<Polity, 'name' | 'capital' | 'altNames' | 'period'>>
+  >;
   lowConfidence?: Selector[];
   focus?: { lon: number; lat: number; distance?: number };
   sources: Source[];

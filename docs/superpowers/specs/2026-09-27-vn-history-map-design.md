@@ -109,14 +109,14 @@ interface Snapshot {
   title: string;
   summary: string;                // 2–4 câu
   assign: Record<CellId | string, PolityId | null>;  // delta so với mốc trước; khóa có thể là groupId
-  polityOverrides?: Partial<Record<PolityId, Partial<Polity>>>; // ví dụ đổi cờ khi đổi triều trong cùng một chính thể
+  polityOverrides?: Partial<Record<PolityId, Partial<Pick<Polity, 'name' | 'capital' | 'altNames' | 'period'>>>>; // chỉ đổi tên/kinh đô; màu và cờ cố định theo id
   confidence?: Record<CellId | string, 'low'>;
   focus?: { lon: number; lat: number; zoom?: number };
   sources: Source[];              // ≥2
 }
 ```
 
-Mốc đầu tiên gán đầy đủ. Các mốc sau chỉ ghi phần thay đổi. `null` nghĩa là "không có nhà nước hoặc chưa rõ" và được tô màu đá trung tính. Một chính thể đổi triều (ví dụ Đại Việt từ Lý sang Trần) nếu có cờ riêng thì dùng id chính thể riêng (cờ trên đất chỉ lấy `Polity.flag`); `polityOverrides` chỉ dùng để đổi tên hiển thị hoặc kinh đô.
+Mốc đầu tiên gán đầy đủ. Các mốc sau chỉ ghi phần thay đổi, trừ quy ước: mốc đầu tiên của mỗi file thời kỳ mở bằng `'*': null` rồi gán lại đầy đủ để file tự đứng một mình. `null` nghĩa là "không có nhà nước hoặc chưa rõ" và được tô màu đá trung tính. Một chính thể đổi triều (ví dụ Đại Việt từ Lý sang Trần) nếu có cờ riêng thì dùng id chính thể riêng (cờ trên nhãn/thẻ chỉ lấy `Polity.flag`; mặt đất tô bằng `Polity.color`); `polityOverrides` chỉ dùng để đổi tên hiển thị hoặc kinh đô.
 
 ### 3.3 Pipeline địa lý
 

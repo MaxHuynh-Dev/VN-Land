@@ -85,5 +85,14 @@ export function validateHistory({
       errs.push(`${s.id}: focus nằm ngoài vùng bản đồ (${s.focus.lon}, ${s.focus.lat})`);
     }
   });
+
+  // Chính thể khai báo mà không mốc nào gán là dữ liệu chết (vẫn chiếm slot uPolity, vẫn hiện ở
+  // mọi nơi liệt kê POLITIES như phần ghi công).
+  const used = new Set<string>();
+  for (const s of snapshots)
+    for (const pol of Object.values(s.assign)) if (pol !== null) used.add(pol);
+  for (const p of polities) {
+    if (!used.has(p.id)) errs.push(`${p.id}: chính thể không được dùng ở mốc nào`);
+  }
   return errs;
 }

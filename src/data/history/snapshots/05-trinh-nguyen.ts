@@ -5,8 +5,7 @@ import type { Snapshot, Source } from '../types';
  *
  * File này tự đứng một mình: mốc đầu (`1600`) có `'*': null` và gán đầy đủ, tiếp nối đúng trạng
  * thái cuối của file 04-ho-le-mac.ts (mốc `1592`): Bắc Bộ (trừ Cao Bằng) + Thanh – Nghệ – Tĩnh +
- * xứ Bồn Man (Xiêng Khoảng) thuộc Lê trung hưng; Cao Bằng thuộc nhà Mạc; dải biên giới nhà Mạc xin
- * dâng năm 1540 cùng Lưỡng Quảng – Hải Nam thuộc nhà Minh; Quảng Bình → Bình Định (Nguyễn Hoàng
+ * xứ Bồn Man (Xiêng Khoảng) thuộc Lê trung hưng; Cao Bằng thuộc nhà Mạc; Lưỡng Quảng – Hải Nam thuộc nhà Minh; Quảng Bình → Bình Định (Nguyễn Hoàng
  * trấn thủ dưới danh nghĩa Lê) cùng Phú Yên – Khánh Hòa – Ninh Thuận – Bình Thuận (nhóm kauthara,
  * panduranga) thuộc Chăm Pa; Nam Bộ + Campuchia thuộc Campuchia thời hậu Angkor; Lào thuộc Lan
  * Xang. Khác với 04-ho-le-mac.ts: mốc `1600` chuyển hẳn Quảng Bình → Bình Định từ le-trung-hung
@@ -18,15 +17,19 @@ import type { Snapshot, Source } from '../types';
  *
  * Nhóm mới khai báo trong groups.ts cho task này (đều là vùng lịch sử có tên riêng, xấp xỉ vì
  * ranh giới huyện thế kỷ XVII–XVIII không trùng địa giới hành chính hiện đại):
- * - thai-khang-1653: dinh Thái Khang – Diên Ninh (Khánh Hòa và phần bắc Ninh Thuận, tính theo bờ
- *   đông sông Phan Rang) chiếm được năm 1653.
+ * - thai-khang-1653: phủ Thái Khang – Diên Ninh (Khánh Hòa, Vạn Ninh và phần Ninh Thuận phía bắc
+ *   sông Phan Rang) chiếm được năm 1653.
  * - panduranga-1697: phần còn lại của trấn Thuận Thành sau khi tách phủ Bình Thuận năm 1697 (nam
- *   Ninh Thuận ngày nay).
- * - gia-dinh-1698: phủ Gia Định (dinh Trấn Biên + dinh Phiên Trấn, gồm cả Mỹ Tho — không gồm vùng
+ *   sông Phan Rang: Ninh Phước, Phan Rang – Tháp Chàm, Thuận Nam ngày nay).
+ * - gia-dinh-1698: phủ Gia Định (dinh Trấn Biên + dinh Phiên Trấn, gồm Bình Dương và Mỹ Tho — không gồm vùng
  *   Gò Công, xem ghi chú mốc `1756`).
  * - ha-tien-1708 / ha-tien-1739: trấn Hà Tiên buổi đầu (vùng Mang Khảm) và bốn đạo mở thêm năm
  *   1739 (Long Xuyên, Kiên Giang, Trấn Giang, Trấn Di).
- * - long-ho-1732: dinh Long Hồ / châu Định Viễn (Vĩnh Long, Bến Tre, Trà Vinh).
+ * - long-ho-1732: dinh Long Hồ / châu Định Viễn (Vĩnh Long).
+ * - tra-vang-ba-thac-1757: Trà Vang và Ba Thắc (Bến Tre, Trà Vinh, Sóc Trăng), đặt vào dinh Long
+ *   Hồ khoảng năm 1757.
+ * - bac-bo-chinh: Bắc Bố Chính (bắc sông Gianh; Quảng Trạch, Ba Đồn, Tuyên Hóa, Minh Hóa ngày nay),
+ *   ở Đàng Ngoài suốt 1600–1655, bị quân Nguyễn chiếm 1655–1660.
  * - tam-bon-loi-lap-1756, tam-phong-long-1757: hai đợt đất Chân Lạp dâng cuối cùng trong phạm vi
  *   task này (Long An – Gò Công; An Giang – Đồng Tháp).
  *
@@ -63,10 +66,12 @@ import type { Snapshot, Source } from '../types';
  *   gồm vùng Gò Công (nay cũng thuộc tỉnh Tiền Giang) — Gò Công cùng Tân An chỉ về tay chúa Nguyễn
  *   năm 1756 (Tầm Bôn – Lôi Lạp), nên nhóm gia-dinh-1698 loại trừ 3 xã/huyện Gò Công của Tiền
  *   Giang ngày nay.
- * - Cuối file (mốc `1757`): các tỉnh Bình Dương, Bình Phước, Tây Ninh (miền Đông Nam Bộ nội địa),
- *   Sóc Trăng và Côn Đảo KHÔNG có trong bảng 19 mốc của task này nên vẫn giữ nguyên
- *   campuchia-hau-angkor từ file 04-ho-le-mac.ts; đây là phần việc còn lại cho task tiếp theo (xem
- *   báo cáo task).
+ * - Cuối file (mốc `1757`): Tây Ninh, Bình Phước (rừng núi thưa dân, quyền quản lý chưa rõ) và Côn
+ *   Đảo không có mốc nào trong bảng 19 mốc nên vẫn giữ nguyên campuchia-hau-angkor từ file
+ *   04-ho-le-mac.ts (xem báo cáo task); Bình Dương thuộc phủ Gia Định từ 1698, Sóc Trăng cùng Bến
+ *   Tre, Trà Vinh vào dinh Long Hồ khoảng 1757 (lowConfidence).
+ * - Mốc `1600`: Bắc Bố Chính (Quảng Trạch, Ba Đồn, Tuyên Hóa, Minh Hóa) ở Đàng Ngoài, phần Quảng
+ *   Bình còn lại (nam sông Gianh) ở Đàng Trong; sông Gianh chỉ thành giới tuyến rõ từ khoảng 1630.
  */
 
 const THUC_LUC_TIEN_BIEN: Source = {
@@ -95,11 +100,6 @@ const PHAN_KHOANG: Source = {
   note: '1967'
 };
 const LI_TANA: Source = { title: 'Nguyễn Cochinchina', author: 'Li Tana', note: '1998' };
-const VICKERY_CHAMPA: Source = {
-  title: 'Champa Revised',
-  author: 'Michael Vickery',
-  note: 'ARI Working Paper 37, 2005'
-};
 const PO_DHARMA: Source = {
   title: 'Le Pāṇḍuraṅga (Campā) 1802–1835',
   author: 'Po Dharma',
@@ -160,10 +160,18 @@ const CAO_BANG = ['VNM.cao-bang'];
 const THUAN_HOA = ['group:ba-chau-1069', 'group:chau-o', 'group:chau-ly'];
 const QUANG_NAM_THUA_TUYEN = ['VNM.da-nang', 'VNM.quang-nam', 'VNM.quang-ngai', 'VNM.binh-dinh'];
 const KAUTHARA_PANDURANGA = ['group:kauthara', 'group:panduranga'];
-const MAC_BIEN_GIOI_1540 = ['group:mac-cat-dat-1540'];
 const LINH_NAM = ['group:linh-nam-trung-hoa', 'CHN.hai-nam'];
 const CAMPUCHIA_NAM_BO = ['KHM', 'group:nam-bo'];
 const SONG_LAM_NAM = ['VNM.ha-tinh', 'VNM.nghe-an.thanh-chuong'];
+// Bắc Bố Chính (bắc sông Gianh): nhóm bac-bo-chinh. Ở mốc 1600 phải liệt kê từng huyện (độ cụ thể
+// 4) để thắng selector 'group:ba-chau-1069' (độ cụ thể 3) đang gán cả Quảng Bình cho dang-trong.
+const BAC_BO_CHINH = ['group:bac-bo-chinh'];
+const BAC_BO_CHINH_HUYEN = [
+  'VNM.quang-binh.quang-trach',
+  'VNM.quang-binh.ba-don',
+  'VNM.quang-binh.tuyen-hoa',
+  'VNM.quang-binh.minh-hoa'
+];
 const THAI_KHANG_1653 = ['group:thai-khang-1653'];
 const PANDURANGA_1697 = ['group:panduranga-1697'];
 const GIA_DINH_1698 = ['group:gia-dinh-1698'];
@@ -172,6 +180,7 @@ const HA_TIEN_1739 = ['group:ha-tien-1739'];
 const LONG_HO_1732 = ['group:long-ho-1732'];
 const TAM_BON_LOI_LAP_1756 = ['group:tam-bon-loi-lap-1756'];
 const TAM_PHONG_LONG_1757 = ['group:tam-phong-long-1757'];
+const TRA_VANG_BA_THAC_1757 = ['group:tra-vang-ba-thac-1757'];
 const LUANG_PRABANG_LAOS = [
   'LAO.luang-prabang',
   'LAO.xaignabouli',
@@ -207,28 +216,23 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Nguyễn Hoàng về hẳn Thuận Quảng',
     summary:
-      'Sau bảy năm bị chúa Trịnh Tùng giữ lại ở Đông Đô kể từ chuyến ra yết kiến vua Lê năm 1593, Nguyễn Hoàng mượn cớ đi dẹp loạn ở cửa Đại An (Ninh Bình) rồi theo đường biển trở về hẳn Thuận Hóa năm 1600, không ra Bắc nữa. Từ đây trên thực tế ông cai quản độc lập dải đất từ Quảng Bình đến Bình Định — tuy trên danh nghĩa vẫn là một trấn thủ của triều Lê trung hưng — đặt nền móng cho cơ nghiệp chúa Nguyễn ở Đàng Trong, đối lập với Đàng Ngoài do vua Lê – chúa Trịnh cai quản từ Thanh Hóa trở ra. Phần lãnh thổ còn lại của Đại Việt (Bắc Bộ, Thanh – Nghệ – Tĩnh, xứ Bồn Man) tiếp tục thuộc quyền Lê – Trịnh; Cao Bằng vẫn thuộc nhà Mạc, Chăm Pa vẫn giữ Kauthara và Panduranga, Nam Bộ – Campuchia vẫn thuộc Campuchia thời hậu Angkor, Lào vẫn thuộc Lan Xang.',
+      'Sau bảy năm bị chúa Trịnh Tùng giữ lại ở Đông Đô kể từ chuyến ra yết kiến vua Lê năm 1593, Nguyễn Hoàng mượn cớ đi dẹp loạn ở cửa Đại An (Ninh Bình) rồi theo đường biển trở về hẳn Thuận Hóa năm 1600, không ra Bắc nữa. Từ đây trên thực tế ông cai quản độc lập dải đất từ nam sông Gianh (Quảng Bình) đến Bình Định — tuy trên danh nghĩa vẫn là một trấn thủ của triều Lê trung hưng — đặt nền móng cho cơ nghiệp chúa Nguyễn ở Đàng Trong, đối lập với Đàng Ngoài do vua Lê – chúa Trịnh cai quản từ vùng bắc sông Gianh (Bắc Bố Chính) trở ra. Phần lãnh thổ còn lại của Đại Việt (Bắc Bộ, Thanh – Nghệ – Tĩnh, Bắc Bố Chính, xứ Bồn Man) tiếp tục thuộc quyền Lê – Trịnh; Cao Bằng vẫn thuộc nhà Mạc, Chăm Pa vẫn giữ Kauthara và Panduranga, Nam Bộ – Campuchia vẫn thuộc Campuchia thời hậu Angkor, Lào vẫn thuộc Lan Xang.',
     assign: {
       '*': null,
       ...assignAll(BAC_BO, 'le-trung-hung'),
       ...assignAll(THANH_NGHE_TINH, 'le-trung-hung'),
       LAO: 'lan-xang',
       ...assignAll(CAO_BANG, 'mac-cao-bang'),
-      ...assignAll(MAC_BIEN_GIOI_1540, 'nha-minh'),
       ...assignAll(LINH_NAM, 'nha-minh'),
       ...assignAll(THUAN_HOA, 'dang-trong'),
       ...assignAll(QUANG_NAM_THUA_TUYEN, 'dang-trong'),
+      ...assignAll(BAC_BO_CHINH_HUYEN, 'le-trung-hung'),
       ...assignAll(KAUTHARA_PANDURANGA, 'champa'),
       ...assignAll(CAMPUCHIA_NAM_BO, 'campuchia-hau-angkor'),
       'LAO.xiangkhouang': 'le-trung-hung'
     },
     polityOverrides: { 'le-trung-hung': { name: 'Đàng Ngoài (Lê – Trịnh)' } },
-    lowConfidence: [
-      ...THUAN_HOA,
-      ...QUANG_NAM_THUA_TUYEN,
-      ...MAC_BIEN_GIOI_1540,
-      'LAO.xiangkhouang'
-    ],
+    lowConfidence: [...THUAN_HOA, ...QUANG_NAM_THUA_TUYEN, ...BAC_BO_CHINH, 'LAO.xiangkhouang'],
     focus: { lon: 107.3, lat: 16.8 },
     sources: [THUC_LUC_TIEN_BIEN, PHAN_KHOANG, LI_TANA, CUONG_MUC]
   },
@@ -239,8 +243,8 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Lập phủ Phú Yên',
     summary:
-      'Nhân việc quân Chiêm Thành quấy nhiễu vùng biên, năm 1611 Nguyễn Hoàng sai chủ sự Văn Phong đem quân đánh chiếm dải đất từ nam đèo Cù Mông đến bắc đèo Cả, lập thành một phủ mới gồm hai huyện Đồng Xuân và Tuy Hòa, đặt tên là phủ Phú Yên, cho lệ thuộc dinh Quảng Nam và cử Văn Phong làm lưu thủ. Đây là bước Nam tiến đầu tiên của chúa Nguyễn kể từ khi Nguyễn Hoàng trở về Thuận Quảng năm 1600, tách phần bắc của xứ Kauthara ra khỏi Chăm Pa.',
-    assign: { 'VNM.phu-yen': 'dang-trong' },
+      'Nhân việc quân Chiêm Thành quấy nhiễu vùng biên, năm 1611 Nguyễn Hoàng sai chủ sự Văn Phong đem quân đánh chiếm dải đất từ nam đèo Cù Mông đến bắc đèo Cả, lập thành một phủ mới gồm hai huyện Đồng Xuân và Tuy Hòa, đặt tên là phủ Phú Yên, cho lệ thuộc dinh Quảng Nam và cử Văn Phong làm lưu thủ. Đây là bước Nam tiến đầu tiên của chúa Nguyễn kể từ khi Nguyễn Hoàng trở về Thuận Quảng năm 1600, tách phần bắc của xứ Kauthara ra khỏi Chăm Pa; vùng Vạn Ninh, nằm phía nam đèo Cả, vẫn thuộc Chăm Pa.',
+    assign: { 'VNM.phu-yen': 'dang-trong', 'VNM.phu-yen.van-ninh': 'champa' },
     focus: { lon: 109.2, lat: 13.1 },
     sources: [THUC_LUC_TIEN_BIEN, PHAN_KHOANG, LI_TANA]
   },
@@ -251,7 +255,7 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Đặt trạm thu thuế ở Prey Nokor (Sài Gòn)',
     summary:
-      'Năm 1623, chúa Nguyễn Phúc Nguyên cử sứ bộ mang quốc thư và lễ vật sang xin vua Chân Lạp Chey Chettha II cho lập hai trạm thu thuế ở Prey Nokor (Sài Gòn) và Kas Krobei (Bến Nghé); được chấp thuận, lưu dân Việt vốn đã khai khẩn rải rác trong vùng từ trước càng thêm đông. Đây mới là một nhượng bộ thương mại, đất Prey Nokor khi đó vẫn thuộc chủ quyền Chân Lạp, chưa phải lãnh thổ Đàng Trong. Cùng thời gian này, dưới đời chúa Nguyễn Phúc Nguyên (1613–1635), họ Nguyễn cũng lập đội Hoàng Sa ra khai thác và tuần phòng quần đảo Hoàng Sa, Trường Sa — theo Phủ biên tạp lục (1776) đội này "có từ trước", nhiều nhà nghiên cứu nay xác định khoảng đầu thế kỷ XVII nhưng không rõ năm chính xác; đây là mốc gần nhất trên dòng thời gian của file này còn nằm trong đời chúa Nguyễn Phúc Nguyên.',
+      'Theo sử liệu Việt, năm 1623 chúa Nguyễn Phúc Nguyên cử sứ bộ mang quốc thư và lễ vật sang xin vua Chân Lạp Chey Chettha II cho lập hai trạm thu thuế ở Prey Nokor (Sài Gòn) và Kas Krobei (Bến Nghé); được chấp thuận, lưu dân Việt vốn đã khai khẩn rải rác trong vùng từ trước càng thêm đông. Đây mới là một nhượng bộ thương mại, đất Prey Nokor khi đó vẫn thuộc chủ quyền Chân Lạp, chưa phải lãnh thổ Đàng Trong. Cùng thời kỳ này, họ Nguyễn lập đội Hoàng Sa (theo Phủ biên tạp lục, 1776, gồm 70 suất) ra khai thác và tuần phòng vùng biển Hoàng Sa; nhiều nhà nghiên cứu đặt việc này vào đầu thế kỷ XVII, đời chúa Nguyễn Phúc Nguyên (1613–1635), nhưng không có năm chính xác, và các ghi chép định niên rõ ràng chỉ có từ thế kỷ XVIII. Bản đồ tô cả Hoàng Sa lẫn Trường Sa từ mốc gần nhất trên dòng thời gian còn nằm trong đời chúa này; riêng Trường Sa thường được gắn với đội Bắc Hải, ghi chép rõ về sau hơn, nên việc đánh dấu là chưa chắc chắn.',
     assign: { 'VNM.hoang-sa': 'dang-trong', 'VNM.truong-sa': 'dang-trong' },
     lowConfidence: ['VNM.hoang-sa', 'VNM.truong-sa'],
     focus: { lon: 106.7, lat: 10.8 },
@@ -264,7 +268,7 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Trịnh – Nguyễn phân tranh bắt đầu',
     summary:
-      'Lấy cớ Nguyễn Phúc Nguyên không chịu nộp thuế cống ra Đông Đô, năm 1627 chúa Trịnh Tráng đem đại quân vào đánh Đàng Trong nhưng không thắng được, phải rút về; đây là trận đầu trong bảy lần giao tranh lớn giữa hai họ Trịnh, Nguyễn kéo dài đến năm 1672. Ranh giới trên thực tế giữa hai bên vẫn là sông Gianh như từ năm 1600, nên bản đồ không thay đổi ở mốc này.',
+      'Lấy cớ Nguyễn Phúc Nguyên không chịu nộp thuế cống ra Đông Đô, năm 1627 chúa Trịnh Tráng đem đại quân vào đánh Đàng Trong nhưng không thắng được, phải rút về; đây là trận đầu trong bảy lần giao tranh lớn giữa hai họ Trịnh, Nguyễn kéo dài đến năm 1672. Giới tuyến giữa hai bên lúc này chưa cố định ở sông Gianh — sông Gianh chỉ thành ranh giới rõ rệt từ khoảng năm 1630, khi Nam Bố Chính thuộc Đàng Trong còn Bắc Bố Chính ở Đàng Ngoài — nên bản đồ, vốn đã đặt Bắc Bố Chính ở Đàng Ngoài, không thay đổi ở mốc này.',
     assign: {},
     focus: { lon: 106.4, lat: 17.7 },
     sources: [TOAN_THU, CUONG_MUC, LSVN4, PHAN_KHOANG]
@@ -276,13 +280,12 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Lập dinh Thái Khang (Khánh Hòa)',
     summary:
-      'Năm 1653, vua Chiêm Bà Tấm đem quân quấy phá phủ Diên Ninh (Phú Yên); chúa Nguyễn Phúc Tần sai cai đội Hùng Lộc đem 3.000 quân đánh dẹp, đuổi quân Chiêm đến tận bờ đông sông Phan Rang. Bà Tấm sai con là Xác Bà Ân dâng thư xin hàng; chúa Nguyễn nhân đó lấy sông Phan Rang làm giới, đặt phần đất từ đó ra đến giáp Phú Yên thành hai huyện Thái Khang và Diên Ninh, tương ứng Khánh Hòa và phần bắc Ninh Thuận ngày nay, Chăm Pa chỉ còn giữ dải đất phía nam sông. Cùng giai đoạn này ở phương Bắc, nhà Thanh đã dứt điểm tàn dư Nam Minh, làm chủ hẳn Lưỡng Quảng và Hải Nam từ khoảng năm 1650–1652; đây là mốc gần nhất trên dòng thời gian của file này để đánh dấu thay đổi đó, áp dụng luôn cho dải đất biên giới nhà Mạc từng xin dâng năm 1540 (vẫn chưa có ghi chép về việc được trả lại Đại Việt).',
+      'Năm 1653, vua Chiêm Bà Tấm đem quân quấy phá vùng biên giới Phú Yên; chúa Nguyễn Phúc Tần sai cai đội Hùng Lộc đem 3.000 quân đánh dẹp, đuổi quân Chiêm đến tận bờ đông sông Phan Rang. Bà Tấm sai con là Xác Bà Ân dâng thư xin hàng; chúa Nguyễn nhân đó lấy sông Phan Rang làm giới, đặt phần đất từ đó ra đến giáp Phú Yên thành hai phủ Thái Khang và Diên Ninh, đại thể tương ứng Khánh Hòa và phần Ninh Thuận phía bắc sông ngày nay, Chăm Pa chỉ còn giữ dải đất phía nam sông. Cùng giai đoạn này ở phương Bắc, nhà Thanh đã dứt điểm tàn dư Nam Minh, làm chủ hẳn Lưỡng Quảng và Hải Nam từ khoảng năm 1650–1652; đây là mốc gần nhất trên dòng thời gian để đánh dấu thay đổi đó.',
     assign: {
       ...assignAll(THAI_KHANG_1653, 'dang-trong'),
-      ...assignAll(LINH_NAM, 'nha-thanh'),
-      ...assignAll(MAC_BIEN_GIOI_1540, 'nha-thanh')
+      ...assignAll(LINH_NAM, 'nha-thanh')
     },
-    lowConfidence: [...THAI_KHANG_1653, ...LINH_NAM, ...MAC_BIEN_GIOI_1540],
+    lowConfidence: [...THAI_KHANG_1653, ...LINH_NAM],
     focus: { lon: 109.1, lat: 12.25 },
     sources: [THUC_LUC_TIEN_BIEN, PHAN_KHOANG, FAIRBANK, THANH_SU_CAO]
   },
@@ -293,9 +296,9 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Quân Nguyễn vượt sông Gianh, chiếm nam Nghệ An',
     summary:
-      'Tháng 4/1655, chúa Nguyễn Phúc Tần sai Nguyễn Hữu Tiến, Nguyễn Hữu Dật đem quân vượt sông Gianh đánh Bắc Bố Chính, mở đầu lần duy nhất quân Đàng Trong chủ động tiến công ra Đàng Ngoài. Đến năm 1657–1658, Nguyễn Hữu Tiến đẩy lui quân Trịnh đến tận sông Lam, chiếm giữ bảy huyện phía nam sông (Kỳ Hoa, Thạch Hà, Thiên Lộc, Nghi Xuân, La Sơn, Hương Sơn, Thanh Chương) — đại thể tương ứng tỉnh Hà Tĩnh ngày nay cùng huyện Thanh Chương của Nghệ An. Đây là lần duy nhất lãnh thổ Đàng Trong vượt quá sông Gianh trong suốt cuộc phân tranh; quân Trịnh giành lại vùng này vào cuối năm 1660 (xem mốc `1672`).',
-    assign: assignAll(SONG_LAM_NAM, 'dang-trong'),
-    lowConfidence: [...SONG_LAM_NAM],
+      'Tháng 4/1655, chúa Nguyễn Phúc Tần sai Nguyễn Hữu Tiến, Nguyễn Hữu Dật đem quân vượt sông Gianh chiếm Bắc Bố Chính, mở đầu lần duy nhất quân Đàng Trong chủ động tiến công ra Đàng Ngoài. Đến năm 1657–1658, Nguyễn Hữu Tiến đẩy lui quân Trịnh đến tận sông Lam, chiếm giữ bảy huyện phía nam sông (Kỳ Hoa, Thạch Hà, Thiên Lộc, Nghi Xuân, La Sơn, Hương Sơn, Thanh Chương) — đại thể tương ứng tỉnh Hà Tĩnh ngày nay cùng huyện Thanh Chương của Nghệ An. Đây là lần duy nhất lãnh thổ Đàng Trong vượt quá sông Gianh trong suốt cuộc phân tranh; quân Trịnh giành lại toàn bộ vùng này vào cuối năm 1660 (xem mốc năm 1672).',
+    assign: assignAll([...SONG_LAM_NAM, ...BAC_BO_CHINH], 'dang-trong'),
+    lowConfidence: [...SONG_LAM_NAM, ...BAC_BO_CHINH],
     focus: { lon: 105.9, lat: 18.3 },
     sources: [TOAN_THU, CUONG_MUC, LSVN4, PHAN_KHOANG]
   },
@@ -318,8 +321,8 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Hưu chiến, sông Gianh làm ranh giới',
     summary:
-      'Cuối năm 1660, quân Trịnh dốc toàn lực vượt sông Lam, đánh bật quân Nguyễn khỏi bảy huyện Nghệ An chiếm được từ 1655, đẩy Đàng Trong lui trở lại sông Gianh. Sau đó hai bên còn giao tranh thêm hai lần nữa (1661–1662, 1672) mà không phân thắng bại; năm Nhâm Tý 1672, chúa Trịnh Tạc tự rút quân, kết thúc bảy lần đại chiến kéo dài từ 1627. Từ đây sông Gianh (Linh Giang) mặc nhiên trở thành ranh giới không thành văn, chia Đại Việt thành Đàng Ngoài (Lê – Trịnh, từ Thanh Hóa trở ra) và Đàng Trong (chúa Nguyễn, từ Quảng Bình trở vào), giữ nguyên trạng hơn một trăm năm sau.',
-    assign: assignAll(SONG_LAM_NAM, 'le-trung-hung'),
+      'Cuối năm 1660, quân Trịnh dốc toàn lực vượt sông Lam, đánh bật quân Nguyễn khỏi bảy huyện Nghệ An và vùng Bắc Bố Chính chiếm được từ 1655, đẩy Đàng Trong lui trở lại sông Gianh. Sau đó hai bên còn giao tranh thêm hai lần nữa (1661–1662, 1672) mà không phân thắng bại; năm Nhâm Tý 1672, chúa Trịnh Tạc tự rút quân, kết thúc bảy lần đại chiến kéo dài từ 1627. Từ đây sông Gianh (Linh Giang) mặc nhiên trở thành ranh giới không thành văn, chia Đại Việt thành Đàng Ngoài (Lê – Trịnh, từ sông Gianh trở ra) và Đàng Trong (chúa Nguyễn, từ sông Gianh trở vào), giữ nguyên trạng hơn một trăm năm sau.',
+    assign: assignAll([...SONG_LAM_NAM, ...BAC_BO_CHINH], 'le-trung-hung'),
     focus: { lon: 106.42, lat: 17.6 },
     sources: [TOAN_THU, CUONG_MUC, LSVN4]
   },
@@ -342,7 +345,7 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Họ Trịnh dứt nhà Mạc ở Cao Bằng',
     summary:
-      'Từ khi nhà Minh diệt vong hẳn năm 1662, họ Mạc ở Cao Bằng mất chỗ dựa, phải dựa vào sự dung túng của nhà Thanh; quân Trịnh ba lần đánh lên Cao Bằng các năm 1662, 1666, 1667 nhưng Mạc Kính Vũ cứ thua lại chạy sang Long Châu rồi quay về khi quân Trịnh rút. Năm 1677, nhân tướng Ngô Tam Quế của nhà Thanh khởi loạn thất bại khiến nhà Thanh không còn che chở cho họ Mạc, chúa Trịnh Tạc sai Đinh Văn Tả đem quân đánh dứt điểm, Mạc Kính Vũ thua chạy sang Trung Quốc không trở lại. Cao Bằng trở về tay triều đình Lê trung hưng sau 85 năm họ Mạc cát cứ tại đây kể từ 1592.',
+      'Sau khi nhà Minh mất hẳn năm 1662, họ Mạc ở Cao Bằng phải dựa vào nhà Thanh; quân Trịnh đánh lên Cao Bằng các năm 1662, 1666, 1667, và khi Trịnh chiếm được Cao Bằng, Mạc Kính Vũ sang Trung Quốc cầu cứu, năm 1669 sứ nhà Thanh buộc họ Trịnh trả lại bốn huyện cho họ Mạc. Năm 1677, sử sách chép Mạc Kính Vũ liên kết với Ngô Tam Quế (đang khởi binh chống nhà Thanh từ 1673) nên nhà Thanh thôi che chở; chúa Trịnh Tạc sai Đinh Văn Tả đem quân đánh Cao Bằng vào tháng 8/1677, Kính Vũ bỏ chạy sang Long Châu. Cao Bằng trở về tay triều đình Lê trung hưng sau 85 năm họ Mạc cát cứ tại đây kể từ 1592.',
     assign: assignAll(CAO_BANG, 'le-trung-hung'),
     focus: { lon: 106.25, lat: 22.66 },
     sources: [TOAN_THU, CUONG_MUC, LSVN4]
@@ -366,10 +369,10 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Chúa Nguyễn đánh Chiêm Thành (Bà Tranh)',
     summary:
-      'Tháng 8/1692, vua Chiêm là Bà Tranh (Po Saot) đem quân cướp phá phủ Diên Ninh (đất Thái Khang – Diên Ninh, chiếm được từ Chăm Pa năm 1653); chúa Nguyễn Phúc Chu sai Nguyễn Hữu Cảnh đem quân dẹp loạn rồi thừa thắng tiến đánh luôn phần lãnh thổ Chăm Pa còn lại (Panduranga). Đầu năm 1693, quân Nguyễn đánh tan quân Chiêm, Bà Tranh bỏ thành chạy rồi bị bắt; triều đình đổi vùng đất thành trấn Thuận Thành. Việc tổ chức hành chính vùng đất mới còn biến động suốt mấy năm sau (xem mốc `1697`) nên bản đồ chưa ghi nhận thay đổi chủ ở mốc này.',
+      'Tháng 8/1692, vua Chiêm là Bà Tranh (Po Saot) đem quân cướp phá phủ Diên Ninh (đất Thái Khang – Diên Ninh, chiếm được từ Chăm Pa năm 1653); chúa Nguyễn Phúc Chu sai Nguyễn Hữu Cảnh đem quân dẹp loạn rồi thừa thắng tiến đánh luôn phần lãnh thổ Chăm Pa còn lại (Panduranga). Đầu năm 1693, quân Nguyễn đánh tan quân Chiêm, Bà Tranh bỏ thành chạy rồi bị bắt; vùng đất được đặt làm trấn Thuận Thành, đến tháng 8/1693 đổi thành phủ Bình Thuận. Việc tổ chức hành chính vùng đất mới còn biến động mấy năm sau (xem mốc năm 1697) nên bản đồ chưa ghi nhận thay đổi chủ ở mốc này.',
     assign: {},
     focus: { lon: 108.9, lat: 11.35 },
-    sources: [THUC_LUC_TIEN_BIEN, PO_DHARMA, VICKERY_CHAMPA]
+    sources: [THUC_LUC_TIEN_BIEN, PHAN_KHOANG, PO_DHARMA]
   },
   {
     id: '1697',
@@ -378,14 +381,14 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Lập phủ Bình Thuận, trấn Thuận Thành',
     summary:
-      'Sau khi bắt được Bà Tranh đầu năm 1693, chúa Nguyễn từng đổi đất Panduranga thành trấn Thuận Thành rồi phủ Bình Thuận, nhưng người Chăm nổi dậy chống đối khiến phủ Bình Thuận bị bãi bỏ cuối năm ấy, tái lập trấn Thuận Thành với Kế Bà Tử (em Bà Tranh) làm phiên vương, giữ lệ triều cống. Năm 1697, tình hình ổn định trở lại, chúa Nguyễn Phúc Chu đặt lại phủ Bình Thuận lâu dài, chia làm hai huyện An Phước và Hòa Đa (đại thể tương ứng tỉnh Bình Thuận ngày nay) do quan lại Đàng Trong trực tiếp cai quản; phần đất còn lại (đại thể tương ứng nam Ninh Thuận ngày nay) vẫn giữ tên trấn Thuận Thành, do vương công người Chăm cai quản với luật lệ, quân đội riêng dưới quyền bảo hộ của chúa Nguyễn, kéo dài tự trị một phần cho tới cuộc cải cách hành chính năm 1832.',
+      'Sau khi bắt được Bà Tranh đầu năm 1693, chúa Nguyễn đổi đất Panduranga thành trấn Thuận Thành rồi phủ Bình Thuận (tháng 8/1693), nhưng người Chăm nổi dậy chống đối khiến phủ Bình Thuận bị bãi bỏ năm 1694, tái lập trấn Thuận Thành với Kế Bà Tử (em Bà Tranh) làm phiên vương, giữ lệ triều cống. Năm 1697, tình hình ổn định trở lại, chúa Nguyễn Phúc Chu đặt lại phủ Bình Thuận lâu dài, chia làm hai huyện An Phước và Hòa Đa do quan lại Đàng Trong trực tiếp cai quản (bản đồ vẽ xấp xỉ theo tỉnh Bình Thuận ngày nay, còn trên thực tế đất Việt xen kẽ đất Chăm quanh Phan Rang); phần đất còn lại (đại thể tương ứng nam Ninh Thuận ngày nay) vẫn giữ tên trấn Thuận Thành, do vương công người Chăm cai quản với luật lệ, quân đội riêng dưới quyền bảo hộ của chúa Nguyễn, kéo dài tự trị một phần cho tới cuộc cải cách hành chính năm 1832.',
     assign: {
       'VNM.binh-thuan': 'dang-trong',
       ...assignAll(PANDURANGA_1697, 'panduranga')
     },
-    lowConfidence: [...PANDURANGA_1697],
+    lowConfidence: ['VNM.binh-thuan', ...PANDURANGA_1697],
     focus: { lon: 108.6, lat: 11.2 },
-    sources: [PO_DHARMA, VICKERY_CHAMPA, THUC_LUC_TIEN_BIEN]
+    sources: [THUC_LUC_TIEN_BIEN, PHAN_KHOANG, PO_DHARMA]
   },
   {
     id: '1698',
@@ -394,8 +397,9 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Nguyễn Hữu Cảnh lập phủ Gia Định',
     summary:
-      'Tháng 2/1698, chúa Nguyễn Phúc Chu sai Thống suất Nguyễn Hữu Cảnh vào kinh lược vùng Đồng Nai – Sài Gòn, chính thức lập phủ Gia Định gồm hai huyện: Phước Long (đặt dinh Trấn Biên, đại thể Đồng Nai – Bà Rịa ngày nay) và Tân Bình (đặt dinh Phiên Trấn, đại thể Sài Gòn ngày nay), lấy sông Đồng Nai và sông Sài Gòn làm ranh giới hai dinh; vùng Mỹ Tho, nơi lưu dân người Hoa của Dương Ngạn Địch khai khẩn từ 1679, cũng được đặt vào dinh Phiên Trấn. Chưa đầy một vạn hộ dân đã ở đây từ trước được biên chế vào sổ đinh, hoàn tất việc xác lập chủ quyền hành chính của Đàng Trong trên vùng đất mà Chân Lạp — lúc này suy yếu vì nội chiến — không còn thực quyền kiểm soát.',
+      'Tháng 2/1698, chúa Nguyễn Phúc Chu sai Thống suất Nguyễn Hữu Cảnh vào kinh lược vùng Đồng Nai – Sài Gòn, chính thức lập phủ Gia Định gồm hai huyện: Phước Long (đặt dinh Trấn Biên, đại thể Đồng Nai – Bà Rịa ngày nay) và Tân Bình (đặt dinh Phiên Trấn, đại thể Sài Gòn và Bình Dương ngày nay), lấy sông Đồng Nai và sông Sài Gòn làm ranh giới hai dinh; vùng Mỹ Tho, nơi lưu dân người Hoa của Dương Ngạn Địch khai khẩn từ 1679, cũng được đặt vào dinh Phiên Trấn. Hơn bốn vạn hộ dân đã ở đây từ trước được biên chế vào sổ đinh, hoàn tất việc xác lập chủ quyền hành chính của Đàng Trong trên vùng đất mà Chân Lạp — lúc này suy yếu vì nội chiến — không còn thực quyền kiểm soát.',
     assign: assignAll(GIA_DINH_1698, 'dang-trong'),
+    lowConfidence: ['VNM.binh-duong'],
     focus: { lon: 106.8, lat: 10.75 },
     sources: [THUC_LUC_TIEN_BIEN, GIA_DINH_THANH_THONG_CHI, LI_TANA]
   },
@@ -406,7 +410,7 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Mạc Cửu dâng đất Hà Tiên',
     summary:
-      'Mạc Cửu, một di thần nhà Minh gốc Quảng Đông, đến vùng Mang Khảm (Hà Tiên) khai khẩn và dựng thành thương cảng sầm uất từ cuối thế kỷ XVII; năm 1708, trước sức ép của Xiêm La, ông xin dâng đất thần phục chúa Nguyễn Phúc Chu. Chúa Nguyễn nhận cho, phong Mạc Cửu làm Tổng binh trấn Hà Tiên, tước Cửu Ngọc hầu, cho cai quản vùng đất như một phiên trấn cha truyền con nối, thần phục Đàng Trong nhưng vẫn khá tự chủ trong nội trị. Cùng khoảng thời gian này ở Lào, vương triều Lan Xang tan rã năm 1707 do tranh chấp trong hoàng tộc, chia thành ba vương quốc kình địch: Luang Prabang (bắc), Vientiane (trung) và về sau Champasak (nam, tách khỏi Vientiane năm 1713) — mốc `1708` là mốc gần nhất trên dòng thời gian của file này để ghi nhận sự chia tách đó.',
+      'Mạc Cửu, một di thần nhà Minh gốc Quảng Đông, đến vùng Mang Khảm (Hà Tiên) khai khẩn và dựng thành thương cảng sầm uất từ cuối thế kỷ XVII; năm 1708, trước sức ép của Xiêm La, ông xin dâng đất thần phục chúa Nguyễn Phúc Chu. Chúa Nguyễn nhận cho, phong Mạc Cửu làm Tổng binh trấn Hà Tiên, tước Cửu Ngọc hầu, cho cai quản vùng đất như một phiên trấn cha truyền con nối, thần phục Đàng Trong nhưng vẫn khá tự chủ trong nội trị. Cùng khoảng thời gian này ở Lào, vương triều Lan Xang tan rã năm 1707 do tranh chấp trong hoàng tộc, chia thành ba vương quốc kình địch: Luang Prabang (bắc), Vientiane (trung) và về sau Champasak (nam, tách khỏi Vientiane năm 1713) — mốc năm 1708 là mốc gần nhất trên dòng thời gian để ghi nhận sự chia tách đó.',
     assign: {
       ...assignAll(HA_TIEN_1708, 'ha-tien'),
       ...assignAll(LUANG_PRABANG_LAOS, 'luang-prabang'),
@@ -424,7 +428,7 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Lập dinh Long Hồ',
     summary:
-      'Năm 1732, chúa Nguyễn Phúc Trú lập châu Định Viễn và dựng dinh Long Hồ trên phần đất Chân Lạp nhượng lại (vùng Mésa và Long Hồ), lỵ sở đặt tại thôn An Bình Đông, huyện Kiến Đăng (Cái Bè ngày nay). Dinh Long Hồ quản lãnh dải đất châu thổ sông Tiền, đại thể tương ứng Vĩnh Long, Bến Tre và Trà Vinh ngày nay, mở rộng đáng kể phạm vi khai khẩn của Đàng Trong xuống phía nam vùng Gia Định đã lập từ 1698.',
+      'Năm 1732, chúa Nguyễn Phúc Trú lập châu Định Viễn và dựng dinh Long Hồ trên phần đất Chân Lạp nhượng lại (vùng Mésa và Long Hồ), lỵ sở đặt tại thôn An Bình Đông, huyện Kiến Đăng (Cái Bè ngày nay). Dinh Long Hồ quản lãnh dải đất châu thổ sông Tiền quanh Vĩnh Long ngày nay, mở rộng phạm vi khai khẩn của Đàng Trong xuống phía nam vùng Gia Định đã lập từ 1698; vùng Trà Vang (Trà Vinh, Bến Tre) mãi khoảng năm 1757 mới được đặt vào dinh (xem mốc năm 1757).',
     assign: assignAll(LONG_HO_1732, 'dang-trong'),
     lowConfidence: [...LONG_HO_1732],
     focus: { lon: 106.0, lat: 10.2 },
@@ -437,7 +441,7 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Hà Tiên mở các đạo Long Xuyên, Kiên Giang',
     summary:
-      'Mạc Thiên Tích, con Mạc Cửu, nối quyền cai quản Hà Tiên từ năm 1735 sau khi cha mất; năm 1739 ông cho lập thêm bốn đạo mới trực thuộc trấn Hà Tiên: Long Xuyên (vùng Cà Mau), Kiên Giang (vùng Rạch Giá), Trấn Giang (vùng Cần Thơ) và Trấn Di (bắc Bạc Liêu). Nhờ đó phạm vi trấn Hà Tiên — vẫn là một phiên trấn tự trị thần phục chúa Nguyễn — mở rộng bao trùm gần hết bán đảo Cà Mau, bổ khuyết phần đất phía tây nam Nam Bộ mà dinh Gia Định và Long Hồ chưa vươn tới.',
+      'Mạc Thiên Tứ, con Mạc Cửu, nối quyền cai quản Hà Tiên từ năm 1735 sau khi cha mất; năm 1739 ông cho lập thêm bốn đạo mới trực thuộc trấn Hà Tiên: Long Xuyên (vùng Cà Mau), Kiên Giang (vùng Rạch Giá), Trấn Giang (vùng Cần Thơ) và Trấn Di (bắc Bạc Liêu). Nhờ đó phạm vi trấn Hà Tiên — vẫn là một phiên trấn tự trị thần phục chúa Nguyễn — mở rộng bao trùm gần hết bán đảo Cà Mau, bổ khuyết phần đất phía tây nam Nam Bộ mà dinh Gia Định và Long Hồ chưa vươn tới.',
     assign: assignAll(HA_TIEN_1739, 'ha-tien'),
     lowConfidence: [...HA_TIEN_1739],
     focus: { lon: 105.0, lat: 9.6 },
@@ -450,7 +454,7 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Chân Lạp dâng Tầm Bôn, Lôi Lạp',
     summary:
-      'Sau khi quân của vua Chân Lạp Nặc Nguyên giết hại một bộ phận người Côn Man (gốc Chăm, theo về chúa Nguyễn) đang lánh nạn, năm 1756 Nặc Nguyên xin dâng hai phủ Tầm Bôn và Lôi Lạp — đại thể tương ứng Tân An (Long An) và Gò Công ngày nay — để tạ tội, thông qua trung gian là Mạc Thiên Tích ở Hà Tiên. Chúa Nguyễn Phúc Khoát nhận đất, sai quan xem xét địa thế, lập đồn dinh, chia đất cho binh dân khai khẩn, đặt vào châu Định Viễn thuộc dinh Long Hồ. Đây là lần đầu áp dụng kế sách "tằm thực" (lấn đất dần như tằm ăn dâu) do Nguyễn Cư Trinh đề ra, kết hợp vừa dùng binh vừa nhận đất Chân Lạp dâng để mở mang bờ cõi.',
+      'Sau khi quân của vua Chân Lạp Nặc Nguyên giết hại một bộ phận người Côn Man (gốc Chăm, theo về chúa Nguyễn) đang lánh nạn, năm 1756 Nặc Nguyên xin dâng hai phủ Tầm Bôn và Lôi Lạp — đại thể tương ứng Tân An (Long An) và Gò Công ngày nay — để tạ tội, thông qua trung gian là Mạc Thiên Tứ ở Hà Tiên. Chúa Nguyễn Phúc Khoát nhận đất, sai quan xem xét địa thế, lập đồn dinh, chia đất cho binh dân khai khẩn, đặt vào châu Định Viễn thuộc dinh Long Hồ. Đây là lần đầu áp dụng kế sách "tằm thực" (lấn đất dần như tằm ăn dâu) do Nguyễn Cư Trinh đề ra, kết hợp vừa dùng binh vừa nhận đất Chân Lạp dâng để mở mang bờ cõi.',
     assign: assignAll(TAM_BON_LOI_LAP_1756, 'dang-trong'),
     lowConfidence: [...TAM_BON_LOI_LAP_1756],
     focus: { lon: 106.35, lat: 10.55 },
@@ -463,9 +467,9 @@ export const TRINH_NGUYEN: Snapshot[] = [
     era: 'trinh-nguyen',
     title: 'Nhận Tầm Phong Long, hoàn tất vùng Tây Nam Bộ',
     summary:
-      'Năm 1757, vua Chân Lạp Nặc Tôn — vừa được chúa Nguyễn Phúc Khoát giúp khôi phục ngôi báu — dâng đất Tầm Phong Long để tạ ơn. Chúa Nguyễn sai Nguyễn Cư Trinh vào tiếp nhận, đặt ba đạo Châu Đốc, Tân Châu và Đông Khẩu (Sa Đéc), đại thể tương ứng An Giang và Đồng Tháp ngày nay, đặt dưới quyền dinh Long Hồ. Cùng với phần đất Hà Tiên đã mở rộng năm 1739, việc nhận Tầm Phong Long khép lại một chặng Nam tiến trên vùng đồng bằng Tây Nam Bộ kéo dài từ đầu thế kỷ XVII: toàn bộ châu thổ sông Cửu Long khi đó đã về tay chúa Nguyễn hoặc phiên trấn Hà Tiên thần phục Đàng Trong, ngoại trừ một số vùng nội địa phía đông (Bình Dương, Bình Phước, Tây Ninh ngày nay) vẫn còn thưa dân, chưa được tổ chức hành chính.',
-    assign: assignAll(TAM_PHONG_LONG_1757, 'dang-trong'),
-    lowConfidence: [...TAM_PHONG_LONG_1757],
+      'Năm 1757, vua Chân Lạp Nặc Tôn — vừa được chúa Nguyễn Phúc Khoát giúp khôi phục ngôi báu — dâng đất Tầm Phong Long để tạ ơn. Chúa Nguyễn sai Nguyễn Cư Trinh vào tiếp nhận, đặt ba đạo Châu Đốc, Tân Châu và Đông Khẩu (Sa Đéc), đại thể tương ứng An Giang và Đồng Tháp ngày nay, đặt dưới quyền dinh Long Hồ; cùng khoảng thời gian này vùng Trà Vang (Trà Vinh, Bến Tre) và Ba Thắc (Sóc Trăng) cũng được đặt vào dinh Long Hồ, còn Nặc Tôn dâng thêm một số phủ ven vịnh Thái Lan cho Mạc Thiên Tứ để chuyển lên chúa Nguyễn; các phủ này nằm ven biển thuộc Campuchia ngày nay (khoảng Kampot – Kampong Som) nên bản đồ không vẽ. Cùng với phần đất Hà Tiên đã mở rộng năm 1739, việc này khép lại một chặng Nam tiến trên vùng đồng bằng Tây Nam Bộ kéo dài từ đầu thế kỷ XVII; bản đồ vẫn để Tây Ninh, Bình Phước (vùng rừng núi thưa dân, chưa rõ quyền quản lý) và Côn Đảo như trước.',
+    assign: assignAll([...TAM_PHONG_LONG_1757, ...TRA_VANG_BA_THAC_1757], 'dang-trong'),
+    lowConfidence: [...TAM_PHONG_LONG_1757, ...TRA_VANG_BA_THAC_1757],
     focus: { lon: 105.15, lat: 10.5 },
     sources: [THUC_LUC_TIEN_BIEN, PHAN_KHOANG, GIA_DINH_THANH_THONG_CHI]
   }

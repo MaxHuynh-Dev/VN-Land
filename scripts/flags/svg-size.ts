@@ -1,7 +1,7 @@
 /**
  * Bảo đảm thẻ <svg> gốc có width/height tuyệt đối (không phải %). Ảnh SVG thiếu kích thước
- * có naturalWidth/Height không xác định trong trình duyệt ⇒ atlas cờ tính sai tỉ lệ khi phủ
- * cờ lên lãnh thổ. Nếu thiếu, suy ra từ viewBox với chiều rộng chuẩn 600.
+ * có naturalWidth/Height không xác định trong trình duyệt ⇒ nhãn tên trên bản đồ
+ * (`scene/Labels.tsx`, `flagAspect`) tính sai tỉ lệ cờ. Nếu thiếu, suy ra từ viewBox với chiều rộng chuẩn 600.
  */
 export function ensureSvgSize(svg: string): string {
   const open = svg.match(/<svg\b[^>]*>/);

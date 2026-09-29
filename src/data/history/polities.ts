@@ -2,26 +2,33 @@ import type { FlagCredit, Polity, Source } from './types';
 
 /*
  * DANH MỤC CHÍNH THỂ (Task C1). Các task C2–C5 chỉ dùng đúng các id dưới đây; cần thêm id thì
- * bổ sung vào file này trong cùng commit.
+ * bổ sung vào file này trong cùng commit. Mọi id phải được gán ở ít nhất một mốc
+ * (`validateHistory` báo lỗi nếu không).
  *
- Mặt đất tô bằng `color` của Polity (màu cố định theo id); cờ hiện ở nhãn tên, tooltip và thẻ
+ * Mặt đất tô bằng `color` của Polity (màu cố định theo id); cờ hiện ở nhãn tên, tooltip và thẻ
  * thông tin. Vì vậy mỗi triều đại có cờ riêng là một id riêng (kèm màu riêng); `polityOverrides`
- * chỉ dùng để đổi tên/kinh đô trong cùng một chính thể.
+ * chỉ đổi được name/capital/altNames/period trong cùng một chính thể (kiểu dữ liệu không cho
+ * đổi màu hay cờ).
  *
  * Tiền sử (biểu tượng): van-hoa-son-vi, van-hoa-hoa-binh, van-hoa-bac-son, van-hoa-quynh-van,
- *   van-hoa-phung-nguyen, van-hoa-sa-huynh, van-hoa-dong-nai, van-hoa-dong-son
- * Việt: van-lang, au-lac, hai-ba-trung, van-xuan, nha-ngo, nha-dinh, tien-le, nha-ly
- *   (override tên "Đại Cồ Việt" cho 1009–1054), nha-tran, nha-ho, hau-le, nha-mac, mac-cao-bang,
+ *   van-hoa-da-but, van-hoa-phung-nguyen, van-hoa-sa-huynh, van-hoa-dong-nai
+ * Việt: van-lang, au-lac, hai-ba-trung, van-xuan, mai-thuc-loan, phung-hung, tinh-hai-quan,
+ *   nha-ngo, thap-nhi-su-quan, nha-dinh, tien-le, nha-ly (override tên "Đại Cồ Việt" cho
+ *   1009–1054), nha-tran, nha-ho, hau-tran, lam-son, hau-le, nha-mac, mac-cao-bang,
  *   le-trung-hung (override "Đàng Ngoài (Lê – Trịnh)" sau 1600), dang-trong (override cho
- *   Nguyễn Ánh ở Gia Định 1778–1802), ha-tien, tay-son, nha-nguyen (override "Đại Nam" từ 1838),
- *   de-quoc-viet-nam, vndcch, quoc-gia-viet-nam, vnch, cpcmlt, chxhcnvn
+ *   Nguyễn Ánh ở Gia Định 1778–1802), ha-tien, tay-son, tay-son-phu-xuan, nha-nguyen (override
+ *   "Đại Nam" từ 1838), de-quoc-viet-nam, vndcch, nam-ky-tu-tri, xu-thai, quoc-gia-viet-nam,
+ *   vnch, cpcmlt, chxhcnvn
  * Chăm: lam-ap, champa (override "Hoàn Vương", "Chiêm Thành"), panduranga
  * Khmer: phu-nam, chan-lap, khmer (Angkor), campuchia-hau-angkor, vuong-quoc-campuchia,
  *   cong-hoa-khmer, campuchia-dan-chu, chnd-campuchia
- * Lào, Xiêm: lan-xang, luang-prabang, vieng-chan, champasak, vuong-quoc-lao, chdcnd-lao, xiem
- * Trung Hoa: nam-viet, han, dong-ngo, nha-tan-jin, nam-trieu, nha-tuy, nha-duong, nam-han,
- *   nha-tong, nha-nguyen-mong, nha-minh, nha-thanh, trung-hoa-dan-quoc, chnd-trung-hoa
+ * Lào, Xiêm: lan-xang, bon-man, luang-prabang, vieng-chan, champasak, vuong-quoc-lao,
+ *   pathet-lao, chdcnd-lao, xiem, thai-lan
+ * Trung Hoa: nha-tan-qin, nam-viet, han, dong-ngo, nha-tan-jin, nam-trieu, nha-tuy, nha-duong,
+ *   nam-chieu, nam-han, nha-tong, nha-nguyen-mong, nha-minh, nha-thanh, trung-hoa-dan-quoc,
+ *   chnd-trung-hoa
  * Thuộc địa: phap
+ * Ngoại bang khác (chiếm đóng/giải giáp): nhat-ban, anh
  *
  * Khác với bảng id trong brief: `dai-viet` (939–1527) được tách thành nha-ngo, nha-dinh,
  * tien-le, nha-ly, nha-tran, nha-ho, hau-le vì mỗi triều có cờ phục dựng riêng; thêm
@@ -218,17 +225,6 @@ export const POLITIES: Polity[] = [
     flagNote: `Rìu đá có vai, loại công cụ phổ biến ở lưu vực sông Đồng Nai thời tiền sử. ${SYMBOL_NOTE}`,
     flagCredit: null,
     period: 'Khoảng thiên niên kỷ II TCN – đầu Công nguyên',
-    sources: [KCH2, LSVN(1, 'từ khởi thủy đến thế kỷ X')]
-  },
-  {
-    id: 'van-hoa-dong-son',
-    name: 'Văn hóa Đông Sơn',
-    color: '#b08a3a',
-    flag: '/flags/van-hoa-dong-son.svg',
-    flagKind: 'symbol',
-    flagNote: `Hình dáng trống đồng nhìn nghiêng, hiện vật tiêu biểu nhất của văn hóa Đông Sơn. ${SYMBOL_NOTE}`,
-    flagCredit: null,
-    period: 'Khoảng thế kỷ VII TCN – thế kỷ I–II',
     sources: [KCH2, LSVN(1, 'từ khởi thủy đến thế kỷ X')]
   },
 
@@ -522,7 +518,8 @@ export const POLITIES: Polity[] = [
     flagNote: `Địa danh 河仙 (Hà Tiên). ${SYMBOL_NOTE} ${HAN_GLYPH_NOTE}`,
     flagCredit: null,
     capital: 'Phương Thành (Hà Tiên)',
-    period: 'Khoảng 1708–1780 (dòng họ Mạc cai quản, thần phục chúa Nguyễn)',
+    period:
+      'Khoảng 1708–1832 (dòng họ Mạc cai quản, thần phục chúa Nguyễn rồi nhà Nguyễn; triều đình trực tiếp bổ nhiệm trấn thủ từ 1809)',
     sources: [
       { title: 'Gia Định thành thông chí', author: 'Trịnh Hoài Đức' },
       { title: 'Đại Nam thực lục tiền biên', author: 'Quốc sử quán triều Nguyễn' },
@@ -533,7 +530,7 @@ export const POLITIES: Polity[] = [
     id: 'tay-son',
     name: 'Nhà Tây Sơn (Thái Đức, Quy Nhơn)',
     altNames: ['Nguyễn Nhạc', 'Thái Đức'],
-    color: '#e0261c',
+    color: '#ee3b1e',
     flag: '/flags/tay-son.svg',
     flagKind: 'reconstructed',
     flagNote:
@@ -554,7 +551,7 @@ export const POLITIES: Polity[] = [
     id: 'tay-son-phu-xuan',
     name: 'Tây Sơn ở Phú Xuân',
     altNames: ['Bắc Bình Vương (1786)', 'Quang Trung (1788–1792)', 'Cảnh Thịnh (1792–1802)'],
-    color: '#c41e1e',
+    color: '#f59a86',
     flag: '/flags/tay-son.svg',
     flagKind: 'reconstructed',
     flagNote:
@@ -855,24 +852,6 @@ export const POLITIES: Polity[] = [
     period: '1979–1989',
     sources: [CHANDLER, LSVN(14, '1975–1986')]
   },
-  {
-    id: 'nha-nuoc-campuchia',
-    name: 'Nhà nước Campuchia',
-    altNames: ['State of Cambodia'],
-    color: '#1c3f7a',
-    flag: '/flags/nha-nuoc-campuchia.svg',
-    flagKind: 'national',
-    flagNote:
-      'Quốc kỳ Nhà nước Campuchia (1989–1993): nền đỏ – lam, hình đền Angkor Wat cách điệu màu vàng ở giữa, thay cho quốc huy búa liềm thời Cộng hòa Nhân dân Campuchia.',
-    flagCredit: commons(
-      'Flag of the State of Cambodia 1989-1993.svg',
-      'CC BY-SA 3.0',
-      'Xufanc; bản SVG: Ángel Páez'
-    ),
-    capital: 'Phnôm Pênh',
-    period: '1989–1993',
-    sources: [CHANDLER, OSBORNE]
-  },
 
   // ——————————————————— Lào, Xiêm ———————————————————
   {
@@ -969,7 +948,7 @@ export const POLITIES: Polity[] = [
     id: 'pathet-lao',
     name: 'Pathet Lào',
     altNames: ['Neo Lao Issara'],
-    color: '#6e2d8c',
+    color: '#5a2d8f',
     flag: '/flags/chdcnd-lao.svg',
     flagKind: 'banner',
     flagNote:
@@ -1203,7 +1182,7 @@ export const POLITIES: Polity[] = [
   {
     id: 'trung-hoa-dan-quoc',
     name: 'Trung Hoa Dân Quốc',
-    color: '#8f4a36',
+    color: '#9a5a2e',
     flag: '/flags/trung-hoa-dan-quoc.svg',
     flagKind: 'national',
     flagNote:
@@ -1237,7 +1216,7 @@ export const POLITIES: Polity[] = [
     id: 'phap',
     name: 'Đông Dương thuộc Pháp',
     altNames: ['Liên bang Đông Dương'],
-    color: '#5a6b7c',
+    color: '#3c5054',
     flag: '/flags/phap.svg',
     flagKind: 'national',
     flagNote:
@@ -1278,9 +1257,9 @@ export const POLITIES: Polity[] = [
     flag: '/flags/anh.svg',
     flagKind: 'national',
     flagNote:
-      'Quốc kỳ Liên hiệp Vương quốc Anh (Union Jack). Quân Anh – Ấn dưới quyền Bộ chỉ huy Đông Nam Á (SEAC) vào giải giáp quân Nhật ở Đông Dương phía nam vĩ tuyến 16 từ tháng 9/1945, rồi bàn giao lại quyền kiểm soát cho Pháp đầu năm 1946.',
+      'Quốc kỳ Liên hiệp Vương quốc Anh (Union Jack). Trên bản đồ, màu này đánh dấu Hồng Kông, thuộc địa Anh từ 1842 (Tân Giới thuê năm 1898) đến khi trao trả Trung Quốc ngày 1/7/1997. Quân Anh – Ấn dưới quyền Bộ chỉ huy Đông Nam Á (SEAC) vào giải giáp quân Nhật ở Đông Dương phía nam vĩ tuyến 16 từ tháng 9/1945, rồi bàn giao lại quyền kiểm soát cho Pháp đầu năm 1946.',
     flagCredit: commons('Flag of the United Kingdom.svg', 'Public domain', 'Yaddah'),
-    period: '1945–1946',
+    period: '1842–1997 (Hồng Kông); 1945–1946 (miền Nam Đông Dương)',
     sources: [MARR, GOSCHA]
   }
 ];

@@ -253,6 +253,31 @@ test('375px: tiêu đề dòng thời gian hiện năm trên một dòng', async
   if (box) expect(box.height).toBeLessThan(50);
 });
 
+test('375px: tiêu đề dòng thời gian giữ chỗ 2 dòng và không đè lên cụm nút', async ({
+  page
+}, info) => {
+  test.skip(info.project.name !== 'desktop', 'chỉ cần kiểm một lần, tự đặt viewport 375px');
+  await page.setViewportSize({ width: 375, height: 812 });
+  // Mốc có tiêu đề ngắn nhất: nếu vẫn giữ chỗ đủ 2 dòng thì mọi mốc khác cũng vậy.
+  const shortest = SNAPSHOTS.reduce((a, b) => (b.title.length < a.title.length ? b : a));
+  await ready(page, `?y=${shortest.id}`);
+  const title = await page.getByTestId('timeline-title').boundingBox();
+  const controls = await page.getByTestId('timeline-controls').boundingBox();
+  expect(title).not.toBeNull();
+  expect(controls).not.toBeNull();
+  if (title && controls) {
+    // 2 × 20px (text-sm) — chiều cao thanh thời gian không đổi theo độ dài tiêu đề.
+    expect(title.height).toBeGreaterThanOrEqual(39);
+    // Hai hộp không giao nhau (tiêu đề nằm hẳn dưới hoặc hẳn cạnh cụm nút prev/play/next).
+    const overlaps =
+      title.x < controls.x + controls.width &&
+      controls.x < title.x + title.width &&
+      title.y < controls.y + controls.height &&
+      controls.y < title.y + title.height;
+    expect(overlaps).toBe(false);
+  }
+});
+
 test('chụp ảnh: màn mở đầu thời kỳ giữa lúc chạy và số năm chạy giữa chừng — desktop', async ({
   page
 }, info) => {

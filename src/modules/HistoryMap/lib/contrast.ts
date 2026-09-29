@@ -8,11 +8,7 @@
  * chủ `#707a80` và màu lãnh thổ sáng nhất trong dữ liệu).
  */
 
-/** Kênh RGB 0..255 từ chuỗi hex `#rrggbb`. */
-function parseHex(hex: string): [number, number, number] {
-  const n = Number.parseInt(hex.replace('#', ''), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
+import { parseHex, srgbToLinear } from './color';
 
 function toHex([r, g, b]: [number, number, number]): string {
   const c = (v: number): string =>
@@ -24,11 +20,7 @@ function toHex([r, g, b]: [number, number, number]): string {
 
 /** Độ chói tương đối theo WCAG 2.x (sRGB → linear, trộn theo hệ số Rec. 709). */
 function relativeLuminance([r, g, b]: [number, number, number]): number {
-  const lin = (c: number): number => {
-    const v = c / 255;
-    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
-  };
-  const [rl, gl, bl] = [lin(r), lin(g), lin(b)];
+  const [rl, gl, bl] = [srgbToLinear(r), srgbToLinear(g), srgbToLinear(b)];
   return 0.2126 * rl + 0.7152 * gl + 0.0722 * bl;
 }
 

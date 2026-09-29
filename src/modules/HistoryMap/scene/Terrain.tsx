@@ -188,8 +188,9 @@ totalEmissiveRadiance += frontGlow;`
       .replace(
         '#include <fog_fragment>',
         `#include <fog_fragment>
-// Lửa xuyên sương: camera toàn cảnh trên màn dọc (mobile) ở xa nên sương mù nuốt ~60% màu —
-// trả lại cho vệt sáng đúng phần sương đã lấy đi (xấp xỉ, sau tone mapping), cảnh vẫn mờ sương.
+// Lửa xuyên sương: khi camera ở xa (thu nhỏ hết cỡ, hoặc màn dọc trước khi Scene.tsx bù mật độ
+// sương theo homeScale) sương mù nuốt phần lớn màu — trả lại cho vệt sáng đúng phần sương đã
+// lấy đi (xấp xỉ, sau tone mapping), cảnh vẫn mờ sương.
 #ifdef USE_FOG
 gl_FragColor.rgb += fogFactor * min(frontGlow, vec3(1.0));
 #endif`
@@ -207,7 +208,7 @@ export default function Terrain({
   const cellTex = useMemo(() => floatTexture(store.data, store.width, store.height), [store]);
   const ownerTex = useMemo(() => floatTexture(store.ownerData, store.width, store.height), [store]);
   // uPolity: màu (linear) của từng chính thể theo slot, rộng P, cao 1 — màu cố định (override
-  // chỉ đổi tên/kinh đô, không đổi màu) nên dựng một lần.
+  // chỉ đổi tên/kinh đô/tên khác/thời kỳ — kiểu `polityOverrides` không cho đổi màu/cờ) nên dựng một lần.
   const polityTex = useMemo(() => {
     const d = new Float32Array(POLITIES.length * 4);
     const c = new THREE.Color();

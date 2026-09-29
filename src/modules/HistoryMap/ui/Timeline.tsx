@@ -142,7 +142,7 @@ export default function Timeline(): React.ReactElement {
       aria-label={COPY.timelineLabel}
       className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a1420] via-[#0a1420]/85 to-transparent px-4 pt-10 pb-4 md:px-10 md:pb-6"
     >
-      <div className="mb-2 flex items-end gap-4">
+      <div className="mb-2 flex flex-wrap items-end gap-x-4 gap-y-1 md:flex-nowrap">
         {/* shrink-0: giữ nguyên bề rộng theo nội dung — không bị các anh em flex (tiêu đề
             truncate, cụm nút) ép hẹp lại tới mức số năm phải xuống dòng ở màn hẹp (375px). */}
         <div className="flex shrink-0 flex-col">
@@ -165,8 +165,18 @@ export default function Timeline(): React.ReactElement {
               định ở đây, không đọc từng số nhảy trong lúc chạy. */}
           <span className="sr-only">{snap.yearLabel}</span>
         </div>
-        <p className="mb-1 truncate text-sm opacity-80 md:text-base">{snap.title}</p>
-        <div className="ml-auto flex gap-1">
+        {/* Màn hẹp: tiêu đề xuống dòng riêng dưới số năm (tối đa 2 dòng) thay vì bị cắt còn vài
+            chữ bên cạnh; từ md trở lên nằm cùng hàng, cắt bằng dấu … khi quá dài. `min-h-10` =
+            2 dòng text-sm (2 × 20px): giữ chiều cao thanh thời gian không đổi dù tiêu đề dài
+            một hay hai dòng, để bottom sheet (`bottom: var(--timeline-h)`) không nhảy lên xuống
+            theo từng mốc lúc tự chạy. */}
+        <p
+          data-testid="timeline-title"
+          className="order-last line-clamp-2 min-h-10 w-full text-sm opacity-80 md:order-none md:mb-1 md:line-clamp-none md:min-h-0 md:w-auto md:min-w-0 md:flex-1 md:truncate md:text-base"
+        >
+          {snap.title}
+        </p>
+        <div data-testid="timeline-controls" className="ml-auto flex gap-1">
           <button
             type="button"
             aria-label={COPY.prev}
@@ -215,10 +225,24 @@ export default function Timeline(): React.ReactElement {
           className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 rounded px-[7px] outline-offset-4 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[#f4e3c1]"
         >
           <div className="relative flex items-center justify-between">
+            {/* Màn hẹp (< sm, ~375px): 152 vạch 1px chỉ cách nhau ~2px, làm tròn điểm ảnh gộp
+                chúng thành từng cụm dày mỏng không đều như một khối — chỉ giữ vạch đầu thời kỳ.
+                Vạch thường dùng `invisible` (không phải `hidden`) để vẫn chiếm chỗ trong flex:
+                vạch đầu thời kỳ và chấm vị trí hiện tại giữ đúng toạ độ theo chỉ số mốc. Thay
+                cho phần tiến độ mà vạch thường thể hiện: một đường ray mảnh, phần đã qua sáng. */}
+            <span
+              aria-hidden
+              className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-white/20 sm:hidden"
+            />
+            <span
+              aria-hidden
+              style={{ width: `${currentPct}%` }}
+              className="absolute top-1/2 left-0 h-px -translate-y-1/2 bg-[#f4e3c1] sm:hidden"
+            />
             {SNAPSHOTS.map((s, k) => (
               <span
                 key={s.id}
-                className={`w-px shrink-0 ${ERA_STARTS.has(k) ? 'h-3.5' : 'h-2'} ${
+                className={`w-px shrink-0 ${ERA_STARTS.has(k) ? 'h-3.5' : 'h-2 max-sm:invisible'} ${
                   k <= i ? 'bg-[#f4e3c1]' : 'bg-white/25'
                 }`}
               />
