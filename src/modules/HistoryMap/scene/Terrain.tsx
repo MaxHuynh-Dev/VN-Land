@@ -3,7 +3,7 @@
 import { useSignalEffect } from '@preact/signals-react';
 import { type ThreeEvent, useFrame } from '@react-three/fiber';
 import type React from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { POLITIES, POLITY_BY_ID, SNAPSHOTS } from '@/data/history';
 import {
@@ -13,10 +13,7 @@ import {
   ownerColors,
   spreadDelays
 } from '../lib/cellState';
-import { polityAnchors } from '../lib/centroid';
 import { DISSOLVE_GLSL, GLOW_COLOR, GLOW_CORE_COLOR } from '../lib/dissolve';
-import { loadFlagAtlas } from '../lib/flagAtlas';
-import { polityParamsData } from '../lib/flagCover';
 import type { MapData } from '../lib/loadMapData';
 import { effectivePolity } from '../lib/resolve';
 import { cellAtVertex } from '../lib/terrainGeometry';
@@ -29,7 +26,6 @@ interface Props {
   onClickCell?: (cell: number) => void;
 }
 
-const POLITY_IDS = POLITIES.map((p) => p.id);
 const SLOT_OF = new Map(POLITIES.map((p, i) => [p.id, i]));
 
 /** Uniform dùng chung giữa React và shader (onBeforeCompile gán đúng các object này). */
@@ -38,10 +34,9 @@ interface TerrainUniforms {
   uCellOwner: { value: THREE.Texture };
   uCellTexSize: { value: THREE.Vector2 };
   uLiftMax: { value: number };
+  /** Màu (linear) của từng chính thể theo slot — rộng P, cao 1. */
   uPolity: { value: THREE.Texture };
   uPolityCount: { value: number };
-  uFlagAtlas: { value: THREE.Texture };
-  uAtlasReady: { value: number };
   uNullColor: { value: THREE.Color };
   /** Giây trôi qua — chỉ dùng cho độ lấp lánh của vệt sáng mặt trận. */
   uTime: { value: number };
@@ -81,23 +76,22 @@ uniform vec2 uCellTexSize;
 uniform float uLiftMax;
 uniform sampler2D uPolity;
 uniform float uPolityCount;
+uniform vec3 uNullColor;
 varying vec3 vCellColor;
 varying float vSide;
 varying float vLift;
 varying vec4 vOwner;   // fromSlot, toSlot, blend (ease), progress (tuyến tính, cho mặt trận)
 varying vec2 vWorldXZ;
 varying float vTop;
-// Tham số cờ của chủ cũ/mới (hằng trên cả tam giác mặt trên): rect atlas và khung phủ.
-varying vec4 vFromRect;
-varying vec4 vFromCov;
-varying vec4 vToRect;
-varying vec4 vToCov;
+// Màu trơn của chủ cũ/mới (hằng trên cả tam giác mặt trên).
+varying vec3 vFromCol;
+varying vec3 vToCol;
 
-// Hàng row (0 = rect atlas, 1 = khung phủ) của chính thể ở slot (-1 = null → giá trị bất kỳ,
-// fragment tự bỏ qua).
-vec4 polityRow(float slot, float row) {
+// Màu của chính thể ở slot (-1 = không có chủ → màu đá trung tính).
+vec3 polityColor(float slot) {
+  if (slot < -0.5) return uNullColor;
   float u = (floor(slot + 0.5) + 0.5) / uPolityCount;
-  return texture2D(uPolity, vec2(u, (row + 0.5) * 0.5));
+  return texture2D(uPolity, vec2(u, 0.5)).rgb;
 }
 
 vec2 cellUv(float cellIndex) {
@@ -130,14 +124,11 @@ if (aWallRole < 0.5) {
   transformed.y += lift * uLiftMax;
   vSide = 1.0;
 }
-// Phủ cờ: chỉ mặt trên (vai trò 0, normal hướng lên). Toạ độ world XZ dùng để chiếu cờ
-// theo khung phủ của chính thể (uPolity hàng 1) — liên tục qua mọi ô cùng chủ, nên không
-// lộ ranh giới huyện.
+// Mặt trên (vai trò 0, normal hướng lên) tô màu trơn của chủ; khi đổi chủ, mặt trận loang
+// theo toạ độ world XZ (liên tục qua mọi ô) từ màu chủ cũ sang màu chủ mới.
 vOwner = texture2D(uCellOwner, cellUv(aCell));
-vFromRect = polityRow(vOwner.x, 0.0);
-vFromCov = polityRow(vOwner.x, 1.0);
-vToRect = polityRow(vOwner.y, 0.0);
-vToCov = polityRow(vOwner.y, 1.0);
+vFromCol = polityColor(vOwner.x);
+vToCol = polityColor(vOwner.y);
 vWorldXZ = (modelMatrix * vec4(transformed, 1.0)).xz;
 vTop = (aWallRole < 0.5 && normal.y > 0.5) ? 1.0 : 0.0;`
       );
@@ -145,9 +136,6 @@ vTop = (aWallRole < 0.5 && normal.y > 0.5) ? 1.0 : 0.0;`
       .replace(
         '#include <common>',
         `#include <common>
-uniform sampler2D uFlagAtlas;
-uniform float uAtlasReady;
-uniform vec3 uNullColor;
 uniform float uTime;
 uniform vec3 uGlowColor;
 uniform vec3 uGlowCoreColor;
@@ -157,27 +145,9 @@ varying float vLift;
 varying vec4 vOwner;
 varying vec2 vWorldXZ;
 varying float vTop;
-varying vec4 vFromRect;
-varying vec4 vFromCov;
-varying vec4 vToRect;
-varying vec4 vToCov;
+varying vec3 vFromCol;
+varying vec3 vToCol;
 
-// Màu cờ của chính thể ở slot tại điểm world XZ hiện tại. Gradient uv tính tường minh từ
-// đạo hàm của vWorldXZ (liên tục) thay vì để GPU tự suy: uv atlas nhảy cóc ở biên giữa hai
-// chính thể (khác ô atlas) và ở vùng bị kẹp (clamp) — mip tự động sẽ chọn mức thô nhất ở đó
-// và để lại đường viền nhoè.
-// rect/cov đến từ vertex shader (varying), không đọc uPolity mỗi fragment.
-vec3 flagColor(float slot, vec4 rect, vec4 cov, vec2 dxz, vec2 dyz) {
-  vec2 size = max(cov.zw, vec2(1e-3));
-  vec2 fuv = vec2((vWorldXZ.x - cov.x) / size.x + 0.5, 0.5 + (cov.y - vWorldXZ.y) / size.y);
-  // Ô ngoài khung phủ (đảo xa như Hoàng Sa, Trường Sa) lấy màu mép cờ gần nhất.
-  fuv = clamp(fuv, 0.0, 1.0);
-  vec2 span = rect.zw - rect.xy;
-  vec2 gx = vec2(dxz.x / size.x, -dxz.y / size.y) * span;
-  vec2 gy = vec2(dyz.x / size.x, -dyz.y / size.y) * span;
-  vec3 c = textureGrad(uFlagAtlas, mix(rect.xy, rect.zw, fuv), gx, gy).rgb;
-  return slot < -0.5 ? uNullColor : c;
-}
 ${DISSOLVE_GLSL}`
       )
       .replace(
@@ -187,9 +157,8 @@ vec2 dyz = dFdy(vWorldXZ);
 vec3 wallCol = vCellColor * mix(1.0, 0.55, vSide);
 vec3 base = wallCol;
 vec3 frontGlow = vec3(0.0);
-if (vTop > 0.5 && uAtlasReady > 0.5) {
-  vec3 toCol = flagColor(vOwner.y, vToRect, vToCov, dxz, dyz);
-  base = toCol;
+if (vTop > 0.5) {
+  base = vToCol;
   // Mặt trận loang (lib/dissolve.ts — hàm GLSL và bản JS phải giữ đồng bộ). Chỉ ô đang đổi
   // chủ mới trả giá noise; ô xong/không đổi (progress = 1) đi thẳng nhánh rẻ. Noise theo toạ
   // độ thế giới nên liên tục qua mọi ô.
@@ -201,7 +170,7 @@ if (vTop > 0.5 && uAtlasReady > 0.5) {
     float px = glowMinWidth(max(length(dxz), length(dyz)));
     float core = glowAmount(vOwner.w, n, px);
     float halo = haloAmount(vOwner.w, n, px);
-    base = mix(flagColor(vOwner.x, vFromRect, vFromCov, dxz, dyz), toCol, 1.0 - m);
+    base = mix(vFromCol, vToCol, 1.0 - m);
     base *= 1.0 - DS_GLOW_CHAR * halo;
     float shimmer = 0.85 + 0.15 * sin(uTime * 9.0 + n * 40.0);
     frontGlow = (uGlowCoreColor * (DS_CORE_GAIN * core) + uGlowColor * (DS_HALO_GAIN * halo))
@@ -237,16 +206,16 @@ export default function Terrain({
 }: Props): React.ReactElement {
   const cellTex = useMemo(() => floatTexture(store.data, store.width, store.height), [store]);
   const ownerTex = useMemo(() => floatTexture(store.ownerData, store.width, store.height), [store]);
-  // uPolity: rộng P (số chính thể), cao 2 — độc lập với store nên tạo một lần.
-  const polityTex = useMemo(
-    () => floatTexture(new Float32Array(POLITIES.length * 2 * 4), POLITIES.length, 2),
-    []
-  );
-  // Texture giữ chỗ cho uFlagAtlas trước khi atlas tải xong (uAtlasReady = 0 thì không đọc).
-  const blankTex = useMemo(() => {
-    const t = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
-    t.needsUpdate = true;
-    return t;
+  // uPolity: màu (linear) của từng chính thể theo slot, rộng P, cao 1 — màu cố định (override
+  // chỉ đổi tên/kinh đô, không đổi màu) nên dựng một lần.
+  const polityTex = useMemo(() => {
+    const d = new Float32Array(POLITIES.length * 4);
+    const c = new THREE.Color();
+    POLITIES.forEach((p, i) => {
+      c.set(p.color);
+      d.set([c.r, c.g, c.b, 1], i * 4);
+    });
+    return floatTexture(d, POLITIES.length, 1);
   }, []);
   const uniforms = useMemo<TerrainUniforms>(
     () => ({
@@ -256,84 +225,26 @@ export default function Terrain({
       uLiftMax: { value: LIFT_MAX },
       uPolity: { value: polityTex },
       uPolityCount: { value: POLITIES.length },
-      uFlagAtlas: { value: blankTex },
-      uAtlasReady: { value: 0 },
       uNullColor: { value: new THREE.Color(NULL_COLOR) },
       uTime: { value: 0 },
       uGlowColor: { value: new THREE.Color(GLOW_COLOR) },
       uGlowCoreColor: { value: new THREE.Color(GLOW_CORE_COLOR) }
     }),
-    [cellTex, ownerTex, polityTex, blankTex, store]
+    [cellTex, ownerTex, polityTex, store]
   );
   const material = useMemo(() => makeMaterial(uniforms), [uniforms]);
-  const [atlas, setAtlas] = useState<{ texture: THREE.CanvasTexture; aspects: number[] } | null>(
-    null
-  );
   const prevIndex = useRef<number | null>(null);
-  const prevParams = useRef<Float32Array | undefined>(undefined);
-  const aspectsRef = useRef<number[]>(POLITIES.map(() => 1.5));
 
   // Các DataTexture được gắn vào material qua uniform tùy biến trong onBeforeCompile —
   // three.js/R3F không biết để tự dọn texture nằm trong uniform tùy biến khi material bị
   // thay/dispose, nên phải giải phóng thủ công mỗi khi texture đổi hoặc unmount.
   useEffect(() => () => cellTex.dispose(), [cellTex]);
   useEffect(() => () => ownerTex.dispose(), [ownerTex]);
-  useEffect(
-    () => () => {
-      polityTex.dispose();
-      blankTex.dispose();
-    },
-    [polityTex, blankTex]
-  );
+  useEffect(() => () => polityTex.dispose(), [polityTex]);
   // material cũng có thể bị thay identity (khi store đổi, ví dụ sau khi "Thử lại") trong khi
   // <mesh> vẫn còn mounted ở lần render đó — dispose tường minh thay vì trông chờ vào việc
   // R3F tự dọn material khi <mesh> unmount.
   useEffect(() => () => material.dispose(), [material]);
-
-  const writeParams = (owners: (string | null)[]): void => {
-    const d = polityParamsData(
-      POLITY_IDS,
-      polityAnchors(data.cells, data.neighbors, owners),
-      aspectsRef.current,
-      prevParams.current
-    );
-    prevParams.current = d;
-    (polityTex.image.data as Float32Array).set(d);
-    polityTex.needsUpdate = true;
-  };
-
-  // Tải atlas cờ một lần. Ảnh lỗi đã được loadFlagAtlas thay bằng màu trơn polity.color.
-  useEffect(() => {
-    let alive = true;
-    let loaded: THREE.CanvasTexture | null = null;
-    loadFlagAtlas(POLITIES)
-      .then((a) => {
-        if (!alive) {
-          a.texture.dispose();
-          return;
-        }
-        loaded = a.texture;
-        setAtlas(a);
-      })
-      .catch(() => {
-        // Không tạo được atlas (hiếm): giữ uAtlasReady = 0 — mặt trên dùng màu chủ đạo.
-      });
-    return () => {
-      alive = false;
-      loaded?.dispose();
-    };
-  }, []);
-
-  // Gắn atlas vào uniform (kể cả khi material được dựng lại) và tính lại khung phủ theo tỉ lệ
-  // cờ thật (chính thể vắng mặt giữ khung cũ trong prevParams — ô đang mờ dần vẫn đúng chỗ).
-  // biome-ignore lint/correctness/useExhaustiveDependencies: writeParams đọc data/prevParams mới nhất; chỉ cần chạy lại khi atlas hoặc uniform đổi.
-  useEffect(() => {
-    if (!atlas) return;
-    uniforms.uFlagAtlas.value = atlas.texture;
-    uniforms.uAtlasReady.value = 1;
-    aspectsRef.current = atlas.aspects;
-    writeParams(data.owners[snapshotIndex.peek()]);
-  }, [atlas, uniforms]);
 
   useSignalEffect(() => {
     const i = snapshotIndex.value;
@@ -351,7 +262,6 @@ export default function Terrain({
       Float32Array.from(owners, (o) => (o === null ? -1 : (SLOT_OF.get(o) ?? -1))),
       { animate, delays }
     );
-    writeParams(owners);
     prevIndex.current = i;
   });
 

@@ -28,7 +28,7 @@
 /* Dải tối letterbox mềm mép sau chữ (fix round 1 — xem lib/contrast.ts, lib/contrast.test.ts).
    .vignette ở trên chỉ tối dần RA MÉP màn hình nên trong suốt hoàn toàn đúng chỗ chữ nằm (giữa
    màn hình) — không đủ để đọc được trên nền bản đồ sáng (lãnh thổ vàng/kem) hay trung tính
-   (#6b6358, ô không chủ). Dải này phủ ngang qua đúng vùng dọc mà chữ chiếm, mềm mép bằng
+   (#707a80, ô không chủ). Dải này phủ ngang qua đúng vùng dọc mà chữ chiếm, mềm mép bằng
    gradient tuyến tính (không cứng cạnh như một khối chữ nhật), độ mờ đỉnh = BAND_ALPHA (đã
    được test kiểm tương phản ≥ 4,5:1 cho mọi mã màu thời kỳ, trên nền xấu nhất thật sự có thể
    xuất hiện). */

@@ -65,16 +65,69 @@ function useFontsReady(): boolean {
   return ready;
 }
 
-function buildLabelTexture(text: string): THREE.CanvasTexture {
+/**
+ * Tải ảnh cờ để vẽ vào nhãn. Trả `null` khi đang tải hoặc ảnh lỗi — nhãn khi đó vẽ ô màu trơn
+ * của chính thể ở chỗ cờ (giống `FlagThumb`).
+ */
+function useFlagImage(url: string): HTMLImageElement | null {
+  const [loaded, setLoaded] = useState<{ url: string; img: HTMLImageElement } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => {
+      if (alive) setLoaded({ url, img });
+    };
+    img.src = url;
+    return () => {
+      alive = false;
+    };
+  }, [url]);
+  return loaded?.url === url ? loaded.img : null;
+}
+
+/** Tỉ lệ w/h của cờ trong nhãn, kẹp để cờ quá dài/vuông không làm lệch nhãn. */
+function flagAspect(img: HTMLImageElement | null): number {
+  const a = img?.naturalWidth && img.naturalHeight ? img.naturalWidth / img.naturalHeight : 1.5;
+  return Math.min(2, Math.max(1, a));
+}
+
+function roundRectPath(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number
+): void {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+/** Nhãn dạng viên thuốc: cờ nhỏ (cao bằng cỡ chữ, viền mảnh) bên trái tên chính thể. */
+function buildLabelTexture(
+  text: string,
+  flag: HTMLImageElement | null,
+  color: string
+): THREE.CanvasTexture {
   const scale = labelCanvasScale();
   const fontPx = 28 * scale;
   const paddingX = 18 * scale;
   const paddingY = 10 * scale;
+  const flagH = Math.round(fontPx * 0.82);
+  const flagW = Math.round(flagH * flagAspect(flag));
+  const gap = 10 * scale;
   const font = `600 ${fontPx}px ${labelFontFamily()}`;
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
   ctx.font = font;
-  const width = Math.ceil(ctx.measureText(text).width) + paddingX * 2;
+  const textW = Math.ceil(ctx.measureText(text).width);
+  const width = paddingX * 0.75 + flagW + gap + textW + paddingX;
   const height = fontPx + paddingY * 2;
   canvas.width = width;
   canvas.height = height;
@@ -82,18 +135,27 @@ function buildLabelTexture(text: string): THREE.CanvasTexture {
   ctx.font = font;
   const r = height / 2;
   ctx.fillStyle = 'rgba(10, 20, 32, 0.7)';
-  ctx.beginPath();
-  ctx.moveTo(r, 0);
-  ctx.arcTo(width, 0, width, height, r);
-  ctx.arcTo(width, height, 0, height, r);
-  ctx.arcTo(0, height, 0, 0, r);
-  ctx.arcTo(0, 0, width, 0, r);
-  ctx.closePath();
+  roundRectPath(ctx, 0, 0, width, height, r);
   ctx.fill();
+  // Cờ: cắt góc bo nhẹ, viền kem mảnh để cờ nền sáng/tối vẫn tách khỏi viên thuốc.
+  const fx = paddingX * 0.75;
+  const fy = (height - flagH) / 2;
+  const fr = 3 * scale;
+  ctx.save();
+  roundRectPath(ctx, fx, fy, flagW, flagH, fr);
+  ctx.clip();
+  ctx.fillStyle = color;
+  ctx.fillRect(fx, fy, flagW, flagH);
+  if (flag) ctx.drawImage(flag, fx, fy, flagW, flagH);
+  ctx.restore();
+  roundRectPath(ctx, fx, fy, flagW, flagH, fr);
+  ctx.lineWidth = 1.5 * scale;
+  ctx.strokeStyle = 'rgba(244, 227, 193, 0.75)';
+  ctx.stroke();
   ctx.fillStyle = '#f4e3c1';
   ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
-  ctx.fillText(text, width / 2, height / 2 + fontPx * 0.04);
+  ctx.textAlign = 'left';
+  ctx.fillText(text, fx + flagW + gap, height / 2 + fontPx * 0.04);
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 4;
@@ -103,6 +165,9 @@ function buildLabelTexture(text: string): THREE.CanvasTexture {
 interface LabelProps {
   entry: FlagEntry;
   name: string;
+  /** URL cờ và màu trơn dự phòng (khi cờ đang tải hoặc lỗi). */
+  flag: string;
+  color: string;
   onGone: (id: string) => void;
   /** Đăng ký/huỷ đăng ký sprite với `Labels` để tính chồng lấn màn hình mỗi khung hình. */
   registerLabel: (id: string, sprite: THREE.Sprite | null) => void;
@@ -113,7 +178,14 @@ interface LabelProps {
  * camera (`sizeAttenuation={false}` + `labelSpriteScale`), luôn nổi trên địa hình
  * (`depthTest={false}` + renderOrder). Vào/ra bằng độ mờ 0 → 1 / 1 → 0 (không scale).
  */
-function Label({ entry, name, onGone, registerLabel }: LabelProps): React.ReactElement {
+function Label({
+  entry,
+  name,
+  flag,
+  color,
+  onGone,
+  registerLabel
+}: LabelProps): React.ReactElement {
   const sprite = useRef<THREE.Sprite>(null);
   const mat = useRef<THREE.SpriteMaterial>(null);
   const opacity = useRef(entry.state === 'enter' ? 0 : 1);
@@ -122,10 +194,14 @@ function Label({ entry, name, onGone, registerLabel }: LabelProps): React.ReactE
   const { size, camera } = useThree();
   const proj5 = (camera as THREE.PerspectiveCamera).projectionMatrix.elements[5];
   const fontsReady = useFontsReady();
+  const flagImg = useFlagImage(flag);
   // fontsReady không dùng trong hàm nhưng cố ý đưa vào deps: vẽ lại texture một lần khi font
   // thật tải xong.
   // biome-ignore lint/correctness/useExhaustiveDependencies: xem chú thích trên.
-  const labelTex = useMemo(() => buildLabelTexture(name), [name, fontsReady]);
+  const labelTex = useMemo(
+    () => buildLabelTexture(name, flagImg, color),
+    [name, flagImg, color, fontsReady]
+  );
   const labelAspect = labelTex.image.width / labelTex.image.height;
   const labelScale = useMemo(
     () => labelSpriteScale(labelAspect, LABEL_TARGET_PX, proj5, size.height),
@@ -238,15 +314,20 @@ export default function Labels({ data }: { data: MapData }): React.ReactElement 
 
   return (
     <>
-      {entries.map((e) => (
-        <Label
-          key={e.id}
-          entry={e}
-          name={effectivePolity(POLITY_BY_ID, SNAPSHOTS, i, e.id).name}
-          onGone={onGone}
-          registerLabel={registerLabel}
-        />
-      ))}
+      {entries.map((e) => {
+        const p = effectivePolity(POLITY_BY_ID, SNAPSHOTS, i, e.id);
+        return (
+          <Label
+            key={e.id}
+            entry={e}
+            name={p.name}
+            flag={p.flag}
+            color={p.color}
+            onGone={onGone}
+            registerLabel={registerLabel}
+          />
+        );
+      })}
     </>
   );
 }

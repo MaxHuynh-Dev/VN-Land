@@ -7,7 +7,7 @@ import type { CellMeta } from './cells';
  */
 export const OWNER_TRANSITION_S = 1.4;
 export const LIFT_MAX = 0.8;
-export const NULL_COLOR = '#6b6358';
+export const NULL_COLOR = '#707a80';
 const HOVER_LIFT = 0.5; // tỉ lệ của LIFT_MAX
 const PULSE_LIFT = 0.6;
 /** Thời gian để phần nổi "gối" (khi đổi mốc giữa lúc đang nổi) hạ hết từ PULSE_LIFT về 0. */
@@ -22,8 +22,8 @@ export class CellStateStore {
   readonly data: Float32Array;
   /**
    * RGBA mỗi ô: `fromSlot, toSlot, blend 0..1 (đã ease), progress 0..1 (tuyến tính)`. Slot = chỉ
-   * số chính thể trong `POLITIES` (-1 = không có chủ). Shader phủ cờ (Terrain.tsx) dựng mặt
-   * trận loang (dissolve.ts) từ cờ `fromSlot` sang `toSlot` theo `progress`; ô không chuyển
+   * số chính thể trong `POLITIES` (-1 = không có chủ). Shader mặt đất (Terrain.tsx) dựng mặt
+   * trận loang (dissolve.ts) từ màu chủ `fromSlot` sang `toSlot` theo `progress`; ô không chuyển
    * có progress = 1 (không có vệt sáng).
    */
   readonly ownerData: Float32Array;

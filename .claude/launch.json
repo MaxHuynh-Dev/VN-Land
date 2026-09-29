@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vn-land-e2e",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["dev", "--port", "3100"],
+      "env": { "NEXT_DIST_DIR": ".next-e2e" },
+      "port": 3100
+    }
+  ]
+}

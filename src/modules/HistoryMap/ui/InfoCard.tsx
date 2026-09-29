@@ -47,6 +47,12 @@ export default function InfoCard({ data }: { data: MapData }): React.ReactElemen
                 }}
                 className="flex w-full items-center gap-3 rounded-md px-2 py-1 text-left hover:bg-white/10"
               >
+                {/* Vạch màu = màu lãnh thổ trên bản đồ (chú giải). */}
+                <span
+                  aria-hidden
+                  className="h-7 w-1.5 shrink-0 rounded-full"
+                  style={{ background: p.color }}
+                />
                 <FlagThumb polity={p} />
                 <span className="flex-1">
                   <span className="block text-sm">{p.name}</span>

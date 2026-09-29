@@ -1,16 +1,11 @@
 import type { CellMeta } from './cells';
 
-/** Số km trên một độ vĩ (xấp xỉ). */
-const KM_PER_DEG = 111;
-
 export interface Anchor {
   cellIndex: number;
   lon: number;
   lat: number;
   area: number;
   cellCount: number;
-  /** Khung bao (độ) của cụm ô liền kề lớn nhất, mỗi ô nới nửa cạnh — dùng để phủ cờ lên lãnh thổ (flagCover.ts). */
-  bbox: { minLon: number; maxLon: number; minLat: number; maxLat: number };
 }
 
 export function polityAnchors(
@@ -58,25 +53,6 @@ export function polityAnchors(
     }
     cx /= area || 1;
     cy /= area || 1;
-    const bbox = {
-      minLon: Number.POSITIVE_INFINITY,
-      maxLon: Number.NEGATIVE_INFINITY,
-      minLat: Number.POSITIVE_INFINITY,
-      maxLat: Number.NEGATIVE_INFINITY
-    };
-    // Nới mỗi ô ra nửa cạnh (xấp xỉ ô vuông cùng diện tích) — lon/lat là TÂM ô, nếu không nới
-    // thì lãnh thổ một ô (hoặc một hàng/cột ô) có bbox suy biến và mọi lãnh thổ hụt nửa ô mỗi
-    // bên.
-    for (const i of comp) {
-      const { lon, lat } = cells[i];
-      const halfKm = Math.sqrt(Math.max(0, cells[i].area)) / 2;
-      const dLat = halfKm / KM_PER_DEG;
-      const dLon = halfKm / (KM_PER_DEG * Math.max(0.01, Math.cos((lat * Math.PI) / 180)));
-      if (lon - dLon < bbox.minLon) bbox.minLon = lon - dLon;
-      if (lon + dLon > bbox.maxLon) bbox.maxLon = lon + dLon;
-      if (lat - dLat < bbox.minLat) bbox.minLat = lat - dLat;
-      if (lat + dLat > bbox.maxLat) bbox.maxLat = lat + dLat;
-    }
     let pick = comp[0];
     let pd = Number.POSITIVE_INFINITY;
     for (const i of comp) {
@@ -92,8 +68,7 @@ export function polityAnchors(
       lon: cells[pick].lon,
       lat: cells[pick].lat,
       area: t.area,
-      cellCount: t.count,
-      bbox
+      cellCount: t.count
     });
   }
   return out;

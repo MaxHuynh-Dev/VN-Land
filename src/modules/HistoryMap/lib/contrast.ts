@@ -5,7 +5,7 @@
  * hàm ở đây tính đúng màu nền sau khi phủ dải đó (`compositeOverBand`) rồi so tương phản
  * (`contrastRatio`) với chữ đã pha sáng (`lightenTowardWhite`). Test ở `contrast.test.ts` xác
  * nhận công thức này đạt ≥ 4.5:1 cho cả 21 màu thời kỳ, so với nền xấu nhất có thể (ô không có
- * chủ `#6b6358` và màu lãnh thổ sáng nhất trong dữ liệu).
+ * chủ `#707a80` và màu lãnh thổ sáng nhất trong dữ liệu).
  */
 
 /** Kênh RGB 0..255 từ chuỗi hex `#rrggbb`. */
@@ -72,7 +72,7 @@ export function lightenTowardWhite(hex: string, amount: number): string {
  * trên nền bản đồ `bgHex` — phép trộn alpha tiêu chuẩn (nguồn trên đích), từng kênh RGB. Dùng
  * để tính tương phản chữ so với những gì người xem THẬT SỰ thấy phía sau dải, thay vì giả định
  * một nền phẳng cố định như bản trước (chỉ kiểm `#0a1420`, trong khi phần lớn bản đồ là
- * `#6b6358` hoặc màu lãnh thổ sáng hơn — xem `global-constraints.md`).
+ * `#707a80` hoặc màu lãnh thổ sáng hơn — xem `global-constraints.md`).
  */
 export function compositeOverBand(bandHex: string, bandAlpha: number, bgHex: string): string {
   const [br, bgG, bb] = parseHex(bandHex);

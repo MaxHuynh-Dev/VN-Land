@@ -4,9 +4,9 @@ import type { FlagCredit, Polity, Source } from './types';
  * DANH MỤC CHÍNH THỂ (Task C1). Các task C2–C5 chỉ dùng đúng các id dưới đây; cần thêm id thì
  * bổ sung vào file này trong cùng commit.
  *
- * Cờ được phủ lên mặt đất qua atlas (`flagAtlas.ts`) và atlas CHỈ chứa `flag` gốc của từng
- * Polity — `polityOverrides.flag` không hiện trên đất. Vì vậy mỗi triều đại có cờ riêng là một id
- * riêng; `polityOverrides` chỉ dùng để đổi tên/kinh đô trong cùng một chính thể.
+ Mặt đất tô bằng `color` của Polity (màu cố định theo id); cờ hiện ở nhãn tên, tooltip và thẻ
+ * thông tin. Vì vậy mỗi triều đại có cờ riêng là một id riêng (kèm màu riêng); `polityOverrides`
+ * chỉ dùng để đổi tên/kinh đô trong cùng một chính thể.
  *
  * Tiền sử (biểu tượng): van-hoa-son-vi, van-hoa-hoa-binh, van-hoa-bac-son, van-hoa-quynh-van,
  *   van-hoa-phung-nguyen, van-hoa-sa-huynh, van-hoa-dong-nai, van-hoa-dong-son
@@ -29,6 +29,8 @@ import type { FlagCredit, Polity, Source } from './types';
  *
  * `color`: màu chủ đạo của cờ, điều chỉnh theo họ màu (Việt đỏ/vàng cam, Chăm xanh ngọc, Khmer
  * xanh lam, Lào tím, Trung Hoa nâu vàng, Pháp xanh xám) để các chính thể cùng thời phân biệt được.
+ * Hai chính thể giáp nhau ở cùng một mốc (kể cả với ô không có chủ) phải lệch màu ≥ ΔE2000 15 —
+ * `colorDistance.test.ts` quét mọi mốc; test đỏ thì chỉnh màu trong cùng họ màu.
  */
 
 const COMMONS = 'https://commons.wikimedia.org/wiki/File:';
@@ -177,7 +179,7 @@ export const POLITIES: Polity[] = [
   {
     id: 'van-hoa-da-but',
     name: 'Văn hóa Đa Bút',
-    color: '#9c8256',
+    color: '#a07a4a',
     flag: '/flags/van-hoa-da-but.svg',
     flagKind: 'symbol',
     flagNote: `Nồi gốm đáy tròn có văn thừng (dấu vặn thừng trên thân), loại hiện vật đặc trưng tại các di chỉ cồn vỏ sò văn hóa Đa Bút (Vĩnh Lộc, Thanh Hóa), phân biệt với nồi đáy nhọn Quỳnh Văn. ${SYMBOL_NOTE}`,
@@ -496,7 +498,7 @@ export const POLITIES: Polity[] = [
     id: 'dang-trong',
     name: 'Đàng Trong (chúa Nguyễn)',
     altNames: ['Xứ Đàng Trong', 'Quảng Nam quốc'],
-    color: '#12509a',
+    color: '#a3242e',
     flag: '/flags/dang-trong.svg',
     flagKind: 'reconstructed',
     flagNote:
@@ -754,7 +756,7 @@ export const POLITIES: Polity[] = [
     id: 'phu-nam',
     name: 'Phù Nam',
     altNames: ['Funan'],
-    color: '#3d6fa8',
+    color: '#2b4a7a',
     flag: '/flags/phu-nam.svg',
     flagKind: 'symbol',
     flagNote: `Tên 扶南 (Phù Nam) theo sử sách Trung Hoa. ${SYMBOL_NOTE} ${HAN_GLYPH_NOTE}`,
@@ -937,7 +939,7 @@ export const POLITIES: Polity[] = [
   {
     id: 'champasak',
     name: 'Vương quốc Champasak',
-    color: '#3f3a8c',
+    color: '#5a2d6e',
     flag: '/flags/champasak.svg',
     flagKind: 'reconstructed',
     flagNote:
@@ -981,7 +983,7 @@ export const POLITIES: Polity[] = [
     id: 'chdcnd-lao',
     name: 'Cộng hòa Dân chủ Nhân dân Lào',
     altNames: ['Lào'],
-    color: '#5b4b9a',
+    color: '#8e6cc9',
     flag: '/flags/chdcnd-lao.svg',
     flagKind: 'national',
     flagNote: 'Quốc kỳ Lào từ năm 1975: sọc đỏ – lam – đỏ, vòng tròn trắng ở giữa.',
@@ -1176,7 +1178,7 @@ export const POLITIES: Polity[] = [
   {
     id: 'nha-minh',
     name: 'Nhà Minh',
-    color: '#9b5a34',
+    color: '#b07a2e',
     flag: '/flags/nha-minh.svg',
     flagKind: 'symbol',
     flagNote: `Chữ 明 (Minh). ${SYMBOL_NOTE} ${HAN_GLYPH_NOTE}`,
@@ -1215,7 +1217,7 @@ export const POLITIES: Polity[] = [
     id: 'chnd-trung-hoa',
     name: 'Cộng hòa Nhân dân Trung Hoa',
     altNames: ['Trung Quốc'],
-    color: '#a8402e',
+    color: '#c08a2a',
     flag: '/flags/chnd-trung-hoa.svg',
     flagKind: 'national',
     flagNote:

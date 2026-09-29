@@ -57,7 +57,7 @@ const LIGHTEST_POLITY_COLOR = POLITIES.reduce((lightest, p) =>
 const WORST_CASE_BACKDROPS = [NULL_COLOR, LIGHTEST_POLITY_COLOR];
 
 describe('Tương phản màn mở đầu thời kỳ trên nền bản đồ thật (fix round 1)', () => {
-  it('nền xấu nhất được chọn quả thật sáng hơn #6b6358 (kiểm tra tiền đề của bộ test)', () => {
+  it('nền xấu nhất được chọn quả thật sáng hơn ô không chủ (kiểm tra tiền đề của bộ test)', () => {
     expect(relativeLuminanceOfHex(LIGHTEST_POLITY_COLOR)).toBeGreaterThan(
       relativeLuminanceOfHex(NULL_COLOR)
     );

@@ -18,7 +18,6 @@ function anchor(over: Partial<Anchor>): Anchor {
     lat: 14,
     area: 40_000,
     cellCount: 10,
-    bbox: { minLon: 107, maxLon: 109, minLat: 13, maxLat: 15 },
     ...over
   };
 }

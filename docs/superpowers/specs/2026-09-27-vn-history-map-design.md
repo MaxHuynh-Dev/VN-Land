@@ -56,7 +56,7 @@ src/modules/HistoryMap/
   scene/
     Terrain.tsx                       # mesh các ô, màu theo chính thể, animation đổi chủ
     Sea.tsx  Lights.tsx
-    flagAtlas.ts (lib)                # gộp mọi ảnh cờ vào một texture atlas
+    colorDistance.ts (lib)            # ΔE2000 giữa màu các lãnh thổ giáp nhau
     Labels.tsx                        # nhãn tên chính thể tại điểm neo
     CameraRig.tsx                     # OrbitControls + bay tới focus bằng GSAP
   ui/
@@ -136,7 +136,7 @@ Mốc đầu tiên gán đầy đủ. Các mốc sau chỉ ghi phần thay đổ
 1. `loadCells()` fetch TopoJSON một lần, dùng Suspense, rồi dựng một `ExtrudeGeometry` cho mỗi ô (tương tự `main.js` tham khảo) cùng lớp proxy tĩnh để raycast.
 2. `currentSnapshotIndex` (signal) thay đổi, `resolveSnapshot(i)` được gọi. Hàm này áp delta từ mốc 0 đến mốc i và memo kết quả theo i, trả về `Map<CellId, PolityId|null>`.
 3. `Terrain` là **một mesh gộp** cho mọi ô. Màu và độ nổi từng ô được đọc từ một `DataTexture` trong shader. Khi đổi mốc, các ô đổi chủ chuyển màu trong khoảng 0,8 giây, trễ dần theo khoảng cách tới lãnh thổ cũ để tạo hiệu ứng lãnh thổ **loang ra**, kèm một nhịp nổi nhẹ. Khi đứng yên, cả lãnh thổ là một khối đồng màu.
-4. Với mỗi chính thể, tính cụm ô liền kề lớn nhất: ô neo (cho nhãn tên và camera) và khung bao (cho phép phủ cờ). Shader mặt trên lấy mẫu atlas cờ theo chủ của ô, dùng phép chiếu cover-fit của chính thể đó. Nhãn mới hiện dần, nhãn cũ mờ dần.
+4. Với mỗi chính thể, tính cụm ô liền kề lớn nhất: ô neo (cho nhãn tên và camera). Shader mặt trên tô màu trơn `polity.color` theo chủ của ô. Nhãn mới hiện dần, nhãn cũ mờ dần.
 5. URL `?y=<year>` đồng bộ hai chiều bằng `history.replaceState`, không gây điều hướng.
 
 ## 4. Hiển thị và tương tác
@@ -144,13 +144,13 @@ Mốc đầu tiên gán đầy đủ. Các mốc sau chỉ ghi phần thay đổ
 - **Không khí:** biển đêm, ánh sáng ấm, đổ bóng mềm, tone mapping ACES, sương mù (theo repo tham khảo). Đất liền là khối đùn thấp.
 - **Chỉ hiện lãnh thổ, không hiện tỉnh/huyện:** các ô là đơn vị dữ liệu ẩn. Mọi ô cùng chính thể có **cùng một màu** và cùng độ cao, nên mặt trên liền thành một khối lãnh thổ. Không vẽ ranh giới tỉnh hay huyện. Chỉ vẽ **đường biên giữa các chính thể** (sáng nhẹ) và đường bờ biển. Ô `null` dùng màu đá xám.
 - **Không hiện tên địa danh hiện đại** trên bản đồ, tooltip hay thẻ thông tin. Tên tỉnh và huyện chỉ dùng nội bộ để soạn dữ liệu.
-- **Cờ phủ lãnh thổ (cập nhật 2026-09-27 theo yêu cầu người dùng — thay cho cột cờ):**
-  - Mặt trên lãnh thổ của mỗi chính thể được phủ bằng chính lá cờ (hoặc biểu tượng) của chính thể đó. Không còn cột cờ.
-  - Cách phủ: **phủ kín, giữ tỉ lệ** (kiểu CSS `object-fit: cover`) theo khung bao của cụm lãnh thổ liền kề lớn nhất, tâm cờ ở tâm khung. Phần thừa bị cắt theo đường biên. Ô rời (ví dụ Hoàng Sa, Trường Sa) lấy màu mép cờ gần nhất.
-  - Tường bên dùng màu chủ đạo `polity.color`, tối hơn, để giữ cảm giác khối 3D.
-  - Khi đổi mốc, ô đổi chủ chuyển dần từ cờ cũ sang cờ mới, kèm nhịp nổi như cũ.
-  - **Nhãn tên nhỏ** (viên nhãn cao khoảng 22px trên màn hình, kích thước không đổi theo khoảng cách camera) đặt ở điểm neo của mỗi lãnh thổ. Nếu hai nhãn chồng nhau thì ẩn nhãn của chính thể có diện tích nhỏ hơn.
-  - Ảnh cờ lỗi: phần lãnh thổ đó dùng màu trơn `polity.color`.
+- **Màu lãnh thổ và cờ ở nhãn (cập nhật 2026-09-29 theo yêu cầu người dùng — thay cho cờ phủ kín lãnh thổ, vốn khó nhìn):**
+  - Mặt trên lãnh thổ của mỗi chính thể tô **màu trơn** `polity.color` (theo họ màu: Việt đỏ/vàng cam, Chăm xanh ngọc, Khmer xanh lam, Lào tím, Trung Hoa nâu vàng, Pháp xanh xám). Tường bên cùng màu, tối hơn, để giữ cảm giác khối 3D. Ô `null` màu đá xám lạnh `#707a80`.
+  - Hai chính thể giáp nhau ở cùng một mốc (kể cả với ô `null`) phải lệch màu **≥ ΔE2000 15**; test quét mọi mốc.
+  - Khi đổi mốc, mặt trận loang phát sáng chuyển ô từ màu chủ cũ sang màu chủ mới, kèm nhịp nổi như cũ.
+  - **Nhãn tên nhỏ** (viên nhãn cao khoảng 22px trên màn hình, kích thước không đổi theo khoảng cách camera) đặt ở điểm neo của mỗi lãnh thổ, có **cờ nhỏ** bên trái tên (viền kem mảnh). Nếu hai nhãn chồng nhau thì ẩn nhãn của chính thể có diện tích nhỏ hơn.
+  - Danh sách chính thể ở thẻ thông tin và tooltip có vạch màu lãnh thổ bên cạnh cờ (chú giải).
+  - Ảnh cờ lỗi hoặc đang tải: ô cờ trong nhãn dùng màu trơn `polity.color`.
 - **Dòng thời gian (đáy màn hình):**
   - Các mốc cách đều nhau (trục không tuyến tính), kèm nhãn năm.
   - Dải thời kỳ phía trên, 21 thời kỳ: Tiền sử; Hồng Bàng – Âu Lạc; Bắc thuộc lần I; Hai Bà Trưng; Bắc thuộc lần II; Vạn Xuân; Bắc thuộc lần III; Tự chủ (Khúc – Dương); Ngô – Đinh – Tiền Lê; Nhà Lý; Nhà Trần; Nhà Hồ & Minh thuộc; Lê sơ; Mạc & Nam – Bắc triều; Trịnh – Nguyễn phân tranh; Tây Sơn; Nhà Nguyễn; Pháp thuộc; Chiến tranh Đông Dương; Chia cắt hai miền; Thống nhất.
@@ -182,7 +182,7 @@ Mốc đầu tiên gán đầy đủ. Các mốc sau chỉ ghi phần thay đổ
 | Fetch `cells.topo.json` lỗi | Màn hình lỗi có nút "Thử lại" |
 | `?y=` không khớp mốc nào | Chọn mốc gần nhất ≤ năm đó, không có thì chọn mốc đầu |
 | Dữ liệu tham chiếu tới ô hoặc chính thể không tồn tại, mốc thiếu nguồn, năm không tăng dần | `validate-history` báo lỗi. Script này chạy trong `prebuild` và trong test |
-| Texture cờ lỗi | Hiện cờ màu trơn theo `polity.color` kèm tên |
+| Ảnh cờ lỗi | Ô cờ (nhãn, tooltip, thẻ thông tin) hiện màu trơn `polity.color` |
 
 ## 6. Danh sách mốc (bản mở rộng 152 mốc — agent nghiên cứu hiệu chỉnh, người dùng duyệt)
 
