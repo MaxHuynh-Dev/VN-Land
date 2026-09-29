@@ -60,7 +60,9 @@
   font-weight: 800;
   text-transform: uppercase;
   font-size: clamp(1.9rem, 8vw, 4.5rem);
-  line-height: 1.08;
+  /* Chữ in hoa có dấu chồng (Ễ, Ộ) và dấu nặng: tên dài xuống hai dòng trên mobile thì 1.08
+     làm dấu dòng dưới chạm chân chữ dòng trên. */
+  line-height: 1.25;
   color: var(--era-color, #f4e3c1);
   /* Fix round 1: dải tối (.band) đã đưa nền THẬT về nền xấu nhất kiểm được ≥ 4,5:1 (xem
      lib/contrast.test.ts) — bóng đổ dưới đây KHÔNG được tính vào phép đo WCAG đó, chỉ là lớp

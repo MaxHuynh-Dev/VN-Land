@@ -40,7 +40,7 @@ export default function CreditsDialog(): React.ReactElement {
           // không nhấp trúng phần tử con nào bên trong.
           if (e.target === e.currentTarget) ref.current?.close();
         }}
-        className="m-auto max-h-[80vh] w-[min(640px,92vw)] overflow-y-auto rounded-xl bg-[#0f1c2b] p-6 text-[#e8dcc2] backdrop:bg-black/60"
+        className="no-scrollbar m-auto max-h-[80vh] w-[min(640px,92vw)] overflow-y-auto rounded-xl bg-[#0f1c2b] p-6 text-[#e8dcc2] backdrop:bg-black/60"
       >
         <h2 id="credits-dialog-title" className="mb-3 font-bold text-lg">
           {COPY.credits}

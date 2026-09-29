@@ -5,6 +5,20 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Ẩn thanh cuộn nhưng vẫn cuộn được bằng chuột, cảm ứng và bàn phím. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Mép dưới vùng cuộn mờ dần (thay cho thanh cuộn) — đi cùng padding dưới ≥ 2rem để khi cuộn
+   hết, phần mờ chỉ rơi vào khoảng đệm, không che dòng chữ cuối. */
+@utility scroll-fade-bottom {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 2rem), transparent);
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
