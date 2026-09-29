@@ -20,8 +20,11 @@ export default function SidePanel({ data }: { data: MapData }): React.ReactEleme
   // Chỉ render MỘT panel để không trùng data-testid trong DOM
   if (desktop) {
     return (
-      <aside className="absolute top-8 right-8 bottom-44 w-[340px] overflow-y-auto rounded-xl bg-[#0a1420]/80 p-5 shadow-2xl backdrop-blur">
-        {body}
+      <aside className="absolute top-8 right-8 bottom-44 flex w-[340px] flex-col overflow-hidden rounded-xl bg-[#0a1420]/80 shadow-2xl backdrop-blur">
+        {/* Không hiện thanh cuộn; mép dưới mờ dần báo còn nội dung phía dưới. */}
+        <div className="no-scrollbar scroll-fade-bottom min-h-0 flex-1 overflow-y-auto p-5 pb-8">
+          {body}
+        </div>
       </aside>
     );
   }
@@ -44,7 +47,11 @@ export default function SidePanel({ data }: { data: MapData }): React.ReactEleme
         <ChevronUp size={14} className={open || sel ? 'rotate-180' : ''} /> {COPY.sidePanelToggle}
       </button>
       {(open || sel) && (
-        <div className="max-h-[45vh] overflow-y-auto bg-[#0a1420]/95 p-4 backdrop-blur">{body}</div>
+        <div className="bg-[#0a1420]/95 backdrop-blur">
+          <div className="no-scrollbar scroll-fade-bottom max-h-[45vh] overflow-y-auto p-4 pb-8">
+            {body}
+          </div>
+        </div>
       )}
     </section>
   );
